@@ -83,30 +83,38 @@ class ClusterPlotter:
         """
         plt.figure(figsize=(10, 7))
 
+        # Plot the current dataset (5mm) first
+        scatter_self = plt.scatter(
+            self.normalized_data[:, 1], self.normalized_data[:, 0],
+            c=self.labels, cmap='autumn', s=point_size, label='5 mm data clusters', zorder=1
+        )
 
-        # Plot the other dataset
-        scatter_other = plt.scatter(unnormalize(other_data[:, 1]), unnormalize(other_data[:, 0]),
-                                    c=other_labels, cmap='winter', s=point_size, label='10 cm data clusters')
+        plt.scatter(
+            self.cluster_centers[:, 1], self.cluster_centers[:, 0],
+            c='red', marker='X', s=100, label='5mm cm data centers', zorder=3
+        )
 
-        plt.scatter(other_centers[:, 1], other_centers[:, 0],
-                    c='blue', marker='X', s=100, label='10 cm data centers')
+        # Plot the other dataset (10 cm) on top
+        scatter_other = plt.scatter(
+            other_data[:, 1], other_data[:, 0],
+            c=other_labels, cmap='summer', s=point_size, label='10 cm data clusters', zorder=2
+        )
 
-        # Plot the current dataset
-        scatter_self = plt.scatter(unnormalize(self.normalized_data[:, 1]), unnormalize(self.normalized_data[:, 0]),
-                                   c=self.labels, cmap='autumn', s=point_size, label='5 mm data clusters')
-
-        plt.scatter(self.cluster_centers[:, 1], self.cluster_centers[:, 0],
-                    c='red', marker='X', s=100, label='5mm cm data centers')
+        plt.scatter(
+            other_centers[:, 1], other_centers[:, 0],
+            c='blue', marker='X', s=100, label='10 cm data centers', zorder=4
+        )
 
         plt.xlabel('RAAN (omega)')
         plt.ylabel('Inclination (i)')
         plt.title(title)
-        plt.colorbar(scatter_self, label='5mm data')
-        plt.colorbar(scatter_other, label='10 cm data')
+        plt.colorbar(scatter_self, label='5mm , color according to cluster')
+        plt.colorbar(scatter_other, label='10 cm , color according to cluster')
         plt.legend()
         if grid:
             plt.grid(True)
         plt.show()
+
 
     def combined_clusters_3d_plot(self, other_data, other_labels, other_centers, title: str, point_size=5, show_centers=True):
         """
@@ -125,7 +133,7 @@ class ClusterPlotter:
         
         # Plot the other dataset
         scatter_other = ax.scatter(unnormalize(other_data[:, 1]), unnormalize(other_data[:, 2]), unnormalize(other_data[:, 0]),
-                                   c=other_labels, cmap='winter', s=point_size, label='10cm data clusters')
+                                   c=other_labels, cmap='summer', s=point_size, label='10cm data clusters')
 
         if show_centers:
             ax.scatter(other_centers[:, 1], other_centers[:, 2], other_centers[:, 0],

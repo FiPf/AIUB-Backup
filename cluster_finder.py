@@ -184,7 +184,6 @@ def unnormalize(normalized_data, data_min=None, data_max=None):
         data_min = np.array([0, -180, 0]) 
     if data_max is None:
         data_max = np.array([22, 180, 1])  
-    
     return normalized_data * (data_max - data_min) + data_min
 
 def convert_clusters_to_array(clusters_dict):
@@ -331,7 +330,6 @@ def plot_cluster_center_evolution(cluster_centers_5mm_dict, cluster_centers_10cm
         ax.set_title(f'Cluster Center Evolution for Orbit Type: {orbit_type.upper()}')
         ax.legend()
         plt.show()
-    
 
 def match_clusters(cluster_centers_10cm: np.array, cluster_centers_5mm: np.array):
     """
