@@ -295,40 +295,108 @@ def plot_cluster_center_evolution(cluster_centers_5mm_dict, cluster_centers_10cm
     orbit_types = set(key[1] for key in cluster_centers_5mm_dict.keys())
 
     for orbit_type in orbit_types:
-        fig = plt.figure(figsize=(12, 8))
-        ax = fig.add_subplot(111, projection='3d')
+        # Plot 5mm cluster centers
+        fig_5mm = plt.figure(figsize=(12, 8))
+        ax_5mm = fig_5mm.add_subplot(111, projection='3d')
 
         for (year, orbit, seed), centers_5mm in cluster_centers_5mm_dict.items():
             if orbit != orbit_type:
                 continue
 
-            centers_10cm = cluster_centers_10cm_dict[(year, orbit, seed)]
-            
             # Plot 5mm cluster centers
-            ax.scatter(
-                centers_5mm[:, 0], centers_5mm[:, 1], centers_5mm[:, 2], 
+            ax_5mm.scatter(
+                centers_5mm[:, 0], centers_5mm[:, 1], centers_5mm[:, 2],
                 label=f"{year} (5mm)", alpha=0.7, marker='o'
             )
-            
+
             # Annotate 5mm cluster centers
             for i, center in enumerate(centers_5mm):
-                ax.text(center[0], center[1], center[2], f"{year}-5mm", size=8)
+                ax_5mm.text(center[0], center[1], center[2], f"{year}", size=8)
+
+        ax_5mm.set_xlabel('Inclination')
+        ax_5mm.set_ylabel('RAAN')
+        ax_5mm.set_zlabel('Eccentricity')
+        ax_5mm.set_title(f'5mm Cluster Center Evolution for Orbit Type: {orbit_type.upper()}')
+        ax_5mm.legend()
+        plt.show()
+
+        # Plot 10cm cluster centers
+        fig_10cm = plt.figure(figsize=(12, 8))
+        ax_10cm = fig_10cm.add_subplot(111, projection='3d')
+
+        for (year, orbit, seed), centers_10cm in cluster_centers_10cm_dict.items():
+            if orbit != orbit_type:
+                continue
 
             # Plot 10cm cluster centers
-            ax.scatter(
-                centers_10cm[:, 0], centers_10cm[:, 1], centers_10cm[:, 2], 
+            ax_10cm.scatter(
+                centers_10cm[:, 0], centers_10cm[:, 1], centers_10cm[:, 2],
                 label=f"{year} (10cm)", alpha=0.7, marker='^'
             )
-            
+
             # Annotate 10cm cluster centers
             for i, center in enumerate(centers_10cm):
-                ax.text(center[0], center[1], center[2], f"{year}-10cm", size=8)
+                ax_10cm.text(center[0], center[1], center[2], f"{year}", size=8)
 
-        ax.set_xlabel('X (e.g., Inclination)')
-        ax.set_ylabel('Y (e.g., RAAN)')
-        ax.set_zlabel('Z (e.g., Eccentricity)')
-        ax.set_title(f'Cluster Center Evolution for Orbit Type: {orbit_type.upper()}')
-        ax.legend()
+        ax_10cm.set_xlabel('Inclination i')
+        ax_10cm.set_ylabel('RAAN')
+        ax_10cm.set_zlabel('Eccentricity')
+        ax_10cm.set_title(f'10cm Cluster Center Evolution for Orbit Type: {orbit_type.upper()}')
+        ax_10cm.legend()
+        plt.show()
+        
+def plot_cluster_center_evolution_2d(cluster_centers_5mm_dict, cluster_centers_10cm_dict):
+    orbit_types = set(key[1] for key in cluster_centers_5mm_dict.keys())
+
+    for orbit_type in orbit_types:
+        # Plot 5mm cluster centers in 2D
+        fig_5mm = plt.figure(figsize=(8, 6))
+        ax_5mm = fig_5mm.add_subplot(111)
+
+        for (year, orbit, seed), centers_5mm in cluster_centers_5mm_dict.items():
+            if orbit != orbit_type:
+                continue
+
+            # Plot 5mm cluster centers in 2D
+            ax_5mm.scatter(
+                centers_5mm[:, 0], centers_5mm[:, 1],
+                label=f"{year} (5mm)", alpha=0.7, marker='o'
+            )
+
+            # Annotate 5mm cluster centers
+            for i, center in enumerate(centers_5mm):
+                ax_5mm.text(center[0], center[1], f"{year}", size=8)
+
+        ax_5mm.set_xlabel('Inclination')
+        ax_5mm.set_ylabel('RAAN')
+        ax_5mm.set_title(f'5mm Cluster Center Evolution for Orbit Type: {orbit_type.upper()}')
+        ax_5mm.legend()
+        plt.grid(True)
+        plt.show()
+
+        # Plot 10cm cluster centers in 2D
+        fig_10cm = plt.figure(figsize=(12, 8))
+        ax_10cm = fig_10cm.add_subplot(111)
+
+        for (year, orbit, seed), centers_10cm in cluster_centers_10cm_dict.items():
+            if orbit != orbit_type:
+                continue
+
+            # Plot 10cm cluster centers in 2D
+            ax_10cm.scatter(
+                centers_10cm[:, 0], centers_10cm[:, 1],
+                label=f"{year} (10cm)", alpha=0.7, marker='^'
+            )
+
+            # Annotate 10cm cluster centers
+            for i, center in enumerate(centers_10cm):
+                ax_10cm.text(center[0], center[1], f"{year}", size=8)
+
+        ax_10cm.set_xlabel('Inclination i')
+        ax_10cm.set_ylabel('RAAN')
+        ax_10cm.set_title(f'10cm Cluster Center Evolution for Orbit Type: {orbit_type.upper()}')
+        ax_10cm.legend()
+        plt.grid(True)
         plt.show()
 
 def match_clusters(cluster_centers_10cm: np.array, cluster_centers_5mm: np.array):
@@ -336,7 +404,7 @@ def match_clusters(cluster_centers_10cm: np.array, cluster_centers_5mm: np.array
     Hungarian algorithm to match the cluster centers by calculating pairwise distances between the 
     clusters and filling them in a matrix. The Hungarian algorithm tries to find the permutation of the
     matrix rows that minimizes the trace. 
-    https://en.wikipedia.org/wiki/Hungarian_algorithm
+    https://en.wikipedia.org/wiki/Hungarian_algorithm and DOI: 10.1109/TAES.2016.140952
     
     This function is an adapted version of the Hungarian algorithm for matrices that are not square.
     
