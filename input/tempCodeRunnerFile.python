@@ -1,0 +1,193 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+cwd = os.getcwd()  # Get the current working directory (cwd)
+files = os.listdir(cwd)  # Get all the files in that directory
+#print("Files in %r: %s" % (cwd, files))
+
+def array_extender(filename: str): 
+    with open(filename, "r") as inp: 
+        data = inp.readlines()
+    
+    ID = []
+    diameter = []
+    factor = []
+    source = []
+    TCA = []
+    TCA_RNG = []
+    TCA_ALT = []
+    TCA_RRT = []
+    sem_major = []
+    inc = []
+    ecc = []
+    arg_per = []
+    raan = []
+    true_lat = []
+    fov_dwell = []
+    ang_vel = []
+    pathoffs = []
+    albedo = []
+    phs_ang = []
+    illumination = []
+    mag_obj = []
+    mag_backgr = []
+    max_snr = []
+    RA_LOS = []
+    Des_LOS = []
+    
+    for line in data[21:]: 
+        parts = line.split()
+        if len(parts) >= 22:# Ensure the line has enough elements, removes the last few lines independent of file length
+            ID.append(float(parts[0]))
+            diameter.append(float(parts[1]))
+            factor.append(float(parts[2]))
+            source.append(float(parts[3]))  
+            TCA.append(float(parts[4]))
+            TCA_RNG.append(float(parts[5]))
+            TCA_ALT.append(float(parts[6]))
+            TCA_RRT.append(float(parts[7]))
+            sem_major.append(float(parts[8]))
+            inc.append(float(parts[9]))
+            ecc.append(float(parts[10]))
+            arg_per.append(float(parts[11]))
+            raan.append(float(parts[12]))
+            true_lat.append(float(parts[13]))
+            fov_dwell.append(float(parts[14]))
+            ang_vel.append(float(parts[15]))
+            pathoffs.append(float(parts[16]))
+            albedo.append(float(parts[17]))
+            phs_ang.append(float(parts[18]))
+            illumination.append(float(parts[19]))
+            mag_obj.append(float(parts[20]))
+            mag_backgr.append(float(parts[21]))
+            max_snr.append(float(parts[22]))
+            RA_LOS.append(float(parts[23]))
+            Des_LOS.append(float(parts[24]))
+
+    data1 = [np.array(ID), np.array(diameter), np.array(factor), np.array(source), np.array(TCA), np.array(TCA_RNG), np.array(TCA_ALT), np.array(TCA_RRT), np.array(sem_major)]
+    data2 = [np.array(inc), np.array(ecc), np.array(arg_per), np.array(raan), np.array(true_lat), np.array(fov_dwell), np.array(ang_vel), np.array(pathoffs), np.array(albedo)]
+    data3 = [np.array(phs_ang), np.array(illumination), np.array(mag_obj), np.array(mag_backgr), np.array(max_snr), np.array(RA_LOS), np.array(Des_LOS)]
+    return data1 + data2 + data3
+
+
+#source analysis
+
+def source_hist(sources: np.array, title: str):
+    def autolabel(rects):
+        """Attach a text label above each bar in *rects*, displaying its height."""
+        for rect in rects:
+            height = rect.get_height()
+            plt.annotate('{}'.format(height),
+                         xy=(rect.get_x() + rect.get_width() / 2, height),
+                         xytext=(0, 3),  # 3 points vertical offset
+                         textcoords="offset points",
+                         ha='center', va='bottom')
+
+    bin_edges = np.arange(1, 8) - 0.5
+
+    plt.hist(sources, bins=bin_edges, edgecolor='black', label="different debris sources")
+    plt.xlabel('Source')
+    plt.ylabel('Frequency')
+    plt.title(title)
+    plt.grid(True)
+    plt.xticks(range(1, 7))
+    plt.legend()
+    
+    n, bins, patches = plt.hist(sources, bins=bin_edges, edgecolor='black', label="different debris sources")
+    autolabel(patches)
+    plt.show()
+    
+def sources_vs_sizes(sources, diameter): 
+    ind_1 = [i for i in range(len(sources)) if sources[i] == 0+1]
+    ind_2 = [i for i in range(len(sources)) if sources[i] == 1+1]
+    ind_3 = [i for i in range(len(sources)) if sources[i] == 2+1]
+    ind_4 = [i for i in range(len(sources)) if sources[i] == 3+1]
+    ind_5 = [i for i in range(len(sources)) if sources[i] == 4+1]
+    ind_6 = [i for i in range(len(sources)) if sources[i] == 5+1]
+    
+    d1 = [diameter[i] for i in ind_1]
+    print(d1)
+    d2 = [diameter[i] for i in ind_2]
+    print(d2)
+    d3 = [diameter[i] for i in ind_3]
+    print(d3)
+    d4 = [diameter[i] for i in ind_4]
+    print(d4)
+    d5 = [diameter[i] for i in ind_5]
+    print(d5)
+    d6 = [diameter[i] for i in ind_6]
+    print(d6)
+    
+    diameter_1 = np.mean([diameter[i] for i in ind_1])
+    diameter_2 = np.mean([diameter[i] for i in ind_2])
+    diameter_3 = np.mean([diameter[i] for i in ind_3])
+    diameter_4 = np.mean([diameter[i] for i in ind_4])
+    diameter_5 = np.mean([diameter[i] for i in ind_5])
+    diameter_6 = np.mean([diameter[i] for i in ind_6])
+    
+    print(f"Average Diameter 1 (Fragments): {diameter_1:.3f}")
+    print(f"Average Diameter 2 (SRM slag): {diameter_2:.3f}")
+    print(f"Average Diameter 3 (NaK droplets): {diameter_3:.3f}")
+    print(f"Average Diameter 4 (TLEs): {diameter_4:.3f}")
+    print(f"Average Diameter 5 (Westford Needles): {diameter_5:.3f}")
+    print(f"Average Diameter 6 (Multi-Layered Insulation): {diameter_6:.3f}")
+    
+def sort_for_sources(data: np.array, sources: np.array):
+    """sorts the data according to the source of the space debris parts
+
+    Args:
+        sources (np.array): list of sources of the data
+
+    Returns:
+        TLE (np.array): list of all TLE objects
+        fragments (np.array): list of all fragment objects
+        rest (np.array): all other objects that are not TLE and not fragments
+    """
+    TLE = []
+    fragments = []
+    rest = []
+    for source in sources: 
+        if source == 4: 
+            TLE.append(data[source])
+        if source == 1:
+            fragments.append(data[source])
+        else: 
+            rest.append(data[source])
+    return np.array(TLE), np.array(fragments), np.array(rest)
+
+def magnitude_plot(mag_crs: np.array, mag_det: np.array, year: int):   
+    
+    mag_crs = np.array([i for i in mag_crs if i > 7])    
+    mag_det = np.array([i for i in mag_det if i > 7])    
+    
+    bin_edges = np.arange(7.5, 21.5, 1)
+    #bin_edges = np.arange(21) - 0.5
+
+    plt.figure(figsize=(10, 6))
+    n1, bins1, patches1 = plt.hist(mag_crs, bins = bin_edges, edgecolor='black', label="crossing objects")
+    n2, bins2, patches2 = plt.hist(mag_det, bins = bin_edges, edgecolor='black', label="detected objects")
+    plt.xlabel('Apparent magnitude [mag]')
+    plt.ylabel('Frequency')
+    #plt.yscale("log")
+    plt.xticks(range(7, 21))
+    plt.title(f'Magnitude Histogram for statistical MASTER population {year} (mag 0 removed!)')
+    plt.grid(True)
+    plt.legend()
+    plt.show()
+    
+def i_omega_with_ratio(crs_file: str, det_file: str, date: str):
+    nod_crs, inc_crs, ecc_22_crs,*_ = array_extender(crs_file) 
+    nod_det, inc_det, ecc_22_det,*_ = array_extender(det_file)
+
+    plt.title(f"Crossing objects vs. detected objects, date: {date}")
+    plt.scatter(nod_crs, inc_crs, c = "r", s = 5, label = "crossings")
+    plt.scatter(nod_det, inc_det, c = "b", s = 5, label = "detected")
+    plt.xlabel("Right Ascension of Ascending Node $\Omega$ [°]")
+    plt.ylabel("Inclination [°]")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+    
+    ratio = len(nod_det)/len(nod_crs)
+    print(f"The ratio of detected objects vs. crossing objects: {ratio:.3f}")
