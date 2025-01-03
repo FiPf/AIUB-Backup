@@ -375,7 +375,7 @@ def plot_cluster_center_evolution_2d(cluster_centers_5mm_dict, cluster_centers_1
         plt.show()
 
         # Plot 10cm cluster centers in 2D
-        fig_10cm = plt.figure(figsize=(12, 8))
+        fig_10cm = plt.figure(figsize=(8, 6))
         ax_10cm = fig_10cm.add_subplot(111)
 
         for (year, orbit, seed), centers_10cm in cluster_centers_10cm_dict.items():
