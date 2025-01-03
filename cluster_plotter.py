@@ -114,8 +114,7 @@ class ClusterPlotter:
         if grid:
             plt.grid(True)
         plt.show()
-
-
+    
     def combined_clusters_3d_plot(self, other_data, other_labels, other_centers, title: str, point_size=5, show_centers=True):
         """
         Plot this dataset and another dataset (3D) with different color schemes and cluster centers.
@@ -131,21 +130,29 @@ class ClusterPlotter:
         fig = plt.figure(figsize=(10, 7))
         ax = fig.add_subplot(111, projection='3d')
         
-        # Plot the other dataset
-        scatter_other = ax.scatter(unnormalize(other_data[:, 1]), unnormalize(other_data[:, 2]), unnormalize(other_data[:, 0]),
-                                   c=other_labels, cmap='summer', s=point_size, label='10cm data clusters')
+        # Plot the other dataset (10cm data) first
+        scatter_other = ax.scatter(
+            other_data[:, 1], other_data[:, 2], other_data[:, 0],
+            c=other_labels, cmap='summer', s=point_size, label='10cm data clusters', zorder=1
+        )
 
         if show_centers:
-            ax.scatter(other_centers[:, 1], other_centers[:, 2], other_centers[:, 0],
-                       c='blue', marker='X', s=100, label='10 cm data centers')
+            ax.scatter(
+                other_centers[:, 1], other_centers[:, 2], other_centers[:, 0],
+                c='blue', marker='X', s=100, label='10 cm data centers', zorder=2
+            )
 
-        # Plot the current dataset
-        scatter_self = ax.scatter(unnormalize(self.normalized_data[:, 1]), unnormalize(self.normalized_data[:, 2]), unnormalize(self.normalized_data[:, 0]),
-                                  c=self.labels, cmap='autumn', s=point_size, label='5mm data clusters')
+        # Plot the current dataset (5mm data) on top
+        scatter_self = ax.scatter(
+            self.normalized_data[:, 1], self.normalized_data[:, 2], self.normalized_data[:, 0],
+            c=self.labels, cmap='autumn', s=point_size, label='5mm data clusters', zorder=3
+        )
 
         if show_centers:
-            ax.scatter(self.cluster_centers[:, 1], self.cluster_centers[:, 2], self.cluster_centers[:, 0],
-                       c='red', marker='X', s=100, label='5mm data centers')
+            ax.scatter(
+                self.cluster_centers[:, 1], self.cluster_centers[:, 2], self.cluster_centers[:, 0],
+                c='red', marker='X', s=100, label='5mm data centers', zorder=4
+            )
 
         ax.set_xlabel('RAAN (omega)')
         ax.set_ylabel('Eccentricity (e)')
@@ -157,3 +164,4 @@ class ClusterPlotter:
         ax.legend()
 
         plt.show()
+
