@@ -2,6 +2,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
+from cluster_finder import unnormalize
 
 class ClusterPlotter:
     """
@@ -84,14 +85,14 @@ class ClusterPlotter:
 
 
         # Plot the other dataset
-        scatter_other = plt.scatter(other_data[:, 1], other_data[:, 0],
+        scatter_other = plt.scatter(unnormalize(other_data[:, 1]), unnormalize(other_data[:, 0]),
                                     c=other_labels, cmap='winter', s=point_size, label='10 cm data clusters')
 
         plt.scatter(other_centers[:, 1], other_centers[:, 0],
                     c='blue', marker='X', s=100, label='10 cm data centers')
 
         # Plot the current dataset
-        scatter_self = plt.scatter(self.normalized_data[:, 1], self.normalized_data[:, 0],
+        scatter_self = plt.scatter(unnormalize(self.normalized_data[:, 1]), unnormalize(self.normalized_data[:, 0]),
                                    c=self.labels, cmap='autumn', s=point_size, label='5 mm data clusters')
 
         plt.scatter(self.cluster_centers[:, 1], self.cluster_centers[:, 0],
@@ -123,7 +124,7 @@ class ClusterPlotter:
         ax = fig.add_subplot(111, projection='3d')
         
         # Plot the other dataset
-        scatter_other = ax.scatter(other_data[:, 1], other_data[:, 2], other_data[:, 0],
+        scatter_other = ax.scatter(unnormalize(other_data[:, 1]), unnormalize(other_data[:, 2]), unnormalize(other_data[:, 0]),
                                    c=other_labels, cmap='winter', s=point_size, label='10cm data clusters')
 
         if show_centers:
@@ -131,7 +132,7 @@ class ClusterPlotter:
                        c='blue', marker='X', s=100, label='10 cm data centers')
 
         # Plot the current dataset
-        scatter_self = ax.scatter(self.normalized_data[:, 1], self.normalized_data[:, 2], self.normalized_data[:, 0],
+        scatter_self = ax.scatter(unnormalize(self.normalized_data[:, 1]), unnormalize(self.normalized_data[:, 2]), unnormalize(self.normalized_data[:, 0]),
                                   c=self.labels, cmap='autumn', s=point_size, label='5mm data clusters')
 
         if show_centers:
