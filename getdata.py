@@ -778,7 +778,6 @@ def get_orbele_and_date_from_celmech(OUT_file_list: list):
         with open(file, "r") as f:
             f_data = f.read()
             data.append(f_data)
-
             # Reset file pointer to the beginning to read line by line
             f.seek(0)
             lines = f.readlines()
@@ -860,7 +859,7 @@ def get_orbele_and_date_from_celmech(OUT_file_list: list):
 
     #print(f"Number of objects failed in Celmech: {failed_counter}")
     #print(f"Number of objects not failed in Celmech: {len(num_obs)}")
-    print(f"Total (failed and not failed) in Celmech: {failed_counter + len(num_obs)}")
+    #print(f"Total (failed and not failed) in Celmech: {failed_counter + len(num_obs)}")
     #print(f"Lengths of temp_dates: {len(temp_dates_lengths)}")
     #print(f"Total number of dates: {np.sum(temp_dates_lengths)}")
 

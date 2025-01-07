@@ -69,7 +69,7 @@ class ClusterPlotter:
         ax.legend()
         plt.show()
 
-    def combined_clusters_2d_plot(self, other_data, other_labels, other_centers, title: str, point_size=5, grid=True):
+    def combined_clusters_2d_plot(self, other_data, other_labels, other_centers, title: str, size_in_mm: int, point_size=5, grid=True):
         """
         Plot this dataset and another dataset (2D) with different color schemes and cluster centers.
 
@@ -86,12 +86,12 @@ class ClusterPlotter:
         # Plot the current dataset (5mm) first
         scatter_self = plt.scatter(
             self.normalized_data[:, 1], self.normalized_data[:, 0],
-            c=self.labels, cmap='autumn', s=point_size, label='5 mm data clusters', zorder=1
+            c=self.labels, cmap='autumn', s=point_size, label=f'{size_in_mm}mm data clusters', zorder=1
         )
 
         plt.scatter(
             self.cluster_centers[:, 1], self.cluster_centers[:, 0],
-            c='red', marker='X', s=100, label='5mm cm data centers', zorder=3
+            c='red', marker='X', s=100, label=f'{size_in_mm}mm cm data centers', zorder=3
         )
 
         # Plot the other dataset (10 cm) on top
@@ -108,14 +108,14 @@ class ClusterPlotter:
         plt.xlabel('RAAN (omega)')
         plt.ylabel('Inclination (i)')
         plt.title(title)
-        plt.colorbar(scatter_self, label='5mm , color according to cluster')
+        plt.colorbar(scatter_self, label=f'{size_in_mm}mm , color according to cluster')
         plt.colorbar(scatter_other, label='10 cm , color according to cluster')
         plt.legend()
         if grid:
             plt.grid(True)
         plt.show()
     
-    def combined_clusters_3d_plot(self, other_data, other_labels, other_centers, title: str, point_size=5, show_centers=True):
+    def combined_clusters_3d_plot(self, other_data, other_labels, other_centers, title: str, size_in_mm: int, point_size=5, show_centers=True):
         """
         Plot this dataset and another dataset (3D) with different color schemes and cluster centers.
 
@@ -145,13 +145,13 @@ class ClusterPlotter:
         # Plot the current dataset (5mm data) on top
         scatter_self = ax.scatter(
             self.normalized_data[:, 1], self.normalized_data[:, 2], self.normalized_data[:, 0],
-            c=self.labels, cmap='autumn', s=point_size, label='5mm data clusters', zorder=3
+            c=self.labels, cmap='autumn', s=point_size, label=f'{size_in_mm}mm data clusters', zorder=3
         )
 
         if show_centers:
             ax.scatter(
                 self.cluster_centers[:, 1], self.cluster_centers[:, 2], self.cluster_centers[:, 0],
-                c='red', marker='X', s=100, label='5mm data centers', zorder=4
+                c='red', marker='X', s=100, label=f'{size_in_mm}mm data centers', zorder=4
             )
 
         ax.set_xlabel('RAAN (omega)')
@@ -159,7 +159,7 @@ class ClusterPlotter:
         ax.set_zlabel('Inclination (i)')
         ax.set_title(title)
 
-        fig.colorbar(scatter_self, ax=ax, shrink=0.5, label='5mm data')
+        fig.colorbar(scatter_self, ax=ax, shrink=0.5, label=f'{size_in_mm}mm data')
         fig.colorbar(scatter_other, ax=ax, shrink=0.5, label='10 cm data')
         ax.legend()
 

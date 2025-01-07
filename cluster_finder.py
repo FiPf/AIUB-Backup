@@ -7,6 +7,7 @@ from numba import njit
 import os
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial.distance import cdist
+from scipy.spatial import distance
 
 #sklearn stuff (conda install scikit-learn)
 from sklearn.cluster import MeanShift
@@ -214,20 +215,109 @@ def is_subset(array_small, array_large, atol=1e-6):
             return False
     return True
 
-def get_files_for_cluster_evolution(year: str, orbit_type: str, seed: int, inp_directory: str): 
+def find_best_superset(array_small: np.array, list_of_large_arrays: list, atol: float=1e-6):
+    """We have a set and a list of more sets. This function finds out, from which set the first set is the 
+    most likely a subset by checking the number of matching elements.
+
+    Args:
+        array_small (np.array): set of which we want to identify the superset
+        list_of_large_arrays (list): candidates of supersets 
+        atol (float, optional): Tolerance value for equal objects. Defaults to 1e-6.
+
+    Returns:
+        best_superset_index (int): index of best superset
+        max_matches (): number of matches within the best superset
+    """
+    max_matches = 0
+    best_superset_index = -1
+
+    for idx, array_large in enumerate(list_of_large_arrays):
+        match_count = 0
+
+        # Count matches for the current superset
+        for row in array_small:
+            if np.any(np.all(np.isclose(array_large, row, atol=atol), axis=1)):
+                match_count += 1
+
+        # Update the best superset if the current one has more matches
+        if match_count > max_matches:
+            max_matches = match_count
+            best_superset_index = idx
+
+        print(f"Set {idx}: {match_count} matches")  # Debugging line
+
+    return best_superset_index, max_matches
+
+def find_superset_matches_for_clusters(dataset, atol=1e-6):
+    """
+    Compare clusters in a dataset year by year to find the best superset matches for each cluster.
+    
+    :param dataset: Dictionary containing clusters for each year and orbit type
+    :param atol: Absolute tolerance for numerical comparisons
+    :return: Dictionary mapping each cluster to its best matching cluster in the next year
+    """
+    results = {}
+
+    # Sort dataset by year for chronological comparison
+    sorted_keys = sorted(dataset.keys(), key=lambda x: x[0])  # Sort by year
+
+    for i in range(len(sorted_keys) - 1):
+        year_current, orbit_current, _ = sorted_keys[i]
+        year_next, orbit_next, _ = sorted_keys[i + 1]
+
+        # Skip if orbit types are not the same
+        if orbit_current != orbit_next:
+            continue
+
+        # Retrieve clusters and labels for the current and next year
+        clusters_current = dataset[sorted_keys[i]]['clusters_1mm']
+        clusters_next = dataset[sorted_keys[i + 1]]['clusters_1mm']
+
+        # Extract the cluster data using the labels (grouping points by their cluster label)
+        data_current = clusters_current.data
+        labels_current = clusters_current.labels
+        data_next = clusters_next.data
+        labels_next = clusters_next.labels
+
+        # Group points in data_current and data_next by their respective cluster labels
+        clusters_current_sorted = [data_current[labels_current == label] for label in np.unique(labels_current)]
+        clusters_next_sorted = [data_next[labels_next == label] for label in np.unique(labels_next)]
+
+        # Find the best superset matches for each cluster in the current year using find_best_superset
+        cluster_matches = {}
+        for idx, cluster in enumerate(clusters_current_sorted):
+            best_superset_idx, match_count = find_best_superset(cluster, clusters_next_sorted, atol)
+            cluster_matches[idx] = (best_superset_idx, match_count)
+
+        # Store results for the current year
+        results[(year_current, orbit_current)] = cluster_matches
+
+    return results
+
+def get_files_for_cluster_evolution(year: str, orbit_type: str, seed: int, size_in_mm: int, inp_directory: str): 
     year2 = year[2:]
     if orbit_type not in ["geo", "gto", "fol"]: 
         raise ValueError("Orbit type must be geo, gto, or fol!")
     if seed not in [1, 2, 3, 4]: 
         raise ValueError("Invalid seed value!")
     
-    file_5mm = f"small_Master_{year2}_{orbit_type}_s{seed}.crs"
-    file_10cm = f"stat_Master_{year2}_{orbit_type}_s{seed}.crs"
-    
-    file_5mm = os.path.join(inp_directory, file_5mm)
-    file_10cm = os.path.join(inp_directory, file_10cm)
+    if size_in_mm == 5: 
+        file_5mm = f"small_Master_{year2}_{orbit_type}_s{seed}.crs"
+        file_10cm = f"stat_Master_{year2}_{orbit_type}_s{seed}.crs"
+        
+        file_5mm = os.path.join(inp_directory, file_5mm)
+        file_10cm = os.path.join(inp_directory, file_10cm)
 
-    return file_5mm, file_10cm
+        return file_5mm, file_10cm
+    
+    if size_in_mm == 1: 
+        file_1mm = f"1mm_Master_{year2}_{orbit_type}_s{seed}.crs"
+        file_10cm = f"stat_Master_{year2}_{orbit_type}_s{seed}.crs"
+        
+        file_1mm = os.path.join(inp_directory, file_1mm)
+        file_10cm = os.path.join(inp_directory, file_10cm)
+
+        return file_1mm, file_10cm
 
 def find_clusters_for_one_year(file_5mm: str, file_10cm: str, bandwidths: list): 
     data_5mm = prepare_data_for_clustering(file_5mm)
@@ -291,60 +381,9 @@ def cluster_comparison(clusters_5mm_array: np.array, clusters_10cm_array: np.arr
     
     return updated_10cm_cluster_data
 
-def plot_cluster_center_evolution(cluster_centers_5mm_dict, cluster_centers_10cm_dict):
-    orbit_types = set(key[1] for key in cluster_centers_5mm_dict.keys())
+import matplotlib.pyplot as plt
+import numpy as np
 
-    for orbit_type in orbit_types:
-        # Plot 5mm cluster centers
-        fig_5mm = plt.figure(figsize=(12, 8))
-        ax_5mm = fig_5mm.add_subplot(111, projection='3d')
-
-        for (year, orbit, seed), centers_5mm in cluster_centers_5mm_dict.items():
-            if orbit != orbit_type:
-                continue
-
-            # Plot 5mm cluster centers
-            ax_5mm.scatter(
-                centers_5mm[:, 0], centers_5mm[:, 1], centers_5mm[:, 2],
-                label=f"{year} (5mm)", alpha=0.7, marker='o'
-            )
-
-            # Annotate 5mm cluster centers
-            for i, center in enumerate(centers_5mm):
-                ax_5mm.text(center[0], center[1], center[2], f"{year}", size=8)
-
-        ax_5mm.set_xlabel('Inclination')
-        ax_5mm.set_ylabel('RAAN')
-        ax_5mm.set_zlabel('Eccentricity')
-        ax_5mm.set_title(f'5mm Cluster Center Evolution for Orbit Type: {orbit_type.upper()}')
-        ax_5mm.legend()
-        plt.show()
-
-        # Plot 10cm cluster centers
-        fig_10cm = plt.figure(figsize=(12, 8))
-        ax_10cm = fig_10cm.add_subplot(111, projection='3d')
-
-        for (year, orbit, seed), centers_10cm in cluster_centers_10cm_dict.items():
-            if orbit != orbit_type:
-                continue
-
-            # Plot 10cm cluster centers
-            ax_10cm.scatter(
-                centers_10cm[:, 0], centers_10cm[:, 1], centers_10cm[:, 2],
-                label=f"{year} (10cm)", alpha=0.7, marker='^'
-            )
-
-            # Annotate 10cm cluster centers
-            for i, center in enumerate(centers_10cm):
-                ax_10cm.text(center[0], center[1], center[2], f"{year}", size=8)
-
-        ax_10cm.set_xlabel('Inclination i')
-        ax_10cm.set_ylabel('RAAN')
-        ax_10cm.set_zlabel('Eccentricity')
-        ax_10cm.set_title(f'10cm Cluster Center Evolution for Orbit Type: {orbit_type.upper()}')
-        ax_10cm.legend()
-        plt.show()
-        
 def plot_cluster_center_evolution_2d(cluster_centers_5mm_dict, cluster_centers_10cm_dict):
     orbit_types = set(key[1] for key in cluster_centers_5mm_dict.keys())
 
@@ -357,18 +396,18 @@ def plot_cluster_center_evolution_2d(cluster_centers_5mm_dict, cluster_centers_1
             if orbit != orbit_type:
                 continue
 
-            # Plot 5mm cluster centers in 2D
+            # Plot 5mm cluster centers in 2D (Swapping x and y axes)
             ax_5mm.scatter(
-                centers_5mm[:, 0], centers_5mm[:, 1],
+                centers_5mm[:, 1], centers_5mm[:, 0],  # Swapped x and y axes
                 label=f"{year} (5mm)", alpha=0.7, marker='o'
             )
 
-            # Annotate 5mm cluster centers
+            # Annotate 5mm cluster centers (Swapping x and y axes)
             for i, center in enumerate(centers_5mm):
-                ax_5mm.text(center[0], center[1], f"{year}", size=8)
+                ax_5mm.text(center[1], center[0], f"{year}", size=8)  # Swapped x and y axes
 
-        ax_5mm.set_xlabel('Inclination')
-        ax_5mm.set_ylabel('RAAN')
+        ax_5mm.set_xlabel('RAAN')  # Swapped labels
+        ax_5mm.set_ylabel('Inclination')  # Swapped labels
         ax_5mm.set_title(f'5mm Cluster Center Evolution for Orbit Type: {orbit_type.upper()}')
         ax_5mm.legend()
         plt.grid(True)
@@ -382,20 +421,143 @@ def plot_cluster_center_evolution_2d(cluster_centers_5mm_dict, cluster_centers_1
             if orbit != orbit_type:
                 continue
 
-            # Plot 10cm cluster centers in 2D
+            # Plot 10cm cluster centers in 2D (Swapping x and y axes)
             ax_10cm.scatter(
-                centers_10cm[:, 0], centers_10cm[:, 1],
+                centers_10cm[:, 1], centers_10cm[:, 0],  # Swapped x and y axes
                 label=f"{year} (10cm)", alpha=0.7, marker='^'
             )
 
-            # Annotate 10cm cluster centers
+            # Annotate 10cm cluster centers (Swapping x and y axes)
             for i, center in enumerate(centers_10cm):
-                ax_10cm.text(center[0], center[1], f"{year}", size=8)
+                ax_10cm.text(center[1], center[0], f"{year}", size=8)  # Swapped x and y axes
 
-        ax_10cm.set_xlabel('Inclination i')
-        ax_10cm.set_ylabel('RAAN')
+        ax_10cm.set_xlabel('RAAN')  # Swapped labels
+        ax_10cm.set_ylabel('Inclination')  # Swapped labels
         ax_10cm.set_title(f'10cm Cluster Center Evolution for Orbit Type: {orbit_type.upper()}')
         ax_10cm.legend()
+        plt.grid(True)
+        plt.show()
+        
+
+def plot_cluster_center_evolution_2d_with_distance(cluster_centers_5mm_dict, cluster_centers_10cm_dict):
+    orbit_types = set(key[1] for key in cluster_centers_5mm_dict.keys())
+
+    for orbit_type in orbit_types:
+        # Process 5mm clusters
+        fig_5mm = plt.figure(figsize=(8, 6))
+        ax_5mm = fig_5mm.add_subplot(111)
+
+        # Group 5mm data by year for the orbit type
+        yearly_clusters_5mm = {}
+        for (year, orbit, _), centers_5mm in cluster_centers_5mm_dict.items():
+            if orbit != orbit_type:
+                continue
+            if year not in yearly_clusters_5mm:
+                yearly_clusters_5mm[year] = centers_5mm
+
+        # Sort years and link clusters
+        sorted_years = sorted(yearly_clusters_5mm.keys())
+        cluster_paths = []  # To store cluster paths over the years
+        prev_centers = None
+        cluster_info_5mm = {}  # For printing cluster info
+
+        for year in sorted_years:
+            current_centers = yearly_clusters_5mm[year]
+            if prev_centers is None:
+                cluster_paths = [[(year, center)] for center in current_centers]
+            else:
+                for center in current_centers:
+                    distances = [distance.euclidean(center, prev_centers[1]) for prev_center in cluster_paths]
+                    closest_index = distances.index(min(distances))
+                    cluster_paths[closest_index].append((year, center))
+
+            # Store cluster positions for printing later
+            for idx, center in enumerate(current_centers):
+                if idx not in cluster_info_5mm:
+                    cluster_info_5mm[idx] = []
+                cluster_info_5mm[idx].append((year, center))
+
+            prev_centers = current_centers
+
+        # Print cluster positions over the years for 5mm clusters
+        print("5mm Clusters:")
+        for cluster_id, positions in cluster_info_5mm.items():
+            print(f"Cluster {cluster_id}:")
+            for year, center in positions:
+                print(f"  Year {year}: RAAN={center[1]}, Inclination={center[0]}")
+
+        # Plot the cluster paths for 5mm clusters
+        for path in cluster_paths:
+            points = np.array([center for _, center in path])
+            years = [year for year, _ in path]
+            ax_5mm.plot(points[:, 1], points[:, 0], linestyle='--', alpha=0.7, label=f"Path")
+            ax_5mm.scatter(points[:, 1], points[:, 0], label=f"{years}", marker='o')
+
+            # Annotate the points with the years
+            for (x, y), year in zip(points[:, 1:], years):
+                ax_5mm.text(x, y, f"{year}", size=8)
+
+        ax_5mm.set_xlabel('RAAN')
+        ax_5mm.set_ylabel('Inclination')
+        ax_5mm.set_title(f'5mm Cluster Center Evolution for Orbit Type: {orbit_type.upper()}')
+        plt.grid(True)
+        plt.show()
+
+        # Process 10cm clusters (similar logic as above)
+        fig_10cm = plt.figure(figsize=(8, 6))
+        ax_10cm = fig_10cm.add_subplot(111)
+
+        yearly_clusters_10cm = {}
+        for (year, orbit, _), centers_10cm in cluster_centers_10cm_dict.items():
+            if orbit != orbit_type:
+                continue
+            if year not in yearly_clusters_10cm:
+                yearly_clusters_10cm[year] = centers_10cm
+
+        sorted_years = sorted(yearly_clusters_10cm.keys())
+        cluster_paths = []
+        prev_centers = None
+        cluster_info_10cm = {}
+
+        for year in sorted_years:
+            current_centers = yearly_clusters_10cm[year]
+            if prev_centers is None:
+                cluster_paths = [[(year, center)] for center in current_centers]
+            else:
+                for center in current_centers:
+                    distances = [distance.euclidean(center, prev_centers[1]) for prev_center in cluster_paths]
+                    closest_index = distances.index(min(distances))
+                    cluster_paths[closest_index].append((year, center))
+
+            # Store cluster positions for printing later
+            for idx, center in enumerate(current_centers):
+                if idx not in cluster_info_10cm:
+                    cluster_info_10cm[idx] = []
+                cluster_info_10cm[idx].append((year, center))
+
+            prev_centers = current_centers
+
+        # Print cluster positions over the years for 10cm clusters
+        print("10cm Clusters:")
+        for cluster_id, positions in cluster_info_10cm.items():
+            print(f"Cluster {cluster_id}:")
+            for year, center in positions:
+                print(f"  Year {year}: RAAN={center[1]}, Inclination={center[0]}")
+
+        # Plot the cluster paths for 10cm clusters
+        for path in cluster_paths:
+            points = np.array([center for _, center in path])
+            years = [year for year, _ in path]
+            ax_10cm.plot(points[:, 1], points[:, 0], linestyle='--', alpha=0.7)
+            ax_10cm.scatter(points[:, 1], points[:, 0], label=f"{years}", marker='^')
+
+            # Annotate the points with the years
+            for (x, y), year in zip(points[:, 1:], years):
+                ax_10cm.text(x, y, f"{year}", size=8)
+
+        ax_10cm.set_xlabel('RAAN')
+        ax_10cm.set_ylabel('Inclination')
+        ax_10cm.set_title(f'10cm Cluster Center Evolution for Orbit Type: {orbit_type.upper()}')
         plt.grid(True)
         plt.show()
 

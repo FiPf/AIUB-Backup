@@ -6,7 +6,7 @@ import plotting
 import calculations
 import os
 
-def main_celmech(year:str, err: bool):
+def main_celmech(year:str, err: bool, ell: bool):
     """for a given year, loops over all orbit types, gets orbital elements (circular) from desired Celmech OUT file, 
     gets orbital elements (elliptical) from desired *.det file. Plots the two datasets in an I- Omega Plot (seperately and joined).
 
@@ -52,7 +52,7 @@ def main_celmech(year:str, err: bool):
     # Loop to gather data for each orbit type from the Celmech Output
     for orbit in orbit_type_list:
         files = []
-        file = getdata.get_celmech_OUT_files(year, orbit, err, ell = False) #find the right Celmech file for given year and orbit type
+        file = getdata.get_celmech_OUT_files(year, orbit, err, ell) #find the right Celmech file for given year and orbit type
         file = os.path.join("input_celmech", file)
         files.append(file)
         orbit_data, number_of_obj, dates, failed_mask = getdata.get_orbele_and_date_from_celmech(files) #extract orbital elements from Celmech files
@@ -241,8 +241,8 @@ def main_celmech(year:str, err: bool):
     
     print(len(valid_crs_indices), len(valid_celmech_indices)) 
     
-    if not valid_celmech_indices or not valid_crs_indices:
-        raise IndexError("No valid indices found after filtering.")
+    #if not valid_celmech_indices or not valid_crs_indices:
+    #    raise IndexError("No valid indices found after filtering.")
     
     #STEP: Plotting the final results
     # Plot circular and elliptical orbits together
@@ -255,6 +255,11 @@ def main_celmech(year:str, err: bool):
     valid_celmech_indices = [index for index in valid_celmech_indices if index < len(nod_circ)]
     valid_crs_indices = [index for index in valid_crs_indices if index < len(nod_ell)]
     print(nod_circ.shape, i_circ.shape, nod_ell.shape, i_ell.shape) 
+    
+    plotting.i_omega_joined(
+        nod_circ, nod_ell, i_circ, i_ell, 
+        f"Simulations: circular vs. elliptical orbits {year}" + title_appendix, 
+        year, "circular", "elliptical", out_dir)
     
     plotting.i_omega_joined(
         nod_circ[valid_celmech_indices], nod_ell[valid_crs_indices], i_circ[valid_celmech_indices], i_ell[valid_crs_indices], 
