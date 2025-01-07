@@ -17,8 +17,26 @@ def main_celmech(year:str, err: bool):
     """
     orbit_type_list = ["geo", "gto", "fol"]
     total_num_of_objects = 0
+    yy = year[2:]
     
-    # Dictionary for storing orbit data separated by orbit type
+    #STEP 1: Unpack plugin data and store the epochs in a dictionary
+    plugin_data_dict = {
+        "geo": {"epoch": []}, 
+        "gto": {"epoch": []}, 
+        "fol": {"epoch": []}
+    }
+    
+    for orbit in orbit_type_list: 
+        file = f"plugin_{yy}_{orbit}.pro" 
+        filename = os.path.join("input", file)
+        plugin_data = getdata.array_extender_plugin(filename)
+        epoch = plugin_data[2]
+        plugin_data_dict[orbit]["epoch"].append(epoch)
+    
+    epochs_plugin = np.hstack([np.array(plugin_data_dict["geo"]["epoch"]), np.array(plugin_data_dict["gto"]["epoch"]), np.array(plugin_data_dict["fol"]["epoch"])])
+    
+    #STEP 2: Unpack Celmech output data
+    # Dictionary for storing orbit data separated by orbit type (Celmech output data)
     orbit_data_dict = {
         "geo": {"num_obs": [], "rms": [], "time_interval": [], "num_iter": [], 
                 "P": [], "A": [], "E": [], "I": [], "Node": [], "Per": [], "IPer": []},
@@ -31,7 +49,6 @@ def main_celmech(year:str, err: bool):
     title_appendix = " with error" if err else " without error"
     failed_masks = []
     
-    print("CELMECH DATA")
     # Loop to gather data for each orbit type from the Celmech Output
     for orbit in orbit_type_list:
         files = []
@@ -80,28 +97,28 @@ def main_celmech(year:str, err: bool):
 
     out_dir = os.path.join("output_celmech", "Plots")
 
-    plotting.i_omega_all_orbits(
+    """plotting.i_omega_all_orbits(
         orbit_data_dict["geo"]["Node"], orbit_data_dict["gto"]["Node"], orbit_data_dict["fol"]["Node"], 
         orbit_data_dict["geo"]["I"], orbit_data_dict["gto"]["I"], orbit_data_dict["fol"]["I"], 
-        f"Simulations: circular orbits {year}" + title_appendix, year, out_dir)
+        f"Simulations: circular orbits {year}" + title_appendix, year, out_dir)"""
 
     print(f"Number of objects in the plot from celmech: {len(orbit_data_dict["geo"]["Node"]) + len(orbit_data_dict["gto"]["Node"]) + len(orbit_data_dict["fol"]["Node"])}")
-    print(f"Number of geo objects Celmech: {len(orbit_data_dict['geo']['Node'])}")
-    print(f"Number of gto objects Celmech: {len(orbit_data_dict['gto']['Node'])}")
-    print(f"Number of fol objects Celmech: {len(orbit_data_dict['fol']['Node'])}")
+    #print(f"Number of geo objects Celmech: {len(orbit_data_dict['geo']['Node'])}")
+    #print(f"Number of gto objects Celmech: {len(orbit_data_dict['gto']['Node'])}")
+    #print(f"Number of fol objects Celmech: {len(orbit_data_dict['fol']['Node'])}")
 
+    #STEP 3: Unpack *.crs data from PROOF output
     # Data handling for elliptical orbits from PROOF *.crs and *.det files 
-    print("*.CRS FILE DATA")
     geo_crs, gto_crs, fol_crs, geo_det, gto_det, fol_det = getdata.data_returner(year, 4)
     
-    print(f"crs geo: {len(geo_crs[1])}, crs gto {len(gto_crs[1])}, crs fol {len(fol_crs[1])},  before any sorting")
-    print("Sum of crossings:", len(geo_crs[1]) + len(gto_crs[1]) + len(fol_crs[1]))
+    #print(f"crs geo: {len(geo_crs[1])}, crs gto {len(gto_crs[1])}, crs fol {len(fol_crs[1])},  before any sorting")
+    #print("Sum of crossings:", len(geo_crs[1]) + len(gto_crs[1]) + len(fol_crs[1]))
     #print(len(geo_det[1]), len(gto_det[1]), len(fol_det[1]), "detections before any sorting")
     #print("Sum of detections:", len(geo_det[1]) + len(gto_det[1]) + len(fol_det[1]))
 
     ID = np.hstack([geo_crs[0], gto_crs[0], fol_crs[0]]) #stack all ID arrays
     unique_ID = set(ID)
-    print("Number of all IDs: ", len(ID),  ", unique ID crossings no sorting", len(unique_ID))
+    #print("Number of all IDs: ", len(ID),  ", unique ID crossings no sorting", len(unique_ID))
     
     #ID = np.hstack([geo_det[0], gto_det[0], fol_det[0]]) #stack all ID arrays
     #unique_ID = set(ID)
@@ -132,6 +149,7 @@ def main_celmech(year:str, err: bool):
     geo_crs = sortdata.sort_for_inclination_all_data(geo_crs, 9, 22)
     geo_inc = geo_crs[9]
     geo_nod = geo_crs[12]
+    geo_TCA = geo_crs[4] #time of closest approach
 
     # Sorting for gto orbit crossings
     gto_crs = np.array(gto_crs)
@@ -141,9 +159,9 @@ def main_celmech(year:str, err: bool):
     
     #remove background zero objects from *.crs file data
     gto_crs = sortdata.remove_zero_background_mag(gto_crs, background_mag_index = 21)
-    print(len(gto_crs[1]), "Number of crossings after background")
+    #print(len(gto_crs[1]), "Number of crossings after background")
     gto_det = sortdata.remove_zero_background_mag(gto_det, background_mag_index = 21)
-    print(len(gto_det[1]), "Number of detections after background")
+    #print(len(gto_det[1]), "Number of detections after background")
     TLE, fragments, rest = sortdata.sort_for_sources_all_data(gto_crs, 3)    
     arrays_to_stack = []
     for arr in [TLE, fragments, rest]:
@@ -158,6 +176,7 @@ def main_celmech(year:str, err: bool):
     gto_crs = sortdata.sort_for_inclination_all_data(gto_crs, 9, 22)
     gto_inc = gto_crs[9]
     gto_nod = gto_crs[12]
+    gto_TCA = gto_crs[4] #time of closest approach
 
     # Sorting for fol orbit crossings
     fol_crs = np.array(fol_crs)   
@@ -167,11 +186,11 @@ def main_celmech(year:str, err: bool):
 
     #remove background zero objects from *.crs file data
     fol_crs = sortdata.remove_zero_background_mag(fol_crs, background_mag_index = 21)
-    print(len(fol_crs[1]), "Number of crossings after background")
+    #print(len(fol_crs[1]), "Number of crossings after background")
     fol_det = sortdata.remove_zero_background_mag(fol_det, background_mag_index = 21)
-    print(len(fol_det[1]), "Number of detections after background")
+    #print(len(fol_det[1]), "Number of detections after background")
     common_elements = np.isin(fol_det[1], fol_crs[1], True)
-    print(len(common_elements), "number of common elements")
+    #print(len(common_elements), "number of common elements")
     TLE, fragments, rest = sortdata.sort_for_sources_all_data(fol_crs, 3)
     arrays_to_stack = []
     for arr in [TLE, fragments, rest]:
@@ -186,15 +205,46 @@ def main_celmech(year:str, err: bool):
     fol_crs = sortdata.sort_for_inclination_all_data(fol_crs, 9, 22)
     fol_inc = fol_crs[9]
     fol_nod = fol_crs[12]
+    fol_TCA = fol_crs[4] #time of closest approach
         
-    print(len(geo_crs[1]), len(gto_crs[1]), len(fol_crs[1]), "crossings after sorting")
-    print(f"Sum of crossings after sorting: {len(geo_crs[1]) + len(gto_crs[1]) + len(fol_crs[1])}")
+    #print(len(geo_crs[1]), len(gto_crs[1]), len(fol_crs[1]), "crossings after sorting")
+    #print(f"Sum of crossings after sorting: {len(geo_crs[1]) + len(gto_crs[1]) + len(fol_crs[1])}")
 
     # Plot elliptical orbits
-    plotting.i_omega_all_orbits(
+    """plotting.i_omega_all_orbits(
         geo_nod, gto_nod, fol_nod, geo_inc, gto_inc, fol_inc, 
-        f"Simulations: elliptical orbits {year}" + title_appendix, year, out_dir)
+        f"Simulations: elliptical orbits {year}" + title_appendix, year, out_dir)"""
     
+    #STEP 4: Compare *.crs and Celmech output dates to find matches
+    epochs_crs = np.hstack([geo_TCA, gto_TCA, fol_TCA])
+    epochs_crs = calculations.convert_TCA_to_mjd(epochs_crs)
+    epochs_celmech = dates
+    epochs_plugin = epochs_plugin
+    print("epochs crs", epochs_crs)
+    print("epochs celmech", epochs_celmech)
+    print("crs", len(epochs_crs), "celmech", len(epochs_celmech), "plugin", epochs_plugin.shape)
+    matches = calculations.find_matching_indices_MJD(epochs_crs, epochs_celmech)
+    
+    differences_min = [(crs - cel) * 60 * 24 for crs, cel in zip(epochs_crs, epochs_celmech)]
+    print("differences")
+    print(differences_min)
+    
+    valid_matches = [match for match in matches if match[1] is not None and match[0] is not None]
+    print("Matches")
+    print(matches)
+    print("valid")
+    print(np.array(valid_matches).shape)
+    print(len(epochs_crs), len(epochs_celmech), len(matches))
+    
+    valid_crs_indices = [match[0] for match in valid_matches]
+    valid_celmech_indices = [match[1] for match in valid_matches]
+    
+    print(len(valid_crs_indices), len(valid_celmech_indices)) 
+    
+    if not valid_celmech_indices or not valid_crs_indices:
+        raise IndexError("No valid indices found after filtering.")
+    
+    #STEP: Plotting the final results
     # Plot circular and elliptical orbits together
     nod_circ = np.hstack([orbit_data_dict["geo"]["Node"], orbit_data_dict["gto"]["Node"], orbit_data_dict["fol"]["Node"]])
     i_circ = np.hstack([orbit_data_dict["geo"]["I"], orbit_data_dict["gto"]["I"], orbit_data_dict["fol"]["I"]])
@@ -202,7 +252,12 @@ def main_celmech(year:str, err: bool):
     nod_ell = np.hstack([geo_nod, gto_nod, fol_nod])
     i_ell = np.hstack([geo_inc, gto_inc, fol_inc])
     
+    valid_celmech_indices = [index for index in valid_celmech_indices if index < len(nod_circ)]
+    valid_crs_indices = [index for index in valid_crs_indices if index < len(nod_ell)]
+    print(nod_circ.shape, i_circ.shape, nod_ell.shape, i_ell.shape) 
+    
     plotting.i_omega_joined(
-        nod_circ, nod_ell, i_circ, i_ell, 
+        nod_circ[valid_celmech_indices], nod_ell[valid_crs_indices], i_circ[valid_celmech_indices], i_ell[valid_crs_indices], 
         f"Simulations: circular vs. elliptical orbits {year}" + title_appendix, 
-        year, "circular", "elliptical", out_dir)
+        year, "circular", "elliptical", out_dir)    
+    #print(geo_TCA)

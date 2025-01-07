@@ -5,6 +5,7 @@ from tabulate import tabulate
 from datetime import datetime, timedelta
 import getdata
 import tables
+import bisect #https://docs.python.org/3/library/bisect.html
 
 def sources_vs_sizes(sources: np.array, diameter: np.array): 
     """calculate the average sizes per source and print them to the screen
@@ -282,3 +283,107 @@ def from_plugin_to_orbital_elements(file_path: str, year: str, orbit_type: str):
     nu_vals = np.array(nu_vals,  dtype = float)
     
     tables.write_orbital_data_to_txt(dir, name, objX, objY, objZ, objVx, objVy, objVz, a_vals, e_vals, i_vals, raan_vals, omega_vals, nu_vals)
+
+def convert_TCA_to_mjd(dates: np.array):
+    """Converts an array of dates in YYDDD.ddd format to MJD (Modified Julian Date). Used to convert
+    TCA values (I assume the TCA is taken over the arclet of 1-2 min, not the entire orbit) to MJD, so 
+    they can be compared to dates in plugin.pro file ("Kreisbahnproblem"). 
+
+    Args:
+        dates (np.array): list of dates in the YYDDD.ddd format. For one digit years (such as 2005), the format is 
+        for example 5068.2400303, for two digit years, the format is 21072.195442. 
+
+    Returns: (np.array): mjd_array
+        
+    """
+    mjd_array = []
+    for date in dates:
+        # Extract year and day-of-year
+        year_day_str = str(date)
+        if len(year_day_str.split('.')[0]) == 5:  # For years like 2021
+            year = int(year_day_str[:2]) + 2000
+        else:  # For years like 2005 (e.g., 5068)
+            year = int(year_day_str[0]) + 2000
+        day_of_year = float(year_day_str[2:])
+        
+        # Convert fractional day into hours, minutes, and seconds
+        day = int(day_of_year)  # Whole day
+        fractional_day = day_of_year - day
+        total_seconds = int(fractional_day * 86400)  # Convert fractional day to seconds
+        
+        # Create datetime object from year and day-of-year
+        base_date = datetime(year, 1, 1) + timedelta(days=day - 1, seconds=total_seconds)
+        
+        # Convert datetime to MJD
+        date_string = base_date.strftime('%Y %m %d %H %M %S.%f')[:-3] 
+        mjd = date_to_mjd_manual(date_string)
+        #mjd = (base_date - datetime(1858, 11, 17)).total_seconds() / 86400
+        #mjd_array.append(mjd)
+        mjd_array = np.append(mjd_array, mjd)
+        mjd_array = np.array(mjd_array)
+    return mjd_array
+
+def find_matching_indices_MJD(list1: list, list2: list, threshold: float = 0.0007*2):
+    """Compare two lists of MJD dates based on closest values. 
+
+    Args:
+        list1 (list): List of dates (in MJD format)
+        list2 (list): List of dates (in MJD format)
+        threshold (float): Maximal distance between dates that should match (default to 1 min = 86400/60)
+
+    Returns:
+        matching_indices (list): List of tuples with matching indices from both lists.
+        If no match is found within the threshold, the tuple will contain (index, None).
+    """
+    # Sort both lists and store original indices
+    #https://numpy.org/doc/stable/reference/generated/numpy.argsort.html, returns the indices that would sort an array
+    #works in O(n log n)
+    sorted_indices1 = np.argsort(list1)
+    sorted_indices2 = np.argsort(list2)
+    
+    #Indexing works is O(n)
+    sorted_list1 = np.array(list1)[sorted_indices1]
+    sorted_list2 = np.array(list2)[sorted_indices2]
+    
+    # Find matches using binary search
+    matching_indices = []
+    
+    for i in range(len(sorted_list1)):
+        # Find the index of the closest value in sorted_list2
+        idx = bisect.bisect_left(sorted_list2, sorted_list1[i]) #bisect_left(list, num, beg, end) : This function returns the position in the sorted list, where the number passed in argument can be placed so as to maintain the resultant list in sorted order. 
+        
+        # Check if the closest index is before or after the insertion point
+        candidates = []
+        if idx < len(sorted_list2):
+            candidates.append(idx)
+        if idx > 0:
+            candidates.append(idx - 1)
+        
+        # Find the closest match (if within threshold)
+        closest_idx = min(candidates, key=lambda j: abs(sorted_list1[i] - sorted_list2[j]))
+        difference = abs(sorted_list1[i] - sorted_list2[closest_idx])
+        
+        if difference <= threshold:
+            matching_indices.append((sorted_indices1[i], sorted_indices2[closest_idx]))
+        else:
+            matching_indices.append((sorted_indices1[i], None))  # No match within threshold
+    
+    #handle reverse case: elements in sorted_list2 that have no close match in sorted_list1
+    for i in range(len(sorted_list2)):
+        idx = bisect.bisect_left(sorted_list1, sorted_list2[i])
+        
+        # Check if the closest index is before or after the insertion point
+        candidates = []
+        if idx < len(sorted_list1):
+            candidates.append(idx)
+        if idx > 0:
+            candidates.append(idx - 1)
+        
+        # Find the closest match (if within threshold)
+        closest_idx = min(candidates, key=lambda j: abs(sorted_list2[i] - sorted_list1[j]))
+        difference = abs(sorted_list2[i] - sorted_list1[closest_idx])
+        
+        if difference > threshold:
+            matching_indices.append((None, sorted_indices2[i]))  # No match within threshold
+    
+    return matching_indices
