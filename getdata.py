@@ -862,7 +862,6 @@ def get_orbele_and_date_from_celmech(OUT_file_list: list):
     #print(f"Total (failed and not failed) in Celmech: {failed_counter + len(num_obs)}")
     #print(f"Lengths of temp_dates: {len(temp_dates_lengths)}")
     #print(f"Total number of dates: {np.sum(temp_dates_lengths)}")
-
     return data, count, mjd_dates, mask
 
 def array_extender_orbital_data(filename: str):

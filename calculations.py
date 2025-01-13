@@ -387,3 +387,47 @@ def find_matching_indices_MJD(list1: list, list2: list, threshold: float = 0.000
             matching_indices.append((None, sorted_indices2[i]))  # No match within threshold
     
     return matching_indices
+
+# Function to calculate 3d position and velocity from orbital elements, should do the job of the plugin
+#Note: this does not work for the following reasons: 
+#first reason: I need a data for the Celmech input, which I do not have from the *.det file. 
+#second reason: do determine an elliptical or circular orbit in Celmech, I need multiple observations, which I do not get out of the *.det file.
+def orbital_to_cartesian(a, e, i, Omega, omega, nu, mu=398600.4418):  # mu in km^3/s^2 for Earth
+    # Step 1: Calculate distance r
+    r = a * (1 - e**2) / (1 + e * np.cos(np.radians(nu)))
+    
+    # Step 2: Position in orbital plane
+    x_prime = r * np.cos(np.radians(nu))
+    y_prime = r * np.sin(np.radians(nu))
+    z_prime = 0  # Always 0 in the orbital plane
+
+    # Step 3: Velocity in orbital plane
+    p = a * (1 - e**2)  # Semi-latus rectum
+    vx_prime = -np.sqrt(mu / p) * np.sin(np.radians(nu))
+    vy_prime = np.sqrt(mu / p) * (e + np.cos(np.radians(nu)))
+    vz_prime = 0  # Always 0 in the orbital plane
+
+    # Step 4: Transformation matrices for inclination, RAAN, and argument of periapsis
+    R3_Omega = np.array([[np.cos(np.radians(-Omega)), -np.sin(np.radians(-Omega)), 0],
+                         [np.sin(np.radians(-Omega)),  np.cos(np.radians(-Omega)), 0],
+                         [0,                          0,                         1]])
+    
+    R1_i = np.array([[1,  0,                        0],
+                     [0,  np.cos(np.radians(-i)),  -np.sin(np.radians(-i))],
+                     [0,  np.sin(np.radians(-i)),   np.cos(np.radians(-i))]])
+    
+    R3_omega = np.array([[np.cos(np.radians(-omega)), -np.sin(np.radians(-omega)), 0],
+                         [np.sin(np.radians(-omega)),  np.cos(np.radians(-omega)), 0],
+                         [0,                          0,                         1]])
+    
+    # Combined rotation matrix
+    rotation_matrix = R3_Omega @ R1_i @ R3_omega
+
+    # Step 5: Transform position and velocity to inertial frame
+    position_orbital = np.array([x_prime, y_prime, z_prime])
+    velocity_orbital = np.array([vx_prime, vy_prime, vz_prime])
+
+    position_inertial = rotation_matrix @ position_orbital
+    velocity_inertial = rotation_matrix @ velocity_orbital
+
+    return position_inertial, velocity_inertial
