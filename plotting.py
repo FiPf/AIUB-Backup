@@ -491,3 +491,74 @@ def compare_semi_major_plot(first_a: np.array, second_a: np.array, title: str, y
     file_path = save_unique_plot(file_path, directory)
     plt.savefig(file_path, bbox_inches="tight")
     plt.close()
+
+
+def i_omega_joined_with_eccentricity(first_nod: np.array, second_nod: np.array, first_inc: np.array, second_inc: np.array, first_ecc: np.array, second_ecc: np.array, title: str, year: str, first_label: str, second_label: str, directory: str):
+    """Used to plot two different i-omega data sets in one plot with a single eccentricity color bar, and warnings for invalid eccentricity values.
+    
+    Args:
+        first_nod (np.array): omega data of first data set
+        second_nod (np.array): omega data of second data set
+        first_inc (np.array): inclination data of first data set
+        second_inc (np.array): inclination data of second data set
+        first_ecc (np.array): eccentricity data of first data set
+        second_ecc (np.array): eccentricity data of second data set
+        title (str): title for the plot
+        year (str): year of the data
+        first_label (str): label for scatter plot for first data set
+        second_label (str): label for scatter plot for second data set
+        directory (str): directory where to store the plot
+    """
+    
+    # Check and warn if eccentricity values are out of range [0, 1]
+    def check_eccentricity_range(eccentricity_array, label):
+        for ecc in eccentricity_array: 
+            if ecc < 0 or ecc > 1: 
+                print("WARNING. Ecc out of bound!")
+                print(eccentricity_array)
+                break
+        
+    # Check for both datasets
+    check_eccentricity_range(first_ecc, "First Data Set")
+    check_eccentricity_range(second_ecc, "Second Data Set")
+    
+    # Convert nodes
+    first_nod_converted = np.where(np.array(first_nod) >= 180, np.array(first_nod) - 360, np.array(first_nod))
+    first_nod_converted = np.mod(np.array(first_nod_converted) + 180, 360) - 180
+    
+    second_nod_converted = np.where(np.array(second_nod) >= 180, np.array(second_nod) - 360, np.array(second_nod))
+    second_nod_converted = np.mod(np.array(second_nod_converted) + 180, 360) - 180
+    
+    # Clip eccentricity to valid range [0, 1]
+    first_ecc = np.clip(first_ecc, 0, 1)
+    second_ecc = np.clip(second_ecc, 0, 1)
+
+    # Combine the eccentricity data from both datasets
+    combined_nod = np.concatenate([first_nod_converted, second_nod_converted])
+    combined_inc = np.concatenate([first_inc, second_inc])
+    combined_ecc = np.concatenate([first_ecc, second_ecc])
+
+    # Plotting
+    plt.figure(figsize=(10, 6), dpi = 200)
+    plt.title(title)
+    
+    # Scatter plot for both datasets (colored by combined eccentricity)
+    scatter = plt.scatter(combined_nod, combined_inc, c=combined_ecc, s=5, cmap='viridis', label=f"Number of detections {first_label}: {len(first_nod)} + {second_label}: {len(second_nod)}")
+    
+    # Colorbar for the combined eccentricity
+    cbar = plt.colorbar(scatter)
+    cbar.set_label('Eccentricity (Both Data Sets)')
+
+    # Labels and grid
+    plt.xlabel("Right Ascension of Ascending Node $\\Omega$ [°]")
+    plt.ylabel("Inclination [°]")
+    plt.legend(loc="lower center", bbox_to_anchor=(0.5, -0.25), ncol=1)
+    plt.yticks(range(0, 23, 2))
+    plt.xticks(range(-180, 181, 60))
+    plt.grid(True)
+    
+    # Save the plot
+    file_path = f"omega_i_joined_ecc_{year}.png"
+    file_path = save_unique_plot(file_path, directory)
+    plt.savefig(file_path, bbox_inches="tight")
+    plt.close()

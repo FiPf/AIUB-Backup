@@ -307,10 +307,10 @@ def main_celmech(year:str, err: bool, ell: bool):
         f"Simulations: GTO circular vs. elliptical orbits {year}" + title_appendix, 
         year, "circular", "elliptical", out_dir)
 
-    # Follower
+    # FollowUp
     plotting.i_omega_joined(
         nod_circ_fol, nod_ell_fol, i_circ_fol, i_ell_fol, 
-        f"Simulations: Follower circular vs. elliptical orbits {year}" + title_appendix, 
+        f"Simulations: FollowUp circular vs. elliptical orbits {year}" + title_appendix, 
         year, "circular", "elliptical", out_dir)"""
     
     tolerance = [2000, 10, 0.1, 0.1]
@@ -362,17 +362,17 @@ def main_celmech(year:str, err: bool, ell: bool):
     print(f"Unmatched: {unmatched_gto}")
     print(f"Match percentage: {len(matches_gto)/(len(matches_gto) + len(unmatched_gto))}")
 
-    # Plotting matched Follower data
+    # Plotting matched FollowUp data
     matches_fol_nodes, matches_fol_inclinations, crs_fol_nodes, crs_fol_inclinations = extract_matched_data(matches_fol, "fol")
 
     plotting.i_omega_joined(
         matches_fol_nodes, crs_fol_nodes, matches_fol_inclinations, crs_fol_inclinations,
-        f"Simulations: Follower circular vs. elliptical orbits {year}" + title_appendix,
+        f"Simulations: FollowUp circular vs. elliptical orbits {year}" + title_appendix,
         year, "circular", "elliptical", out_dir
     )
 
-    # Show results for Follower matches
-    print("Results Follower Matches")
+    # Show results for FollowUp matches
+    print("Results FollowUp Matches")
     print(f"Matched: {matches_fol}")
     print(f"Unmatched: {unmatched_fol}")
     print(f"Match percentage: {len(matches_gto)/(len(matches_gto) + len(unmatched_gto))}")
@@ -499,10 +499,10 @@ def extract_matched_data(matches, data_type):
             crs_nodes.append(match["crs_row"][3])  # Node for CRS (GTO)
             crs_inclinations.append(match["crs_row"][2])  # Inclination for CRS (GTO)
         elif data_type == "fol":
-            celmech_nodes.append(match["celmech_row"][3])  # Node for Celmech (Follower)
-            celmech_inclinations.append(match["celmech_row"][2])  # Inclination for Celmech (Follower)
-            crs_nodes.append(match["crs_row"][3])  # Node for CRS (Follower)
-            crs_inclinations.append(match["crs_row"][2])  # Inclination for CRS (Follower)
+            celmech_nodes.append(match["celmech_row"][3])  # Node for Celmech (FollowUp)
+            celmech_inclinations.append(match["celmech_row"][2])  # Inclination for Celmech (FollowUp)
+            crs_nodes.append(match["crs_row"][3])  # Node for CRS (FollowUp)
+            crs_inclinations.append(match["crs_row"][2])  # Inclination for CRS (FollowUp)
 
     return celmech_nodes, celmech_inclinations, crs_nodes, crs_inclinations
 
@@ -549,10 +549,10 @@ def extract_unmatched_data(unmatched_data, unmatched_crs_data, data_type):
             if match["crs_row"] is None:
                 index = match["celmech_index"]
                 crs_row = unmatched_crs_dict.get(index, [np.nan, np.nan, np.nan, np.nan])
-                crs_nodes.append(crs_row[3])  # Node for CRS (Follower)
-                crs_inclinations.append(crs_row[2])  # Inclination for CRS (Follower)
+                crs_nodes.append(crs_row[3])  # Node for CRS (FollowUp)
+                crs_inclinations.append(crs_row[2])  # Inclination for CRS (FollowUp)
             else:
-                crs_nodes.append(match["crs_row"][3])  # Node for CRS (Follower)
-                crs_inclinations.append(match["crs_row"][2])  # Inclination for CRS (Follower)
+                crs_nodes.append(match["crs_row"][3])  # Node for CRS (FollowUp)
+                crs_inclinations.append(match["crs_row"][2])  # Inclination for CRS (FollowUp)
 
     return celmech_nodes, celmech_inclinations, crs_nodes, crs_inclinations
