@@ -341,6 +341,32 @@ def find_clusters_for_one_year(file_5mm: str, file_10cm: str, bandwidths: list):
 
     return clusters_5mm, clusters_10cm, clusters_5mm_array, clusters_10cm_array
 
+def find_clusters_for_multiple_years(year_range: np.array, size_in_mm: int, bandwidths:list, orbit_type: str, seed: int):
+    files_5mm = []
+    files_10cm = []
+    
+    all_clusters_5mm = []
+    all_clusters_10cm = []
+    all_clusters_5mm_array = []
+    all_clusters_10cm_array = []
+    
+    for year in year_range: 
+        print(year)
+        file_5mm, file_10cm = get_files_for_cluster_evolution(str(year), orbit_type, seed, size_in_mm,  "input")
+        files_5mm.append(file_5mm)
+        files_10cm.append(file_10cm)
+        
+        clusters_5mm, clusters_10cm, clusters_5mm_array, clusters_10cm_array = find_clusters_for_one_year(file_5mm, file_10cm, bandwidths)
+        all_clusters_5mm.append(clusters_5mm)
+        all_clusters_10cm.append(clusters_10cm)
+        all_clusters_5mm_array.append(clusters_5mm_array)
+        all_clusters_10cm_array.append(clusters_10cm_array)
+            
+    stacked_clusters_5mm_array = np.vstack(all_clusters_5mm_array)
+    stacked_clusters_10cm_array = np.vstack(all_clusters_10cm_array)
+    
+    return all_clusters_5mm, all_clusters_10cm, all_clusters_5mm_array, all_clusters_10cm_array
+
 def cluster_comparison(clusters_5mm_array: np.array, clusters_10cm_array: np.array): 
     count = 0  # Count number of matches
     updated_10cm_cluster_data = []  # Initialize an empty list to store updated cluster data

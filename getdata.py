@@ -5,6 +5,7 @@ from tabulate import tabulate
 import sortdata
 import plotting
 import calculations
+from enum import Enum
 
 def clear_directory(directory: str): 
     """delete every file from the current directory (used to ensure that no plots/files are overwritten when rerunning the code)
@@ -1012,7 +1013,7 @@ def get_data_for_plotting_from_OUT_file(year: str, orbit: str, err: bool, ell: b
 
     return orbit_data_dict[orbit]["A"], orbit_data_dict[orbit]["I"], orbit_data_dict[orbit]["Node"]
 
-def data_for_one_year_one_seed(year: str, seed: str):
+def data_for_one_year_one_seed_old(year: str, seed: str):
     """used to get all the simulation data for a specific year and seed, not separated/sorted
 
     Args:
@@ -1558,5 +1559,59 @@ def data_for_one_year_one_seed_propagate(year: str, seed: str):
         data_followup_det = array_extender(followup_file_det)
         
         data_det = np.hstack([data_GEO_det, data_GTO_det, data_followup_det])
+    
+    return data_crs, data_det
+
+class PopulationType(Enum):
+    NEWPOP_TH3 = "npth3"
+    PROPAGATE = "prop"
+    NEWPOP = "newpo"
+    TH3 = "new2"
+    TH25 = "new"
+    NORMAL = ""
+
+def data_for_one_year_one_seed(year: str, seed: str, population_type: PopulationType):
+    """used to get all the simulation data for a specific year and seed, not separated/sorted
+
+    Args:
+        year (str): year of data
+        seed (str): seed of data (1, 2, 3 or 4)
+
+    Returns:
+        data_crs (np.array): crossing data for that year
+        data_det (np.array): detection data for that year
+    """
+    year2 = year[2:]
+    
+    if int(year2) < (18 if population_type == PopulationType.NEWPOP_TH3 else 19):
+        suffix = ""
+    else:
+        suffix = f"_{population_type.value}"
+
+    GEO_file_crs = f"stat_Master_{year2}_geo_s{seed}{suffix}.crs"
+    GTO_file_crs = f"stat_Master_{year2}_gto_s{seed}{suffix}.crs"
+    followup_file_crs = f"stat_Master_{year2}_fol_s{seed}{suffix}.crs"
+    GEO_file_crs = os.path.join("input", GEO_file_crs)
+    GTO_file_crs = os.path.join("input", GTO_file_crs)
+    followup_file_crs = os.path.join("input", followup_file_crs)
+
+    data_GTO_crs = array_extender(GTO_file_crs)
+    data_GEO_crs = array_extender(GEO_file_crs)
+    data_followup_crs = array_extender(followup_file_crs)
+
+    data_crs = np.hstack([data_GEO_crs, data_GTO_crs, data_followup_crs])
+
+    GEO_file_det = f"stat_Master_{year2}_geo_s{seed}{suffix}.det"
+    GTO_file_det = f"stat_Master_{year2}_gto_s{seed}{suffix}.det"
+    followup_file_det = f"stat_Master_{year2}_fol_s{seed}{suffix}.det"
+    GEO_file_det = os.path.join("input", GEO_file_det)
+    GTO_file_det = os.path.join("input", GTO_file_det)
+    followup_file_det = os.path.join("input", followup_file_det)
+
+    data_GTO_det = array_extender(GTO_file_det)
+    data_GEO_det = array_extender(GEO_file_det)
+    data_followup_det = array_extender(followup_file_det)
+    
+    data_det = np.hstack([data_GEO_det, data_GTO_det, data_followup_det])
     
     return data_crs, data_det
