@@ -128,20 +128,20 @@ def main_celmech(year:str, err: bool, ell: bool):
 
     plotting.i_omega_joined_with_eccentricity(
         matches_geo_nodes, crs_geo_nodes, matches_geo_inclinations, crs_geo_inclinations, matches_geo_ecc, crs_geo_ecc,
-        f"Simulations: GEO circular vs. elliptical orbits {year}" + title_appendix,
+        f"Simulations: GEO circular (Celmech) vs. elliptical (*.crs) orbits {year}",
         year, "circular", "elliptical", out_dir
     )
     
     plotting.i_omega_joined(
         matches_geo_nodes, crs_geo_nodes, matches_geo_inclinations, crs_geo_inclinations,
-        f"Simulations: GEO circular vs. elliptical orbits {year}" + title_appendix,
+        f"Simulations: GEO circular (Celmech) vs. elliptical (*.crs) orbits {year}",
         year, "circular", "elliptical", out_dir
     )
 
     # Show results for GEO matches
     print("Results GEO Matches")
-    print(f"Matched: {matches_geo}")
-    print(f"Unmatched: {unmatched_geo}")
+    #print(f"Matched: {matches_geo}")
+    #print(f"Unmatched: {unmatched_geo}")
     print(f"Match percentage: {len(matches_geo)/(len(matches_geo) + len(unmatched_geo))}")
 
     # Plotting matched GTO data
@@ -149,20 +149,20 @@ def main_celmech(year:str, err: bool, ell: bool):
 
     plotting.i_omega_joined_with_eccentricity(
         matches_gto_nodes, crs_gto_nodes, matches_gto_inclinations, crs_gto_inclinations, matches_gto_ecc, crs_gto_ecc,
-        f"Simulations: GTO circular vs. elliptical orbits {year}" + title_appendix,
+        f"Simulations: GTO circular (Celmech) vs. elliptical (*.crs) orbits {year}",
         year, "circular", "elliptical", out_dir
     )
     
     plotting.i_omega_joined(
         matches_gto_nodes, crs_gto_nodes, matches_gto_inclinations, crs_gto_inclinations,
-        f"Simulations: GTO circular vs. elliptical orbits {year}" + title_appendix,
+        f"Simulations: GTO circular (Celmech) vs. elliptical (*.crs) orbits {year}",
         year, "circular", "elliptical", out_dir
     )
 
     # Show results for GTO matches
     print("Results GTO Matches")
-    print(f"Matched: {matches_gto}")
-    print(f"Unmatched: {unmatched_gto}")
+    #print(f"Matched: {matches_gto}")
+    #print(f"Unmatched: {unmatched_gto}")
     print(f"Match percentage: {len(matches_gto)/(len(matches_gto) + len(unmatched_gto))}")
 
     # Plotting matched FollowUp data
@@ -170,20 +170,20 @@ def main_celmech(year:str, err: bool, ell: bool):
 
     plotting.i_omega_joined_with_eccentricity(
         matches_fol_nodes, crs_fol_nodes, matches_fol_inclinations, crs_fol_inclinations, matches_fol_ecc, crs_fol_ecc,
-        f"Simulations: FollowUp circular vs. elliptical orbits {year}" + title_appendix,
+        f"Simulations: FOL circular (Celmech) vs. elliptical (*.crs) orbits {year}",
         year, "circular", "elliptical", out_dir
     )
     
     plotting.i_omega_joined(
         matches_fol_nodes, crs_fol_nodes, matches_fol_inclinations, crs_fol_inclinations,
-        f"Simulations: FollowUp circular vs. elliptical orbits {year}" + title_appendix,
+        f"Simulations: FOL circular (Celmech) vs. elliptical (*.crs) orbits {year}",
         year, "circular", "elliptical", out_dir
     )
 
     # Show results for FollowUp matches
     print("Results FollowUp Matches")
-    print(f"Matched: {matches_fol}")
-    print(f"Unmatched: {unmatched_fol}")
+    #print(f"Matched: {matches_fol}")
+    #print(f"Unmatched: {unmatched_fol}")
     print(f"Match percentage: {len(matches_gto)/(len(matches_gto) + len(unmatched_gto))}")
 
     # Extract unmatched data for GEO
@@ -192,13 +192,13 @@ def main_celmech(year:str, err: bool, ell: bool):
     # Plot unmatched GEO data
     plotting.i_omega_joined_with_eccentricity(
         unmatched_geo_nodes, crs_unmatched_geo_nodes, unmatched_geo_inclinations, crs_unmatched_geo_inclinations, unmatched_geo_ecc, crs_unmatched_geo_ecc,
-        f"Simulations: GEO unmatched circular vs. elliptical orbits {year}" + title_appendix,
+        f"Simulations: GEO unmatched circular (Celmech) vs. elliptical orbits (*.crs) {year}",
         year, "circular", "elliptical", out_dir
     )
     
     plotting.i_omega_joined(
         unmatched_geo_nodes, crs_unmatched_geo_nodes, unmatched_geo_inclinations, crs_unmatched_geo_inclinations,
-        f"Simulations: GEO unmatched circular vs. elliptical orbits {year}" + title_appendix,
+        f"Simulations: GEO unmatched circular (Celmech) vs. elliptical orbits (*.crs) {year}",
         year, "circular", "elliptical", out_dir
     )
 
@@ -208,13 +208,13 @@ def main_celmech(year:str, err: bool, ell: bool):
     # Plot unmatched GTO data
     plotting.i_omega_joined_with_eccentricity(
         unmatched_gto_nodes, crs_unmatched_gto_nodes, unmatched_gto_inclinations, crs_unmatched_gto_inclinations, unmatched_gto_ecc, crs_unmatched_gto_ecc,
-        f"Simulations: GTO unmatched circular vs. elliptical orbits {year}" + title_appendix,
+        f"Simulations: GTO unmatched circular (Celmech) vs. elliptical orbits (*.crs) {year}",
         year, "circular", "elliptical", out_dir
     )
 
     plotting.i_omega_joined(
         unmatched_gto_nodes, crs_unmatched_gto_nodes, unmatched_gto_inclinations, crs_unmatched_gto_inclinations,
-        f"Simulations: GTO unmatched circular vs. elliptical orbits {year}" + title_appendix,
+        f"Simulations: GTO unmatched circular (Celmech) vs. elliptical orbits (*.crs) {year}",
         year, "circular", "elliptical", out_dir
     )
 
@@ -224,13 +224,13 @@ def main_celmech(year:str, err: bool, ell: bool):
     # Plot unmatched FOL data
     plotting.i_omega_joined_with_eccentricity(
         unmatched_fol_nodes, crs_unmatched_fol_nodes, unmatched_fol_inclinations, crs_unmatched_fol_inclinations, unmatched_fol_ecc, crs_unmatched_fol_ecc,
-        f"Simulations: FOL unmatched circular vs. elliptical orbits {year}" + title_appendix,
+        f"Simulations: FOL unmatched circular (Celmech) vs. elliptical orbits (*.crs) {year}",
         year, "circular", "elliptical", out_dir
     )
     
     plotting.i_omega_joined(
         unmatched_fol_nodes, crs_unmatched_fol_nodes, unmatched_fol_inclinations, crs_unmatched_fol_inclinations,
-        f"Simulations: FOL unmatched circular vs. elliptical orbits {year}" + title_appendix,
+        f"Simulations: FOL unmatched circular (Celmech) vs. elliptical orbits (*.crs) {year}",
         year, "circular", "elliptical", out_dir
     )
 

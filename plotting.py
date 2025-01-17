@@ -451,8 +451,8 @@ def i_omega_joined(first_nod: np.array, second_nod: np.array, first_inc: np.arra
     
     plt.figure(figsize=(10, 6), dpi = 200)
     plt.title(title)
-    plt.scatter(first_nod_converted, first_inc, c="olive", s=5, label=f"Number of detections {first_label}: {len(first_nod)}")
-    plt.scatter(second_nod_converted, second_inc, c="deeppink", s=5, label=f"Number of detections {second_label}: {len(second_nod)}")
+    plt.scatter(first_nod_converted, first_inc, c="b", s=5, label=f"Number of detections {first_label}: {len(first_nod)}")
+    plt.scatter(second_nod_converted, second_inc, c="r", s=5, label=f"Number of detections {second_label}: {len(second_nod)}")
     plt.xlabel("Right Ascension of Ascending Node $\\Omega$ [°]")
     plt.ylabel("Inclination [°]")
     plt.legend(loc="lower center", bbox_to_anchor=(0.5, -0.25), ncol=1)
