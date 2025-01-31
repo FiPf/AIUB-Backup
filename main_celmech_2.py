@@ -92,7 +92,7 @@ def main_celmech_2(year:str, err:bool, ell: bool):
     fol_inc = fol_crs[9]
     fol_nod = fol_crs[12]
 
-    print(f"Geo dataset size: CRS={len(geo_inc)}, Celmech={np.array(orbit_data_dict['geo']['I']).shape}")
+    print(f"GEO dataset size: CRS={len(geo_inc)}, Celmech={np.array(orbit_data_dict['geo']['I']).shape}")
     print(f"GTO dataset size: CRS={len(gto_inc)}, Celmech={np.array(orbit_data_dict['gto']['I']).shape}")
     print(f"FOL dataset size: CRS={len(fol_inc)}, Celmech={np.array(orbit_data_dict['fol']['I']).shape}")
     

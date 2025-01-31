@@ -564,15 +564,16 @@ def i_omega_joined_with_eccentricity(first_nod: np.array, second_nod: np.array, 
     plt.close()
 
 def plot_DISCOS_file(raan: np.array, inc: np.array, ecc: np.array, breakup_epoch: np.array, title: str, directory: str): 
-    """_summary_
+    """DISCOS files were provided by Andre Horstmann, they contain the breakup events (orbital parameters and epochs) used
+    for the generation of the *.pop files. We want to compare those with our observations/simulations. 
 
     Args:
-        raan (np.array): _description_
-        inc (np.array): _description_
-        ecc (np.array): _description_
-        breakup_epoch (np.array): _description_
-        title (str): _description_
-        directory (str): _description_
+        raan (np.array): array of raan values
+        inc (np.array): array of inc values
+        ecc (np.array): array of ecc values
+        breakup_epoch (np.array): breakup epoch 
+        title (str): title for the plot
+        directory (str): directory where to store the plot
     """
     raan_converted = np.where(np.array(raan) >= 180, np.array(raan) - 360, np.array(raan))
     raan_converted = np.mod(np.array(raan_converted) + 180, 360) - 180
@@ -595,6 +596,41 @@ def plot_DISCOS_file(raan: np.array, inc: np.array, ecc: np.array, breakup_epoch
         plt.text(x, y, year, fontsize=8, ha="right", va="bottom", color="black", alpha=0.7)
 
     file_path = "population_clusters.png"
+    file_path = save_unique_plot(file_path, directory)
+    plt.savefig(file_path, bbox_inches="tight")
+    plt.close()
+    
+def i_omega_MLI_separately(inc: np.array, raan: np.array, sources: np.array, year: str): 
+    """i-omega plotter but with MLI in a separate color. MLI (multi layer insulation) have a high area-to-mass
+    ratio, so may have more scattered orbits. 
+
+    Args:
+        inc (np.array): inc values array of the modeled breakup events
+        raan (np.array): raan values array of the modeled breakup events
+        ecc (np.array): ecc values array of the modeled breakup events
+    """
+    raan_converted = np.where(np.array(raan) >= 180, np.array(raan) - 360, np.array(raan))
+    raan_converted = np.mod(np.array(raan_converted) + 180, 360) - 180
+    
+    breakup_years = [ele[:4] for ele in breakup_epoch]  # Extract year from the timestamp
+    inc_MLI = [i for i in inc if i == 6]
+    raan_MLI = [r for r in raan_converted if i == 6]
+    
+    inc_rest = [i for i in inc if i != 6]
+    raan_rest = [i for i in raan_converted if i != 6]
+    
+    plt.figure(figsize=(10, 6), dpi=200)
+    plt.title(title)
+    plt.scatter(raan_MLI, inc_MLI, c = "r", s=5)
+    plt.scatter(raan_rest, inc_rest, c = "b", s=5)
+    
+    plt.xlabel("RAAN [°]")
+    plt.ylabel("Inclination [°]")
+    plt.ylim(0, 22)
+    plt.xlim(-180, 180)
+    plt.grid(True)
+
+    file_path = f"MLI_separate_{year}.png"
     file_path = save_unique_plot(file_path, directory)
     plt.savefig(file_path, bbox_inches="tight")
     plt.close()
