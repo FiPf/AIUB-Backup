@@ -72,7 +72,7 @@ def main_celmech_2(year:str, err:bool, ell: bool):
         orbit_data_dict[orbit]["I"] = orbit_data_dict[orbit]["I"][mask_apogee]
         orbit_data_dict[orbit]["Node"] = orbit_data_dict[orbit]["Node"][mask_apogee]"""
 
-    geo_crs, gto_crs, fol_crs, geo_det, gto_det, fol_det = data_returner(year, 1, population_type)
+    geo_crs, gto_crs, fol_crs, geo_det, gto_det, fol_det = data_returner(year, 4, population_type)
 
     geo_crs = np.array(geo_crs)
     geo_crs = sortdata.remove_zero_background_mag(geo_crs, background_mag_index = 21, mag_index = 20, illumination_index = 19)

@@ -562,7 +562,7 @@ def i_omega_joined_with_eccentricity(first_nod: np.array, second_nod: np.array, 
     file_path = save_unique_plot(file_path, directory)
     plt.savefig(file_path, bbox_inches="tight")
     plt.close()
-
+    
 def plot_DISCOS_file(raan: np.array, inc: np.array, ecc: np.array, breakup_epoch: np.array, title: str, directory: str): 
     """DISCOS files were provided by Andre Horstmann, they contain the breakup events (orbital parameters and epochs) used
     for the generation of the *.pop files. We want to compare those with our observations/simulations. 
@@ -612,7 +612,6 @@ def i_omega_MLI_separately(inc: np.array, raan: np.array, sources: np.array, yea
     raan_converted = np.where(np.array(raan) >= 180, np.array(raan) - 360, np.array(raan))
     raan_converted = np.mod(np.array(raan_converted) + 180, 360) - 180
     
-    breakup_years = [ele[:4] for ele in breakup_epoch]  # Extract year from the timestamp
     inc_MLI = [i for i in inc if i == 6]
     raan_MLI = [r for r in raan_converted if i == 6]
     
