@@ -953,6 +953,8 @@ def data_returner(year: str, seed: str, population_type: PopulationType):
     
     if int(year2) < (18 if population_type == PopulationType.NEWPOP_TH3 else 19):
         suffix = ""
+    if (population_type == PopulationType.NORMAL):
+        suffix = ""
     else:
         suffix = f"_{population_type.value}"
     

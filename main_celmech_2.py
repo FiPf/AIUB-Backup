@@ -5,8 +5,10 @@ import getdata
 import plotting
 import calculations
 import os
+from getdata import PopulationType, data_returner
 
 def main_celmech_2(year:str, err:bool, ell: bool): 
+    population_type = PopulationType.NORMAL
     orbit_type_list = ["geo", "gto", "fol"]
     total_num_of_objects = 0
     yy = year[2:]
@@ -57,12 +59,12 @@ def main_celmech_2(year:str, err:bool, ell: bool):
         ecc_data = np.array(orbit_data_dict[orbit]["E"])
         a_data = np.array(orbit_data_dict[orbit]["A"])
     
-        mask = inc_data <= maxinc
+        """mask = inc_data <= maxinc
         orbit_data_dict[orbit]["I"] = inc_data[mask]
         orbit_data_dict[orbit]["Node"] = node_data[mask]
         orbit_data_dict[orbit]["E"] = ecc_data[mask]
         orbit_data_dict[orbit]["A"] = a_data[mask]
-        """
+        
         assert len(orbit_data_dict[orbit]["I"]) == len(orbit_data_dict[orbit]["Node"]), "Filtering went wrong"   
 
         apogee = orbit_data_dict[orbit]["A"] * (1 + orbit_data_dict[orbit]["E"])
@@ -70,23 +72,23 @@ def main_celmech_2(year:str, err:bool, ell: bool):
         orbit_data_dict[orbit]["I"] = orbit_data_dict[orbit]["I"][mask_apogee]
         orbit_data_dict[orbit]["Node"] = orbit_data_dict[orbit]["Node"][mask_apogee]"""
 
-    geo_crs, gto_crs, fol_crs, geo_det, gto_det, fol_det = getdata.data_returner(year, 4)
+    geo_crs, gto_crs, fol_crs, geo_det, gto_det, fol_det = data_returner(year, 1, population_type)
 
     geo_crs = np.array(geo_crs)
     geo_crs = sortdata.remove_zero_background_mag(geo_crs, background_mag_index = 21, mag_index = 20, illumination_index = 19)
-    geo_crs = sortdata.sort_for_inclination_all_data(geo_crs, 9, 22)
+    #geo_crs = sortdata.sort_for_inclination_all_data(geo_crs, 9, 22)
     geo_inc = geo_crs[9]
     geo_nod = geo_crs[12]
     
     gto_crs = np.array(gto_crs)
     gto_crs = sortdata.remove_zero_background_mag(gto_crs, background_mag_index = 21, mag_index = 20, illumination_index = 19)
-    gto_crs = sortdata.sort_for_inclination_all_data(gto_crs, 9, 22)
+    #gto_crs = sortdata.sort_for_inclination_all_data(gto_crs, 9, 22)
     gto_inc = gto_crs[9]
     gto_nod = gto_crs[12]
 
     fol_crs = np.array(fol_crs)
     fol_crs = sortdata.remove_zero_background_mag(fol_crs, background_mag_index = 21, mag_index = 20, illumination_index = 19)
-    fol_crs = sortdata.sort_for_inclination_all_data(fol_crs, 9, 22)
+    #fol_crs = sortdata.sort_for_inclination_all_data(fol_crs, 9, 22)
     fol_inc = fol_crs[9]
     fol_nod = fol_crs[12]
 
@@ -104,4 +106,4 @@ def main_celmech_2(year:str, err:bool, ell: bool):
         print(f"{orbit.upper()} - Total: {total_attempts}, Successes: {num_failures}, Failures: {num_successes}")
 
     
-    out_dir = os.path.join("output_celmech", "Plots")
+    #out_dir = os.path.join("output_celmech", "Plots")
