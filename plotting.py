@@ -562,3 +562,39 @@ def i_omega_joined_with_eccentricity(first_nod: np.array, second_nod: np.array, 
     file_path = save_unique_plot(file_path, directory)
     plt.savefig(file_path, bbox_inches="tight")
     plt.close()
+
+def plot_DISCOS_file(raan: np.array, inc: np.array, ecc: np.array, breakup_epoch: np.array, title: str, directory: str): 
+    """_summary_
+
+    Args:
+        raan (np.array): _description_
+        inc (np.array): _description_
+        ecc (np.array): _description_
+        breakup_epoch (np.array): _description_
+        title (str): _description_
+        directory (str): _description_
+    """
+    raan_converted = np.where(np.array(raan) >= 180, np.array(raan) - 360, np.array(raan))
+    raan_converted = np.mod(np.array(raan_converted) + 180, 360) - 180
+    
+    breakup_years = [ele[:4] for ele in breakup_epoch]  # Extract year from the timestamp
+    
+    plt.figure(figsize=(10, 6), dpi=200)
+    plt.title(title)
+    scatter = plt.scatter(raan_converted, inc, c=ecc, cmap="viridis", s=30, vmin = 0, vmax = 1)
+    plt.colorbar(label="Eccentricity")
+    
+    plt.xlabel("RAAN [°]")
+    plt.ylabel("Inclination [°]")
+    plt.ylim(0, 22)
+    plt.xlim(-180, 180)
+    plt.grid(True)
+    
+    # Add text labels for breakup years
+    for x, y, year in zip(raan_converted, inc, breakup_years):
+        plt.text(x, y, year, fontsize=8, ha="right", va="bottom", color="black", alpha=0.7)
+
+    file_path = "population_clusters.png"
+    file_path = save_unique_plot(file_path, directory)
+    plt.savefig(file_path, bbox_inches="tight")
+    plt.close()

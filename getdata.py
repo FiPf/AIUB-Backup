@@ -1312,3 +1312,66 @@ def data_for_one_year_one_seed(year: str, seed: str, population_type: Population
     data_det = np.hstack([data_GEO_det, data_GTO_det, data_followup_det])
     
     return data_crs, data_det
+
+def read_DISCOS_file(filename: str): 
+    """function to read the DISCOS file. DISCOS files contain clusters from the simulations from Andre Horstmann. 
+    
+    Args:
+        filename (str): Path to the space debris data file.
+    
+    Returns:
+        data (np.array): a numpy array of numpy arrays with all the data
+    """
+    with open(filename, 'r') as f:
+        lines = f.readlines()
+    
+    # Extract column names from the first line
+    header = lines[0].strip().split()
+    
+    ID, NR, SW, INT_DESI, SATNO, NA, TY, CL, ABC, MASS = [], [], [], [], [], [], [], [], [], []
+    DIAMTR, SMA, ECC, INC, RAAN, AOP, TANO, DC, RCSFAC, RPOP1, RPOP2 = [], [], [], [], [], [], [], [], [], [], []
+    SEED, Breakup_Epoch, Launch_Epoch, Perigee_Alt, Apogee_Alt = [], [], [], [], []
+    
+    for line in lines[1:]:  # Skip header
+        parts = line.split()
+        if len(parts) >= 20 and parts[0].replace('.', '', 1).isdigit():
+            ID.append(float(parts[0]))
+            NR.append(float(parts[1]))
+            SW.append(float(parts[2]))
+            INT_DESI.append(parts[3])
+            SATNO.append(float(parts[4]))
+            NA.append(float(parts[5]))
+            TY.append(float(parts[6]))
+            CL.append(float(parts[7]))
+            ABC.append(float(parts[8]))
+            MASS.append(float(parts[9]))
+            DIAMTR.append(float(parts[10]))
+            SMA.append(float(parts[11]))
+            ECC.append(float(parts[12]))
+            INC.append(float(parts[13]))
+            RAAN.append(float(parts[14]))
+            AOP.append(float(parts[15]))
+            TANO.append(float(parts[16]))
+            DC.append(float(parts[17]))
+            RCSFAC.append(float(parts[18]))
+            RPOP1.append(float(parts[19]))
+            RPOP2.append(float(parts[20]))
+            SEED.append(float(parts[21]))
+            
+            breakup_epoch = " ".join(parts[22:24])  
+            launch_epoch = " ".join(parts[24:26])  
+            Breakup_Epoch.append(breakup_epoch)
+            Launch_Epoch.append(launch_epoch)
+            
+            Perigee_Alt.append(float(parts[26]))
+            Apogee_Alt.append(float(parts[27]))
+    
+    data = [
+        np.array(ID), np.array(NR), np.array(SW), np.array(INT_DESI), np.array(SATNO), np.array(NA),
+        np.array(TY), np.array(CL), np.array(ABC), np.array(MASS), np.array(DIAMTR), np.array(SMA), np.array(ECC),
+        np.array(INC), np.array(RAAN), np.array(AOP), np.array(TANO), np.array(DC), np.array(RCSFAC),
+        np.array(RPOP1), np.array(RPOP2), np.array(SEED), np.array(Breakup_Epoch), np.array(Launch_Epoch),
+        np.array(Perigee_Alt), np.array(Apogee_Alt)
+    ]
+    
+    return data
