@@ -377,19 +377,54 @@ def separate_data_by_custom_intervals(input_file, output_dir, intervals):
             for line in lines:
                 file.write(f'{line}\n')
 
-def remove_zero_background_mag(data: np.array,  background_mag_index: int) -> np.array:
+def remove_zero_background_mag(data: np.array, background_mag_index: int, mag_index: int, illumination_index: int) -> np.array:
     """
-    Removes objects with a background magnitude (mag_backgr) equal to 0.000. Function was used
-    to compare crossings to plugin output. 
+    Removes objects with a background magnitude (mag_backgr) equal to 0.000 and objects with an object magnitude of 99 or more.
+    Function was used to compare crossings to plugin output.
 
     Args:
-        data (list): crossing or detection data
+        data (np.array): Crossing or detection data.
+        background_mag_index (int): Index of the background magnitude in the data array.
+        mag_index (int): Index of the object magnitude in the data array.
 
     Returns:
-        filtered_data (list): Filtered np.array of numpy arrays with objects removed where background magnitude is 0.000.
+        np.array: Filtered numpy array with objects removed where background magnitude is 0.000 or object magnitude is 90 or more.
     """
-    mag_backgr = data[background_mag_index]
-    mask = mag_backgr != 0.000
-    filtered_data = [arr[mask] for arr in data]
-    filtered_data = np.array(filtered_data) 
+    
+    # Filter out objects with background magnitude equal to 0.000
+    mask_background = (data[background_mag_index] != 0.000) & (data[background_mag_index] < 21.3)
+    filtered_data = data[:, mask_background]  # Apply mask to all rows
+    
+    # Filter out objects with object magnitude 90 or more
+    mask_magnitude = filtered_data[mag_index] < 50
+    filtered_data = filtered_data[:, mask_magnitude]  # Apply second mask
+
+    #Filter out objects with objects with illumination zero
+    #mask_illumination = filtered_data[illumination_index] != 0
+    #filtered_data = filtered_data[:, mask_illumination]
+    
+    mag_obj_before = data[mag_index]
+    mag_backgr_before = data[background_mag_index]
+    
+    mag_obj_after = filtered_data[mag_index]
+    mag_backgr_after = filtered_data[background_mag_index]
+    fig, ax = plt.subplots(1, 2, figsize=(12, 5))
+
+    ax[0].scatter(mag_backgr_before, mag_obj_before, s=5, alpha=0.5, label="Before Filtering")
+    ax[0].set_xlabel("Background Magnitude")
+    ax[0].set_ylabel("Object Magnitude")
+    ax[0].set_title("Before Filtering")
+    ax[0].legend()
+    ax[0].grid(True)
+
+    ax[1].scatter(mag_backgr_after, mag_obj_after, s=5, alpha=0.5, color="red", label="After Filtering")
+    ax[1].set_xlabel("Background Magnitude")
+    ax[1].set_ylabel("Object Magnitude")
+    ax[1].set_title("After Filtering")
+    ax[1].legend()
+    ax[1].grid(True)
+
+    plt.tight_layout()
+    plt.show()
+    
     return filtered_data

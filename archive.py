@@ -300,3 +300,245 @@ def data_for_one_year_one_seed_propagate(year: str, seed: str):
         data_det = np.hstack([data_GEO_det, data_GTO_det, data_followup_det])
     
     return data_crs, data_det
+
+def data_returner(year: str, seed: str):
+    """used to get all simulation data for one specific year and seed, separated into the different orbit types
+
+    Args:
+        year (str): year of the data
+        seed (str): seed of the data (1,2,3 or 4)
+
+    Returns:
+        (np.arrays): crossing and detection data separated into different orbit types
+    """
+    # Define the directory
+    directory = "input"
+
+    year2 = year[2:]
+
+    # Construct file paths for .crs files
+    if int(year) == 2023 and int(seed) == 1:  # the files for 2023 and seed 1 are named differently
+        GEO_file_crs = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}_10cm.crs")
+        GTO_file_crs = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}_10cm.crs")
+        followup_file_crs = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}_10cm.crs")
+    else:
+        GEO_file_crs = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}.crs")
+        GTO_file_crs = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}.crs")
+        followup_file_crs = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}.crs")
+
+    # Load .crs data
+    data_GTO_crs = array_extender(GTO_file_crs)
+    data_GEO_crs = array_extender(GEO_file_crs)
+    data_followup_crs = array_extender(followup_file_crs)
+
+    # Construct file paths for .det files
+    if int(year) == 2023 and int(seed) == 1:
+        GEO_file_det = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}_10cm.det")
+        GTO_file_det = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}_10cm.det")
+        followup_file_det = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}_10cm.det")
+    else:
+        GEO_file_det = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}.det")
+        GTO_file_det = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}.det")
+        followup_file_det = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}.det")
+
+    # Load .det data
+    data_GTO_det = array_extender(GTO_file_det)
+    data_GEO_det = array_extender(GEO_file_det)
+    data_followup_det = array_extender(followup_file_det)
+
+    # Return the data
+    return data_GEO_crs, data_GTO_crs, data_followup_crs, data_GEO_det, data_GTO_det, data_followup_det
+
+def data_returner_newpop(year: str, seed: str):
+    """used to get all simulation data for one specific year and seed, separated into the different orbit types
+
+    Args:
+        year (str): year of the data
+        seed (str): seed of the data (1,2,3 or 4)
+
+    Returns:
+        (np.arrays): crossing and detection data separated into different orbit types
+    """
+    # Define the directory
+    directory = "input"
+
+    year2 = year[2:]
+    
+    if int(year2) < 18: 
+        # Construct file paths for .crs files
+        GEO_file_crs = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}.crs")
+        GTO_file_crs = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}.crs")
+        followup_file_crs = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}.crs")
+        # Construct file paths for .det files
+        GEO_file_det = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}.det")
+        GTO_file_det = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}.det")
+        followup_file_det = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}.det")
+
+    else: #case where the new pop files were used
+        GEO_file_crs = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}_newpo.crs")
+        GTO_file_crs = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}_newpo.crs")
+        followup_file_crs = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}_newpo.crs")
+
+        GEO_file_det = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}_newpo.det")
+        GTO_file_det = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}_newpo.det")
+        followup_file_det = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}_newpo.det")
+        
+    # Load .crs data
+    data_GTO_crs = array_extender(GTO_file_crs)
+    data_GEO_crs = array_extender(GEO_file_crs)
+    data_followup_crs = array_extender(followup_file_crs)   
+
+    # Load .det data
+    data_GTO_det = array_extender(GTO_file_det)
+    data_GEO_det = array_extender(GEO_file_det)
+    data_followup_det = array_extender(followup_file_det)
+
+    # Return the data
+    return data_GEO_crs, data_GTO_crs, data_followup_crs, data_GEO_det, data_GTO_det, data_followup_det
+
+def data_returner_newpop_th3(year: str, seed: str):
+    """used to get all simulation data for one specific year and seed, separated into the different orbit types
+
+    Args:
+        year (str): year of the data
+        seed (str): seed of the data (1,2,3 or 4)
+
+    Returns:
+        (np.arrays): crossing and detection data separated into different orbit types
+    """
+    # Define the directory
+    directory = "input"
+
+    year2 = year[2:]
+    
+    if int(year2) < 18: 
+        # Construct file paths for .crs files
+        GEO_file_crs = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}.crs")
+        GTO_file_crs = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}.crs")
+        followup_file_crs = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}.crs")
+        # Construct file paths for .det files
+        GEO_file_det = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}.det")
+        GTO_file_det = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}.det")
+        followup_file_det = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}.det")
+
+    else: #case where the new pop files were used
+        GEO_file_crs = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}_npth3.crs")
+        GTO_file_crs = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}_npth3.crs")
+        followup_file_crs = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}_npth3.crs")
+
+        GEO_file_det = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}_npth3.det")
+        GTO_file_det = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}_npth3.det")
+        followup_file_det = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}_npth3.det")
+        
+    # Load .crs data
+    data_GTO_crs = array_extender(GTO_file_crs)
+    data_GEO_crs = array_extender(GEO_file_crs)
+    data_followup_crs = array_extender(followup_file_crs)   
+
+    # Load .det data
+    data_GTO_det = array_extender(GTO_file_det)
+    data_GEO_det = array_extender(GEO_file_det)
+    data_followup_det = array_extender(followup_file_det)
+
+    # Return the data
+    return data_GEO_crs, data_GTO_crs, data_followup_crs, data_GEO_det, data_GTO_det, data_followup_det
+
+
+def data_returner_propagate(year: str, seed: str):
+    """used to get all simulation data for one specific year and seed, separated into the different orbit types
+
+    Args:
+        year (str): year of the data
+        seed (str): seed of the data (1,2,3 or 4)
+
+    Returns:
+        (np.arrays): crossing and detection data separated into different orbit types
+    """
+    # Define the directory
+    directory = "input"
+
+    year2 = year[2:]
+    
+    if int(year2) < 19: 
+        # Construct file paths for .crs files
+        GEO_file_crs = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}.crs")
+        GTO_file_crs = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}.crs")
+        followup_file_crs = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}.crs")
+        # Construct file paths for .det files
+        GEO_file_det = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}.det")
+        GTO_file_det = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}.det")
+        followup_file_det = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}.det")
+
+    else: #case where the new pop files were used
+        GEO_file_crs = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}_prop.crs")
+        GTO_file_crs = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}_prop.crs")
+        followup_file_crs = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}_prop.crs")
+
+        GEO_file_det = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}_prop.det")
+        GTO_file_det = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}_prop.det")
+        followup_file_det = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}_prop.det")
+        
+    # Load .crs data
+    data_GTO_crs = array_extender(GTO_file_crs)
+    data_GEO_crs = array_extender(GEO_file_crs)
+    data_followup_crs = array_extender(followup_file_crs)   
+
+    # Load .det data
+    data_GTO_det = array_extender(GTO_file_det)
+    data_GEO_det = array_extender(GEO_file_det)
+    data_followup_det = array_extender(followup_file_det)
+
+    # Return the data
+    return data_GEO_crs, data_GTO_crs, data_followup_crs, data_GEO_det, data_GTO_det, data_followup_det
+
+def data_returner(year: str, seed: str):
+    """used to get all simulation data for one specific year and seed, separated into the different orbit types
+
+    Args:
+        year (str): year of the data
+        seed (str): seed of the data (1,2,3 or 4)
+
+    Returns:
+        (np.arrays): crossing and detection data separated into different orbit types
+    """
+    year2 = year[2:]
+
+    if int(year) == 2023 and int(seed) == 1: #the files for 2023 and seed 1 are named differently
+        GEO_file_crs = f"stat_Master_{year2}_geo_s{seed}_10cm.crs"
+        GTO_file_crs = f"stat_Master_{year2}_gto_s{seed}_10cm.crs"
+        followup_file_crs = f"stat_Master_{year2}_fol_s{seed}_10cm.crs"
+        GEO_file_crs = os.path.join("input", GEO_file_crs)
+        GTO_file_crs = os.path.join("input", GTO_file_crs)
+        followup_file_crs = os.path.join("input", followup_file_crs)
+    else: 
+        GEO_file_crs = f"stat_Master_{year2}_geo_s{seed}.crs"
+        GTO_file_crs = f"stat_Master_{year2}_gto_s{seed}.crs"
+        followup_file_crs = f"stat_Master_{year2}_fol_s{seed}.crs"
+        GEO_file_crs = os.path.join("input", GEO_file_crs)
+        GTO_file_crs = os.path.join("input", GTO_file_crs)
+        followup_file_crs = os.path.join("input", followup_file_crs)
+
+    data_GTO_crs = array_extender(GTO_file_crs)
+    data_GEO_crs = array_extender(GEO_file_crs)
+    data_followup_crs = array_extender(followup_file_crs)
+    
+    if int(year) == 2023 and int(seed) == 1:
+        GEO_file_det = f"stat_Master_{year2}_geo_s{seed}_10cm.det"
+        GTO_file_det = f"stat_Master_{year2}_gto_s{seed}_10cm.det"
+        followup_file_det = f"stat_Master_{year2}_fol_s{seed}_10cm.det"
+        GEO_file_det = os.path.join("input", GEO_file_det)
+        GTO_file_det = os.path.join("input", GTO_file_det)
+        followup_file_det = os.path.join("input", followup_file_det)
+    else: 
+        GEO_file_det = f"stat_Master_{year2}_geo_s{seed}.det"
+        GTO_file_det = f"stat_Master_{year2}_gto_s{seed}.det"
+        followup_file_det = f"stat_Master_{year2}_fol_s{seed}.det"
+        GEO_file_det = os.path.join("input", GEO_file_det)
+        GTO_file_det = os.path.join("input", GTO_file_det)
+        followup_file_det = os.path.join("input", followup_file_det)
+
+    data_GTO_det = array_extender(GTO_file_det)
+    data_GEO_det = array_extender(GEO_file_det)
+    data_followup_det = array_extender(followup_file_det)
+    
+    return data_GEO_crs, data_GTO_crs, data_followup_crs, data_GEO_det, data_GTO_det, data_followup_det
