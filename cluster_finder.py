@@ -407,9 +407,6 @@ def cluster_comparison(clusters_5mm_array: np.array, clusters_10cm_array: np.arr
     
     return updated_10cm_cluster_data
 
-import matplotlib.pyplot as plt
-import numpy as np
-
 def plot_cluster_center_evolution_2d(cluster_centers_5mm_dict, cluster_centers_10cm_dict):
     orbit_types = set(key[1] for key in cluster_centers_5mm_dict.keys())
 

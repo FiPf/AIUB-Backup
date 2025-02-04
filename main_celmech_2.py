@@ -8,6 +8,15 @@ import os
 from getdata import PopulationType, data_returner
 
 def main_celmech_2(year:str, dir: str, err:bool, ell: bool): 
+    """Function that solves the Kreisbahnproblem. Unpacks Celmech and crs data, sorts them to match in object numbers, 
+    creates plots and prints numbers. 
+
+    Args:
+        year (str): year of the data
+        dir (str): where to store the plot
+        err (bool): whether to artificially include errors in the Celmech caluclations, should always be set to False!
+        ell (bool): If True, Celmech calculated elliptical orbits, if False, Celmech calculated circular orbits. 
+    """    
     population_type = PopulationType.NORMAL
     orbit_type_list = ["geo", "gto", "fol"]
     total_num_of_objects = 0
@@ -118,6 +127,7 @@ def main_celmech_2(year:str, dir: str, err:bool, ell: bool):
     print(f"GTO dataset size: CRS={len(gto_inc)}, Celmech={np.array(orbit_data_dict['gto']['I']).shape}")
     print(f"FOL dataset size: CRS={len(fol_inc)}, Celmech={np.array(orbit_data_dict['fol']['I']).shape}")
     
+    #plots the Celmech circular orbits and the elliptcal orbits from the crossings in one plot
     plotting.i_omega_joined(geo_nod, orbit_data_dict['geo']['Node'], geo_inc, orbit_data_dict['geo']['I'], f"Comparison Crossings to Celmech data, GEO, {year}", year, "crossings", "celmech", dir)
     plotting.i_omega_joined(gto_nod, orbit_data_dict['gto']['Node'], gto_inc, orbit_data_dict['gto']['I'], f"Comparison Crossings to Celmech data, GTO, {year}",year, "crossings", "celmech", dir)
     plotting.i_omega_joined(fol_nod, orbit_data_dict['fol']['Node'], fol_inc, orbit_data_dict['fol']['I'], f"Comparison Crossings to Celmech data, FOL, {year}", year, "crossings", "celmech", dir)    
@@ -131,4 +141,4 @@ def main_celmech_2(year:str, dir: str, err:bool, ell: bool):
 
         print(f"{orbit.upper()} - Total: {total_attempts}, Successes: {num_failures}, Failures: {num_successes}")
         
-    
+#Filtering: special inclination filter and background magnitude == 0 removed from crs.

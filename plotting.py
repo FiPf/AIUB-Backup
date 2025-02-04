@@ -652,6 +652,17 @@ def i_omega_MLI_separately(inc: np.array, raan: np.array, sources: np.array, yea
     plt.close()
     
 def i_omega_per_size(inc: np.array, raan: np.array, diameter: np.array, year: str, directory: str, separate: bool):
+    """makes the i_omega plot, separating the objects based on their diameter/size. 
+
+    Args:
+        inc (np.array): inclination data
+        raan (np.array): node data
+        diameter (np.array): diameter data
+        year (str): year of the data
+        directory (str): where to store the plots
+        separate (bool): If True, every size range has its own plot. If False, all sizes end up 
+        in the same plot with different colors.
+    """
     inc = np.array(inc)
     raan = np.array(raan)
     diameter = np.array(diameter)

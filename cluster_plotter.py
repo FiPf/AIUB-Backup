@@ -164,4 +164,3 @@ class ClusterPlotter:
         ax.legend()
 
         plt.show()
-

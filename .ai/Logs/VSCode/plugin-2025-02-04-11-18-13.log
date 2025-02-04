@@ -1,0 +1,650 @@
+[4.2.2025, 11:09:25] info: Handled new configurationAieIntegrationServerUrl: 
+[4.2.2025, 11:18:13] info: Logging was started to file.
+[4.2.2025, 11:18:13] info: Start application inspector initialization
+[4.2.2025, 11:18:13] info: Hide developer mode UI
+[4.2.2025, 11:18:13] info: Infrastructure Configurations: {"port":8000,"infrastructureAssemblyFolderPath":"C:\\Users\\fionu_j7j6wq2\\AppData\\Local\\Application Inspector Analyzer","applicationResourcesFolderPath":"C:\\Users\\fionu_j7j6wq2\\AppData\\Local\\Application Inspector Analyzer","scanTargetFolderPath":"c:\\Users\\fionu_j7j6wq2\\OneDrive\\Dokumente\\Daten Fiona\\AIUB\\Code","isDebugging":false,"logLevel":{"q8_1":"Error","r8_1":5,"type":5,"key":"Settings.LogLevel.Error.Text"},"logDir":"c:\\Users\\fionu_j7j6wq2\\OneDrive\\Dokumente\\Daten Fiona\\AIUB\\Code\\.ai\\Logs\\Infrastructure\\2025-02-04-11-18-13","tipsFoundNotificationThreshold":1000,"similarIssuesFoundNotificationThreshold":1000,"applicationLocalDataFolderPath":"c:\\Users\\fionu_j7j6wq2\\OneDrive\\Dokumente\\Daten Fiona\\AIUB\\Code\\.ai"}
+[4.2.2025, 11:18:13] info: Start infrastructure initialization
+[4.2.2025, 11:18:21] info: Infrastructure was started
+[4.2.2025, 11:18:38] info: Initialize aie integration isn't initialized
+[4.2.2025, 11:18:38] info: Infrastructure was initialized
+[4.2.2025, 11:18:38] info: Infrastructure Installer was deleted
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for apache mod_negotiation resource location disclosure
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for arbitrary directory copying
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for arbitrary directory creation
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for arbitrary directory deletion
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for arbitrary directory listing
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for arbitrary directory moving
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for arbitrary file copying
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for arbitrary file creation
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for arbitrary file deletion
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for arbitrary file modification
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for arbitrary file moving
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for arbitrary file reading
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for cookie injection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for credentials brute-force
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for cross-site request forgery
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for cross-site scripting
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for cursor injection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for cursor sqli
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for default
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for denial of service
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for deserialization of untrusted data
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for df
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for djangoorminjection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for dll injection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for double free
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for dynamic code injection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for dynamic query injection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for external control of configuration
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for fingerprinting
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for format string
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for hardcoded password
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for heap overflow
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for http header injection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for http request splitting
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for http response splitting
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for improper access control taint
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for improper resource shutdown or release
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for information exposure
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for injection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure direct object references
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insufficient session expiration
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for integer overflow
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for ldap injection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for like injection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for linq injection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for local file inclusion
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for log forging
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nosql injection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for null dereference
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for object injection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for open redirect
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for orm injection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for os commanding
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for padding oracle attack
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for path traversal
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for persistent cookie exposing
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for potential path traversal
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for process control
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for redos
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for remote code execution
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for remote file inclusion
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for resource exhaustion
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for resource location brute-force
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for server-side request forgery
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for server-side template injection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for serverfingerprinting
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for session management weakness
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for shellshock
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for smtp header injection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for sql injection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for sqli
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for stack overflow
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for uaf
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for uncontrolled data manipulation
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for uncontrolled env var modification
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for unrestricted file upload
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for use after free
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for webview xss taint
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for xml entity expansion
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for xml external entity
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for xpath injection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for xquery injection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 100
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 101
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 102
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 103
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 104
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 105
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 107
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 108
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 109
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 111
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 113
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 114
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 116
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 117
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 118
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 120
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 122
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 123
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 124
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 125
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 127
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 128
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 129
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 130
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 135
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 138
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 139
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 140
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 141
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 142
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 144
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 145
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 146
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 147
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 148
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 149
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 150
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 151
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 152
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 153
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 154
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 156
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 157
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 158
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 159
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 160
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 161
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 162
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 163
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 164
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 165
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 200
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24544
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24545
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24546
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24547
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24548
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24549
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24550
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24551
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24552
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24553
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24554
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24555
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24556
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24557
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24558
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24559
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24560
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24561
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24562
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24563
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24564
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24565
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24566
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24567
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 24568
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 305
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 96
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 97
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 98
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for 99
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for attributes code inside addeventlistener
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for attributes code inside attachevent
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for attributes code inside createattribute
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for attributes code inside element event
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for attributes code inside setattribute
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for attributes code inside setattributens
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for buffer overflow
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for buffer overflow in python
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for buffer overflow pm
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for class defines clone but not implement cloneable
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for csrf protection disabled
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for cursor snarfing plsql
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for cursor snarfing tsql
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for dangerous function plsql
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for dangerous function tsql
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for debug information leakage
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for debug mode python
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for deprecated functions objc
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for deserialization of untrusted data pm
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for deserialization of untrusted data pm python
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for detection of error condition without action
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for direct use of threads
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for directorytraversalcreatereadstream
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for directorytraversalreadfile
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for disabling ssl certificate checks
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for disabling ssl certificate checks c
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for disabling ssl-tls certificate checks go
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for divide by zero
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for dom modification contextual fragment
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for dom modification html tag
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for dom modification selected position
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for dom modification string inside document
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for download of code without integrity check
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for embedded malicious code
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for empty default exception handler
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for erroneous null comparison
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for exposure of data element to wrong session
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for exposure of system data to an unauthorized control sphere
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for external control of file name or path
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for file snarfing plsql
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for format string pm
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for forwarding via location
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for forwarding via location function
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for forwarding via opening new tab
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for ftpusage
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for go weak cryptographic hash
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for hardcoded initialization vector
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for hardcoded key
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for hardcoded password kotlin
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for hardcoded password pm
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for hardcoded pbkdf password
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for headerinjection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for improper access control
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for improper access control c
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for improper certificate validation
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for improper check for unusual or exceptional conditions
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for improperly implemented security check for standard
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for include interface ssl
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for incorrect permission assignment for critical resource
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for incorrect permission assignment for critical resource 1
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for incorrect permission assignment for critical resource go
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for incorrect permission assignment for critical resource java
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for incorrect unix api using
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for incorrect usage of seeds in pseudo-random number generator
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for incorrectpermissionassignmentphp
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for information exposure pm
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for information exposure through an error message
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for information exposure through comments
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for information exposure through persistent cookies
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for information exposure through persistent cookies 1
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for information exposure through static content
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for informationexposureviaexception
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure cipher key export
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure connection protocol
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure cookie 1
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure cookie 2
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure cookie scope
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure data storage
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure data storage objc simple
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure network binding
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure randomness ojbc
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure randomness plsql
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure randomness tsql
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure rsa padding
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure rsa padding 1
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure ssl connection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure ssl connection 1
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure ssl protocol
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure transport java
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure usage of jinja templates
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure usage of mako templates
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure validation functions
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure validation functions 1
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecure work with temporary files
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insecureevalpython
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insufficient cors policy
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insufficient encryption key length
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insufficient encryption key length 1
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insufficient key size go
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insufficient logging&monitoring
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insufficient session expiration pm
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for insufficientencryptionkeylength
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for integer overflow pm
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for jquery function that adds element
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for jquery function that replaces element
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for jquery html inside dom
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for jquery unsafe functions for dom
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for jquery wrap element to html
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for json-test
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for lack of the host key verification go
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for least privilege violation
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for leftover debug code
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for marksafepython
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for memory leak
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for method without super clone
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for method without super finalize
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for missing auth localized reason
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for missing encryption of sensitive data
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for none
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for notlsreject
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nslog using
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for null dereference pattern
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for null pbkdf password
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for obsolete function
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for openredirect
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for overly broad grant
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for override equals method without hashcode
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for pattern matching
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php pm sensitive cookie in https session without ‘secure’ attribute
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for plaintext storage of a password
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for plaintext storage of a password 1
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for play 1 html xss
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for play 2 html xss
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for poor logging practice logger
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for poor logging practice system
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for possible rce through sql injection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for private array typed field returned from a public method
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for public data assigned to private array typed field
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for python weak cryptographic hash
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for python2input
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for pythonassertion
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for reflectedcrosssitescripting
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for reliance on dns lookups in a security decision
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for return of stack variable address
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for reversible one way hash
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for sensitive cookie in https session without ‘secure’ attribute
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for sensitive cookie in https session without httponly attribute
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for sensitive cookie in https session without secure attribute
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for serversideinjectioneval
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for serversideinjectionfunction
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for serversideinjectionsetinterval
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for serversideinjectionsettimeout
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for serversideinjectionyaml
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for ssl configuration flaws
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for static random number generator
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for time of check time of use race condition
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for trust boundary violation
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for type confusion
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for uncontrolled memory allocation
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for uncontrolled recursion
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for unreachable code
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for unsafe cross-origin resource sharing
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for unsafe reflection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for unsalted one way hash
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for unsalted one way hash 1
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for unsaltedonewayhash
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for unused var
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for urllibusagepython
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for use broken crypto
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for use of a broken or risky cryptographic algorithm
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for use of a broken or risky cryptographic algorithm 1
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for use of a broken or risky cryptographic algorithm 2
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for use of a broken or risky cryptographic algorithm 3
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for use of a broken or risky cryptographic algorithm 4
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for use of a broken or risky cryptographic algorithm 5
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for use of a broken or risky cryptographic algorithm 6
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for use of a broken or risky cryptographic algorithm go
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for use of function with inconsistent implementations
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for use of hardcoded cryptographic key
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for use of insufficiently random values
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for use of insufficiently random values 1
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for use of insufficiently random values 2
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for use of nullpointerexception catch
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for use of obsolete function 1
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for use of system exit
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for use of uninitialized variable
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for user driven insecure hash algorithm
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for user driven insecure hash algorithm 1
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for vulnerable template module
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for weak crypto api objc
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for weak crypto hash api objc
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for weak crypto iv objc
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for weak crypto key objc
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for weak cryptographic algorithm 1
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for weak cryptographic hash
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for weak cryptographic hash plsql
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for weak cryptographic hash tsql
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for weak hmac key objc
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for weak password requirements
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for weak pbkdf salt
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for weak rsa objc
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for weakhashcrypto
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for weakhashcryptojs
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for webforms validaterequest
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for webview xss
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for xml external entity pm
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for xss protection disabled
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for yaml load
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for .htaccess addhandler
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for .htaccess addtype
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for .htaccess options
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for .htaccess php_value
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for .htaccess serversignature
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for android_manifest.xml @android:allowbackup
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for android_manifest.xml @android:debuggable
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for android_manifest.xml @android:exported
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for android_manifest.xml @android:exported[provider]
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for android_manifest.xml @android:protectionlevel
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for android_manifest.xml @android:scheme
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for android_networksecurityconfig.xml @src
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for apache.conf addhandler
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for apache.conf addtype
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for apache.conf loadmodule
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for apache.conf options
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for apache.conf php_value
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for apache.conf serversignature
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for apache.conf servertokens
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for apache.conf traceenable
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for applicationhost.config @accesspolicy
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for applicationhost.config @notlistedisapisallowed
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for applicationhost.config @username
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf arbitrary file upload file_uploads
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf cross site scripting vulnerability http-only
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf cross site scripting vulnerability httponlycookies
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf cross site scripting vulnerability register_globals
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf cross site scripting vulnerability session.cookie_httponly
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf cross site scripting vulnerability traceenable
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf cross site scripting vulnerability validaterequest
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf denial of service loadmodule security2_module
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf denial of service max_execution_time
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf denial of service max_input_nesting_level
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf denial of service max_input_time
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf denial of service memory_limit
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf denial of service post_max_size
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf denial of service upload_max_filesize
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf directory indexing autoindex
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf directory indexing loadmodule autoindex_module
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf directory indexing options
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf directory indexing ssi
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf information leakage curl.cainfo
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf information leakage debug
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf information leakage display_errors
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf information leakage display_startup_errors
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf information leakage error-code
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf information leakage errordocument
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf information leakage expose_php
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf information leakage loadmodule include_module
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf information leakage loadmodule info_module
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf information leakage loadmodule negotiation_module
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf information leakage mode
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf information leakage param-name
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf information leakage param-name-xsrf
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf information leakage request_order
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf information leakage server_tokens
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf information leakage serversignature
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf information leakage servertokens
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf information leakage statuscode
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf information leakage value
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf insufficient authentication enableviewstatemac
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf insufficient session expiration session-timeout
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf insufficient transport layer protection requiressl
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf insufficient transport layer protection secure
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf insufficient transport layer protection transport-guarantee
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf obsolete option safe_mode
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf obsolete option safe_mode_exec_dir
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf obsolete option safe_mode_gid
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf obsolete option safe_mode_include_dir
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf path traversal vulnerability open_basedir
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf remote code execution addhandler
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf remote code execution addtype
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf remote code execution assert.active
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf remote code execution auto_append_file
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf remote code execution auto_prepend_file
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf remote code execution enable_dl
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf remote code execution php_value
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf remote command execution disable_functions
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf remote command execution http-method
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf remote command execution loadmodule cgi_module
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf remote file inclusion allow_url_fopen
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf remote file inclusion allow_url_include
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf remote file inclusion cgi.fix_pathinfo
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf response splitting enableheaderchecking
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf response splitting useunsafeheaderparsing
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf session hijacking log_errors
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf session hijacking session.cookie_lifetime
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf session hijacking session.cookie_secure
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf session hijacking session.referer_check
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf session hijacking session.save_path
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf session hijacking session.use_cookies
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf session hijacking session.use_only_cookies
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf session hijacking session.use_strict_mode
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf session hijacking ssl
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf session hijacking ssl_certificate
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf session hijacking ssl_certificate_key
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf session hijacking ssl_ciphers
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf session hijacking ssl_dhparam
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf session hijacking ssl_prefer_server_ciphers
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf session hijacking ssl_protocols
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf session hijacking ssl_session_cache
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf session hijacking ssl_session_timeout
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf session hijacking ssl_stapling
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf session hijacking tracking-mode
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf sql injection magic_quotes_gpc
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf sql injection magic_quotes_runtime
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for conf sql injection magic_quotes_sybase
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for domain.xml @audit-enabled
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for domain.xml @port
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for domain.xml @value
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for domain.xml @xpowered-by
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for domain.xml jvm-options
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for ios_info.plist cfbundleurltypes
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for ios_info.plist nsexceptionallowsinsecurehttploads
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for ios_info.plist nsexceptionminimumtlsversion
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for ios_info.plist nstemporarythirdpartyexceptionallowsinsecurehttploads
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for ios_info.plist nstemporarythirdpartyexceptionminimumtlsversion
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for lighttpd.conf cgi.assign
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for lighttpd.conf server.dir-listing
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for lighttpd.conf setenv.add-response-header
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for lighttpd.conf status.config-url
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for lighttpd.conf status.status-url
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for lighttpd.conf webdav.is-readonly
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for machine.config @debug
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for machine.config @decryption
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for machine.config @decryptionkey
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for machine.config @passwordformat
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for machine.config @retail
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for machine.config @username[@processmodel]
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for machine.config @validation
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for machine.config @validationkey
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf add_header
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf add_header[inheritance]
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf alias[traversal]
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf autoindex
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf error_log
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf error_page
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf more_set_headers
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf proxy_set_header
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf server_tokens
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf ssi
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf ssl
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf ssl_certificate
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf ssl_certificate_key
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf ssl_ciphers
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf ssl_dhparam
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf ssl_prefer_server_ciphers
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf ssl_protocols
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf ssl_session_cache
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf ssl_session_timeout
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf ssl_stapling
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for nginx.conf valid_referers
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini allow_url_fopen
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini allow_url_include
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini assert.active
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini auto_append_file
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini auto_prepend_file
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini cgi.fix_pathinfo
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini cgi.force_redirect
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini disable_functions
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini display_errors
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini display_startup_errors
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini enable_dl
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini expose_php
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini log_errors
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini magic_quotes_gpc
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini magic_quotes_runtime
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini magic_quotes_sybase
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini max_execution_time
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini max_input_nesting_level
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini max_input_time
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini memory_limit
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini open_basedir
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini post_max_size
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini register_globals
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini request_order
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini safe_mode
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini session.cookie_httponly
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini session.cookie_lifetime
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini session.cookie_secure
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini session.save_path
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini session.use_cookies
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini session.use_only_cookies
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini session.use_strict_mode
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini session.use_trans_sid
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for php.ini upload_max_filesize
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for potential vulnerability
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for server.xml_tomcat @allowtrace
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for server.xml_tomcat @autodeploy
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for server.xml_tomcat @clientauth
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for server.xml_tomcat @connectiontimeout
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for server.xml_tomcat @deployonstartup
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for server.xml_tomcat @maxhttpheadersize
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for server.xml_tomcat @secure
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for server.xml_tomcat @shutdown
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for server.xml_tomcat @xpoweredby
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for server.xml_websphere @allowlogoutpageredirecttoanyhost
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for server.xml_websphere @displayauthenticationrealm
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for server.xml_websphere @preservefullyqualifiedreferrerurl
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for standalone.xml @default-user
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for standalone.xml @display-source-fragment
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for standalone.xml @scan-interval
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for standalone.xml @value
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for standalone.xml @x-powered-by
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @allowoverride
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @cacherolesincookie
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @certificatevalidationmode
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @connectionprotection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @cookieless
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @cookieprotection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @cookierequiressl
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @cookieslidingexpiration
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @cookietimeout
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @createpersistentcookie
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @debug
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @decryptionkey
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @enablecrossappredirects
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @enabled
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @enabled[directorybrowse]
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @enableeventvalidation
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @enableheaderchecking
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @enableversionheader
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @enableviewstatemac
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @httponlycookies
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @level
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @maxeventdetaillength
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @maxeventlengthforsimplemessage
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @maxrequestlength
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @maxsizeforsimplemessage
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @minrequirednonalphanumericcharacters
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @minrequiredpasswordlength
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @mode
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @name[@credentials]
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @passwordformat
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @protection
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @requestvalidationmode
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @requiressl
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @requiressl[@authentication]
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @slidingexpiration
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @statuscode
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @timeout
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @type
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @username[@identity]
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @users
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @useunsafeheaderparsing
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @validaterequest
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @validation
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @validationkey
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @value
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @value[@accesscontrolalloworiginheader]
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @value[@aspnetcore_environment]
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @value[uselegacyencryption]
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @value[x-frame-options]
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config @viewstateencryptionmode
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config ciphervalue[@sessionstate]
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config remove/@name[documentation]
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.config remove/@name[x-powered-by]
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.xml error-code
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.xml http-method
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.xml http-only
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.xml param-value
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.xml secure
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.xml session-timeout
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.xml tracking-mode
+[4.2.2025, 11:18:39] warn: Localization 1031 was not found for web.xml transport-guarantee
+[4.2.2025, 11:18:39] info: Clean up logs files was started
+[4.2.2025, 11:18:39] info: Clean up logs files was finished
+[4.2.2025, 11:18:43] info: Project was created. Id: 4511fd88-a042-4dc9-b8cb-c9858283d410
