@@ -658,7 +658,7 @@ def i_omega_per_size(inc: np.array, raan: np.array, diameter: np.array, year: st
     
     raan_converted = np.mod(np.where(raan >= 180, raan - 360, raan) + 180, 360) - 180
 
-    size_ranges_lower_bounds = [0.001, 0.005, 0.01, 0.05, 0.1, 1]
+    size_ranges_lower_bounds = [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1]
 
     # If separate is true, create individual plots for each size range
     if separate:
