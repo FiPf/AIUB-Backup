@@ -1,10 +1,10 @@
+import os
 import numpy as np
 import unique_objects
 import sortdata
 import getdata 
 import plotting
 import calculations
-import os
 from getdata import PopulationType, data_returner
 
 def main_celmech_2(year:str, dir: str, err:bool, ell: bool): 

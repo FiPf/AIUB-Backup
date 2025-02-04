@@ -6,7 +6,7 @@ from cluster_finder import unnormalize
 
 class ClusterPlotter:
     """
-    A class to handle 2D and 3D plotting of clustered data with customizable coloring.
+    A class to handle 2D and 3D plotting of clustered data.
     """
     def __init__(self, normalized_data, labels, cluster_centers):
         """
@@ -22,9 +22,16 @@ class ClusterPlotter:
         self.cluster_centers = cluster_centers
 
     def clusters_2d_plot(self, title: str, color_scheme='viridis', c=None, point_size=5, show_centers=True, grid=True):
-        """
-        Plot the clusters in 2D with customizable coloring.
-        """
+        """Plot the clusters in 2D with customizable coloring.
+
+        Args:
+            title (str): title of the plot
+            color_scheme (str, optional): color scheme for the clusters. Defaults to 'viridis'.
+            c (_type_, optional): If no color scheme indicated, everything has this color. Defaults to None.
+            point_size (int, optional): Size of the data points. Defaults to 5.
+            show_centers (bool, optional): Show the centers of the clusters or not. Defaults to True.
+            grid (bool, optional): Plot with grid. Defaults to True.
+        """        
         plt.figure(figsize=(10, 7))
         coloring = c if c is not None else self.normalized_data[:, 2]
 
@@ -35,8 +42,8 @@ class ClusterPlotter:
             plt.scatter(self.cluster_centers[:, 1], self.cluster_centers[:, 0],
                         c='red', marker='X', s=100, label='Cluster Centers')
 
-        plt.xlabel('RAAN (omega)')
-        plt.ylabel('Inclination (i)')
+        plt.xlabel('RAAN [°]')
+        plt.ylabel('Inclination [°]')
         plt.title(title)
         plt.colorbar(scatter, label='Custom Color' if c is not None else 'Eccentricity')
         plt.legend()
@@ -45,9 +52,15 @@ class ClusterPlotter:
         plt.show()
 
     def clusters_3d_plot(self, title: str, color_scheme='viridis', c=None, point_size=5, show_centers=True):
-        """
-        Plot the clusters in 3D with customizable coloring.
-        """
+        """Plot the clusters in 3D with customizable coloring.
+
+        Args:
+            title (str): Title of the plot. 
+            color_scheme (str, optional): _description_. Defaults to 'viridis'.
+            c (_type_, optional): _description_. Defaults to None.
+            point_size (int, optional): _description_. Defaults to 5.
+            show_centers (bool, optional): _description_. Defaults to True.
+        """        
         fig = plt.figure(figsize=(10, 7))
         ax = fig.add_subplot(111, projection='3d')
 
@@ -60,9 +73,9 @@ class ClusterPlotter:
             ax.scatter(self.cluster_centers[:, 1], self.cluster_centers[:, 2], self.cluster_centers[:, 0],
                        c='red', marker='X', s=100, label='Cluster Centers')
 
-        ax.set_xlabel('RAAN (omega)')
+        ax.set_xlabel('RAAN [°]')
         ax.set_ylabel('Eccentricity (e)')
-        ax.set_zlabel('Inclination (i)')
+        ax.set_zlabel('Inclination [°]')
         ax.set_title(title)
 
         plt.colorbar(scatter, label='Custom Color' if c is not None else 'Eccentricity')
@@ -105,8 +118,8 @@ class ClusterPlotter:
             c='blue', marker='X', s=100, label='10 cm data centers', zorder=4
         )
 
-        plt.xlabel('RAAN (omega)')
-        plt.ylabel('Inclination (i)')
+        plt.xlabel('RAAN [°]')
+        plt.ylabel('Inclination [°]')
         plt.title(title)
         plt.colorbar(scatter_self, label=f'{size_in_mm}mm , color according to cluster')
         plt.colorbar(scatter_other, label='10 cm , color according to cluster')

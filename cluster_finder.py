@@ -25,11 +25,26 @@ ClusterData = namedtuple("ClusterData", ["inc", "raan", "ecc"])
 ClusteringResult = namedtuple("ClusteringResult", ["labels", "cluster_centers", "data"])
 
 def adjust_raan_range(raan_values):
-    # Convert RAAN from [0, 360] to [-180, 180]
+    """Convert RAAN from [0, 360]° to [-180, 180]°
+
+    Args:
+        raan_values (np.array / list): list of raan values between 0 to 360 degrees
+
+    Returns:
+        np.array / list: list of raan values between -180 to 180 degrees
+    """    
     raan_adjusted = np.mod(np.array(raan_values) + 180, 360) - 180
     return raan_adjusted
 
 def prepare_data_for_clustering(filename: str) -> ClusterData:
+    """get data from *.crs or *.det file with array_extender, do sorting, adjust the raan range. 
+
+    Args:
+        filename (str): *.crs or *.det file to get data from
+
+    Returns:
+        ClusterData: data ready for clustering, contains inc, raan and ecc arrays
+    """
     data = getdata.array_extender(filename)
     data = np.array(data)
     data_TLE, data_frag, data_rest = sortdata.data_sorter(data, semi_major_index = 8, ecc_index = 10, inc_index = 9, mag_index = 20, source_index = 3)
@@ -41,8 +56,22 @@ def prepare_data_for_clustering(filename: str) -> ClusterData:
     ecc = data[10]
     return ClusterData(inc=inc, raan=raan, ecc=ecc)
 
-#@njit
 def find_clusters_mean_shift_clustering(data: ClusterData, bandwidth: float = 0.1) -> ClusteringResult:
+    """Performs Mean Shift Clustering on orbital data (inc, raan, ecc). The function normalizes the input data using Min-Max scaling before clustering 
+    and reverts the results back to the original scale for interpretability.
+
+    Args:
+        data (ClusterData): A named tuple containing the orbital elements: inc, raan, ecc. 
+        bandwidth (float, optional): The bandwidth parameter for the Mean Shift algorithm, controlling the window size 
+        for clustering. Smaller values detect finer clusters, while larger values merge 
+        nearby points. Defaults to 0.1.
+
+    Returns:
+        ClusteringResult: a named tuple containing: 
+        - `labels`: Cluster labels assigned to each data point.
+        - `cluster_centers`: Cluster centers in the original (unnormalized) scale.
+        - `data`: The unnormalized data after inverse scaling.
+    """    
     # Combine data
     combined_data = np.vstack((data.inc, data.raan, data.ecc)).T
 
@@ -66,10 +95,16 @@ def find_clusters_mean_shift_clustering(data: ClusterData, bandwidth: float = 0.
 
     
 def compute_cost_function(data, bandwidth):
-    """
-    Compute the silhouette score for a given bandwidth value in MeanShift clustering.
+    """Compute the silhouette score for a given bandwidth value in MeanShift clustering.
     A higher silhouette score indicates better clustering.
-    """
+
+    Args:
+        data (named tuple): data to compute the cost for
+        bandwidth (float): bandwidth tuning parameter for mean shift clustering
+
+    Returns:
+        score (float): silhouette score for the dataset with that given bandwidth 
+    """    
     # Perform clustering using the given bandwidth
     cluster_data = find_clusters_mean_shift_clustering(data, bandwidth)
     labels = cluster_data.labels
@@ -88,8 +123,15 @@ def compute_cost_function(data, bandwidth):
     return score
 
 def find_best_bandwidth(data, bandwidth_range):
-    """
-    Find the optimal bandwidth that maximizes the silhouette score.
+    """Find the optimal bandwidth that maximizes the silhouette score.
+
+    Args:
+        data (named tuple): data to find the best bandwidth for in mean shift clustering
+        bandwidth_range (list): which bandwidths to try
+
+    Returns:
+        best_bandwidth (float): winner of the input bandwidths
+        scores (list): scores for all bandwidths
     """
     best_bandwidth = None
     best_score = -1  # Start with a low score
@@ -107,6 +149,12 @@ def find_best_bandwidth(data, bandwidth_range):
     return best_bandwidth, scores
 
 def plot_bandwidth_against_score(bandwidths: np.array, scores: np.array): 
+    """plot the cost function. 
+
+    Args:
+        bandwidths (np.array): bandwidths that were tested
+        scores (np.array): resulting scores
+    """
     plt.figure(figsize=(8, 6))
     plt.plot(bandwidths, scores, marker='o', linestyle='-', color='b', label='Silhouette Score')
     plt.xlabel('Bandwidth')
@@ -180,7 +228,16 @@ def add_large_cluster_info(data_small, labels_small, data_large, labels_large):
     return updated_clusters_small
 
 def unnormalize(normalized_data, data_min=None, data_max=None):
+    """unnormalize the data back to the expected range. Normally, the range should not have to be adjusted. 
 
+    Args:
+        normalized_data (named tuple): data to unnormalize (inc, raan, ecc)
+        data_min (np.array, optional): minima of the data (inc, raan, ecc). Defaults to None.
+        data_max (np.array, optional): maxima of the data (inc, raan, ecc). Defaults to None.
+
+    Returns:
+        named tuple: unnormalized data
+    """
     if data_min is None:
         data_min = np.array([0, -180, 0]) 
     if data_max is None:
@@ -188,10 +245,15 @@ def unnormalize(normalized_data, data_min=None, data_max=None):
     return normalized_data * (data_max - data_min) + data_min
 
 def convert_clusters_to_array(clusters_dict):
-    """
-    Convert cluster dictionary to a numpy array of the form:
+    """Convert cluster dictionary to a numpy array of the form:
     [cluster_label, inc, raan, ecc]
-    """
+
+    Args:
+        clusters_dict (dict): cluster dictionary
+
+    Returns:
+        np.array: has the form [cluster_label, inc, raan, ecc]
+    """    
     cluster_list = []
     for cluster_label, cluster_elements in clusters_dict.items():
         for element in cluster_elements:
@@ -202,16 +264,19 @@ def convert_clusters_to_array(clusters_dict):
 def is_subset(array_small, array_large, atol=1e-6):
     """
     Check if all rows in array_small exist in array_large within a tolerance.
-    :param array_small: Smaller array (subset candidate)
-    :param array_large: Larger array (superset candidate)
-    :param atol: Absolute tolerance for numerical comparison
-    :return: True if array_small is a subset of array_large, False otherwise
-    """
+    Args:
+        array_small (array): potential subset
+        array_large (array): potential superset
+        atol (float, optional): tolerance for comparison. Defaults to 1e-6.
+
+    Returns:
+        bool: True if array_small is a subset of array_large, False otherwise
+    """    
     # Iterate over each row in the smaller array
     for row in array_small:
         matched = np.any(np.all(np.isclose(array_large, row, atol=atol), axis=1))
         if not matched:
-            print(f"No match found for row: {row}")  # Debugging line
+            print(f"No match found for row: {row}")  
             return False
     return True
 
@@ -226,7 +291,7 @@ def find_best_superset(array_small: np.array, list_of_large_arrays: list, atol: 
 
     Returns:
         best_superset_index (int): index of best superset
-        max_matches (): number of matches within the best superset
+        max_matches (int): number of matches within the best superset
     """
     max_matches = 0
     best_superset_index = -1
@@ -251,11 +316,13 @@ def find_best_superset(array_small: np.array, list_of_large_arrays: list, atol: 
 def find_superset_matches_for_clusters(dataset, atol=1e-6):
     """
     Compare clusters in a dataset year by year to find the best superset matches for each cluster.
-    
-    :param dataset: Dictionary containing clusters for each year and orbit type
-    :param atol: Absolute tolerance for numerical comparisons
-    :return: Dictionary mapping each cluster to its best matching cluster in the next year
-    """
+    Args:
+        dataset (dict): Dictionary containing clusters for each year and orbit type
+        atol (float, optional): Absolute tolerance for numerical comparisons Defaults to 1e-6.
+
+    Returns:
+        dict: Dictionary mapping each cluster to its best matching cluster in the next year
+    """    
     results = {}
 
     # Sort dataset by year for chronological comparison
@@ -295,6 +362,27 @@ def find_superset_matches_for_clusters(dataset, atol=1e-6):
     return results
 
 def get_files_for_cluster_evolution(year: str, orbit_type: str, seed: int, size_in_mm: int, inp_directory: str): 
+    """
+    Generates and returns the file paths for the 5mm (or 1mm) and 10cm space debris data for a 
+    given year, orbit type, seed, and size. The file paths are constructed based on the 
+    provided parameters.
+
+    Args:
+        year (str): year of the data        
+        orbit_type (str): geo, gto or fol
+        seed (int): seed        
+        size_in_mm (int): minimal debris size
+        inp_directory (str): input directory
+    Returns:
+        tuple: 
+            - file_5mm (str): The file path for the 5mm debris data (if size_in_mm is 5).
+            - file_10cm (str): The file path for the 10cm debris data.
+            - file_1mm (str): The file path for the 1mm debris data (if size_in_mm is 1).
+    Raises:
+        ValueError: 
+            If `orbit_type` is not one of "geo", "gto", or "fol", or if `seed` is not in the 
+            set [1, 2, 3, 4], or if `size_in_mm` is not one of the valid options (5 or 1).
+    """
     year2 = year[2:]
     if orbit_type not in ["geo", "gto", "fol"]: 
         raise ValueError("Orbit type must be geo, gto, or fol!")
@@ -320,6 +408,23 @@ def get_files_for_cluster_evolution(year: str, orbit_type: str, seed: int, size_
         return file_1mm, file_10cm
 
 def find_clusters_for_one_year(file_5mm: str, file_10cm: str, bandwidths: list): 
+    """
+    Finds and processes space debris clusters for a single year for both 5mm and 10cm debris 
+    using the specified clustering bandwidths. The function prepares the data, performs 
+    MeanShift clustering, and returns the results for both debris sizes.
+
+    Args:
+        file_5mm (str): file to 5mm data
+        file_10cm (str): file to 10cm data        
+        bandwidths (list): bandwidth candidates for Mean Shift Clustering.
+
+    Returns:
+        tuple: 
+            - clusters_5mm (ClusteringResult): The clustering result for 5mm debris.
+            - clusters_10cm (ClusteringResult): The clustering result for 10cm debris.
+            - clusters_5mm_array (np.array): The 5mm debris clusters converted to a numpy array.
+            - clusters_10cm_array (np.array): The 10cm debris clusters converted to a numpy array.
+    """
     data_5mm = prepare_data_for_clustering(file_5mm)
     data_10cm = prepare_data_for_clustering(file_10cm)
     
@@ -342,6 +447,25 @@ def find_clusters_for_one_year(file_5mm: str, file_10cm: str, bandwidths: list):
     return clusters_5mm, clusters_10cm, clusters_5mm_array, clusters_10cm_array
 
 def find_clusters_for_multiple_years(year_range: np.array, size_in_mm: int, bandwidths:list, orbit_type: str, seed: int):
+    """
+    Finds and processes space debris clusters for multiple years across different sizes 
+    (5mm and 10cm) using the specified clustering bandwidths. The function loads cluster data 
+    for each year, applies clustering, and returns the results for both 5mm and 10cm debris.
+
+    Args:
+        year_range (np.array): year range of the data
+        size_in_mm (int): minimal size in Proof simulation
+        bandwidths (list): bandwidth candidates for mean shift clustering
+        orbit_type (str): geo, gto, followup
+        seed (int): seed
+
+    Returns:
+        tuple: 
+            - all_clusters_5mm (list): A list of clusters for 5mm debris across all years.
+            - all_clusters_10cm (list): A list of clusters for 10cm debris across all years.
+            - all_clusters_5mm_array (list): A list of 5mm debris cluster data in array form.
+            - all_clusters_10cm_array (list): A list of 10cm debris cluster data in array form.
+    """
     files_5mm = []
     files_10cm = []
     
@@ -367,7 +491,30 @@ def find_clusters_for_multiple_years(year_range: np.array, size_in_mm: int, band
     
     return all_clusters_5mm, all_clusters_10cm, all_clusters_5mm_array, all_clusters_10cm_array
 
-def cluster_comparison(clusters_5mm_array: np.array, clusters_10cm_array: np.array): 
+def cluster_comparison(clusters_5mm_array: np.array, clusters_10cm_array: np.array):
+    """
+    Compares the cluster centers of 5mm and 10cm space debris objects to match 
+    clusters based on their orbital elements (Inclination, RAAN, Eccentricity). 
+    If a match is found, it appends the 5mm cluster label to the 10cm cluster data.
+    If no match is found for a 10cm cluster, the unmatched count is incremented.
+    A mismatch check is performed to compare the first and last columns 
+    (cluster labels from 10cm and 5mm) and output statistics on mismatches.
+
+    Args:
+        clusters_5mm_array (np.array): 
+            A 2D array where each row represents a 5mm cluster with columns 
+            containing the cluster label, inclination, RAAN, and eccentricity.
+
+        clusters_10cm_array (np.array): 
+            A 2D array where each row represents a 10cm cluster with columns 
+            containing the cluster label, inclination, RAAN, and eccentricity.
+
+    Returns:
+        np.array: 
+            A 2D array with the updated 10cm cluster data, where each row contains 
+            the 10cm cluster label, its orbital elements (inclination, RAAN, eccentricity), 
+            and the corresponding 5mm cluster label (if a match was found).
+    """ 
     count = 0  # Count number of matches
     updated_10cm_cluster_data = []  # Initialize an empty list to store updated cluster data
 
@@ -408,6 +555,24 @@ def cluster_comparison(clusters_5mm_array: np.array, clusters_10cm_array: np.arr
     return updated_10cm_cluster_data
 
 def plot_cluster_center_evolution_2d(cluster_centers_5mm_dict, cluster_centers_10cm_dict):
+    """
+    Plots the 2D evolution of cluster centers for 5mm and 10cm space debris objects, 
+    showing RAAN vs. Inclination across different years and orbit types. The function generates separate scatter plots for each orbit type: 
+          one for 5mm objects and one for 10cm objects.
+
+    Args:
+        cluster_centers_5mm_dict (dict): 
+            A dictionary containing cluster centers for 5mm objects. 
+            The keys are tuples of the form (year, orbit_type, seed), 
+            and the values are arrays of cluster center coordinates 
+            (e.g., [Inclination, RAAN]).
+
+        cluster_centers_10cm_dict (dict): 
+            A dictionary containing cluster centers for 10cm objects. 
+            The structure is similar to `cluster_centers_5mm_dict`, 
+            with keys representing (year, orbit_type, seed) 
+            and values as arrays of cluster center coordinates.
+    """
     orbit_types = set(key[1] for key in cluster_centers_5mm_dict.keys())
 
     for orbit_type in orbit_types:
@@ -463,6 +628,29 @@ def plot_cluster_center_evolution_2d(cluster_centers_5mm_dict, cluster_centers_1
         
 
 def plot_cluster_center_evolution_2d_with_distance(cluster_centers_5mm_dict, cluster_centers_10cm_dict):
+    """
+    I Omega plots the evolution of cluster centers over time for 1mm/5mm and 10cm space debris objects, 
+    visualizing changes in RAAN and Inclination across different years and orbit types.
+    - The function plots two separate figures for each orbit type: 
+    one for 5mm objects and one for 10cm objects.
+    - Cluster paths are tracked over the years based on the 
+    minimum Euclidean distance between cluster centers in consecutive years.
+    - The evolution is annotated with corresponding years to 
+    highlight temporal changes.
+
+    Args:
+        cluster_centers_5mm_dict (dict): 
+            A dictionary containing cluster centers for 5mm objects. 
+            The keys are tuples of the form (year, orbit_type, additional_info), 
+            and the values are lists or arrays of cluster center coordinates 
+            (e.g., [Inclination, RAAN]).
+
+        cluster_centers_10cm_dict (dict): 
+            A dictionary containing cluster centers for 10cm objects. 
+            The structure is similar to `cluster_centers_5mm_dict`, 
+            with keys representing (year, orbit_type, additional_info) 
+            and values as cluster center coordinates.
+    """
     orbit_types = set(key[1] for key in cluster_centers_5mm_dict.keys())
 
     for orbit_type in orbit_types:
@@ -583,6 +771,7 @@ def plot_cluster_center_evolution_2d_with_distance(cluster_centers_5mm_dict, clu
         ax_10cm.set_title(f'10cm Cluster Center Evolution for Orbit Type: {orbit_type.upper()}')
         plt.grid(True)
         plt.show()
+
 
 def match_clusters(cluster_centers_10cm: np.array, cluster_centers_5mm: np.array):
     """
