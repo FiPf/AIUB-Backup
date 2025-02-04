@@ -284,6 +284,8 @@ def main_magnitude_cut(crs_file: np.array, det_file: np.array, year: str, orbit_
     plotting.i_omega_with_sem_maj(frag_omega_det, frag_inc_det, frag_sem_maj_det, f"Simulated detections {year} {title}", year, directory)
     plotting.i_omega_with_sem_maj(frag_omega_det, frag_inc_det, frag_mag_det, f"Simulated detections {year} {title}", year, directory)
 
+    plotting.i_omega_per_size(frag_inc_det, frag_omega_det, frag_diameter_det, year, directory, False)
+
     #print corrected ratio excluding all objects with inclination i > 22°
     calculations.corrected_ratio(frag_inc_det, frag_inc_crs)
     

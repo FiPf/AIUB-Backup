@@ -7,11 +7,12 @@ import calculations
 import os
 from getdata import PopulationType, data_returner
 
-def main_celmech_2(year:str, err:bool, ell: bool): 
+def main_celmech_2(year:str, dir: str, err:bool, ell: bool): 
     population_type = PopulationType.NORMAL
     orbit_type_list = ["geo", "gto", "fol"]
     total_num_of_objects = 0
     yy = year[2:]
+    
     #Unpack Celmech output data
     # Dictionary for storing orbit data separated by orbit type (Celmech output data)
     orbit_data_dict = {
@@ -59,12 +60,12 @@ def main_celmech_2(year:str, err:bool, ell: bool):
         ecc_data = np.array(orbit_data_dict[orbit]["E"])
         a_data = np.array(orbit_data_dict[orbit]["A"])
     
-        """mask = inc_data <= maxinc
+        mask = inc_data <= maxinc
         orbit_data_dict[orbit]["I"] = inc_data[mask]
         orbit_data_dict[orbit]["Node"] = node_data[mask]
         orbit_data_dict[orbit]["E"] = ecc_data[mask]
         orbit_data_dict[orbit]["A"] = a_data[mask]
-        
+        """
         assert len(orbit_data_dict[orbit]["I"]) == len(orbit_data_dict[orbit]["Node"]), "Filtering went wrong"   
 
         apogee = orbit_data_dict[orbit]["A"] * (1 + orbit_data_dict[orbit]["E"])
@@ -76,25 +77,50 @@ def main_celmech_2(year:str, err:bool, ell: bool):
 
     geo_crs = np.array(geo_crs)
     geo_crs = sortdata.remove_zero_background_mag(geo_crs, background_mag_index = 21, mag_index = 20, illumination_index = 19)
-    #geo_crs = sortdata.sort_for_inclination_all_data(geo_crs, 9, 22)
+    geo_crs = sortdata.sort_for_inclination_all_data(geo_crs, 9, 22)
+    geo_crs, orbit_data_dict['geo']['I'], orbit_data_dict['geo']['Node'] = sortdata.inclination_filter(
+        geo_crs, 
+        np.column_stack((orbit_data_dict['geo']['A'], orbit_data_dict['geo']['E'], 
+                        orbit_data_dict['geo']['I'], orbit_data_dict['geo']['Node'])), 
+        failed_masks[0], 
+        maxinc
+    )
     geo_inc = geo_crs[9]
     geo_nod = geo_crs[12]
     
     gto_crs = np.array(gto_crs)
     gto_crs = sortdata.remove_zero_background_mag(gto_crs, background_mag_index = 21, mag_index = 20, illumination_index = 19)
-    #gto_crs = sortdata.sort_for_inclination_all_data(gto_crs, 9, 22)
+    gto_crs = sortdata.sort_for_inclination_all_data(gto_crs, 9, 22)
+    gto_crs, orbit_data_dict['gto']['I'], orbit_data_dict['gto']['Node'] = sortdata.inclination_filter(
+        gto_crs, 
+        np.column_stack((orbit_data_dict['gto']['A'], orbit_data_dict['gto']['E'], 
+                        orbit_data_dict['gto']['I'], orbit_data_dict['gto']['Node'])), 
+        failed_masks[1], 
+        maxinc
+    )
     gto_inc = gto_crs[9]
     gto_nod = gto_crs[12]
 
     fol_crs = np.array(fol_crs)
     fol_crs = sortdata.remove_zero_background_mag(fol_crs, background_mag_index = 21, mag_index = 20, illumination_index = 19)
-    #fol_crs = sortdata.sort_for_inclination_all_data(fol_crs, 9, 22)
+    fol_crs = sortdata.sort_for_inclination_all_data(fol_crs, 9, 22)
+    fol_crs, orbit_data_dict['fol']['I'], orbit_data_dict['fol']['Node'] = sortdata.inclination_filter(
+        fol_crs, 
+        np.column_stack((orbit_data_dict['fol']['A'], orbit_data_dict['fol']['E'], 
+                        orbit_data_dict['fol']['I'], orbit_data_dict['fol']['Node'])), 
+        failed_masks[2], 
+        maxinc
+    )
     fol_inc = fol_crs[9]
     fol_nod = fol_crs[12]
 
     print(f"GEO dataset size: CRS={len(geo_inc)}, Celmech={np.array(orbit_data_dict['geo']['I']).shape}")
     print(f"GTO dataset size: CRS={len(gto_inc)}, Celmech={np.array(orbit_data_dict['gto']['I']).shape}")
     print(f"FOL dataset size: CRS={len(fol_inc)}, Celmech={np.array(orbit_data_dict['fol']['I']).shape}")
+    
+    plotting.i_omega_joined(geo_nod, orbit_data_dict['geo']['Node'], geo_inc, orbit_data_dict['geo']['I'], f"Comparison Crossings to Celmech data, GEO, {year}", year, "crossings", "celmech", dir)
+    plotting.i_omega_joined(gto_nod, orbit_data_dict['gto']['Node'], gto_inc, orbit_data_dict['gto']['I'], f"Comparison Crossings to Celmech data, GTO, {year}",year, "crossings", "celmech", dir)
+    plotting.i_omega_joined(fol_nod, orbit_data_dict['fol']['Node'], fol_inc, orbit_data_dict['fol']['I'], f"Comparison Crossings to Celmech data, FOL, {year}", year, "crossings", "celmech", dir)    
     
     # Count failures (1s) and successes (0s) per orbit type
     for i, orbit in enumerate(orbit_type_list):
@@ -104,6 +130,5 @@ def main_celmech_2(year:str, err:bool, ell: bool):
         total_attempts = len(failed_masks[i])
 
         print(f"{orbit.upper()} - Total: {total_attempts}, Successes: {num_failures}, Failures: {num_successes}")
-
+        
     
-    #out_dir = os.path.join("output_celmech", "Plots")

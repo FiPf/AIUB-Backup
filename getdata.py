@@ -1008,8 +1008,6 @@ def data_four_years_one_seed(data_crs_all_seeds: list, data_det_all_seeds: list,
     number_years = f"{years[0]}-{years[-1]}"
         
     for i, seed in enumerate(seeds): #loop over all seeds
-        print(f"Shape of crs_all_seeds[{i}]: {data_crs_all_seeds[i].shape}")
-        print(f"Shape of det_all_seeds[{i}]: {data_det_all_seeds[i].shape}")
         #call main function, extracts the data and does all kinds of plots
         inc_det_s, inc_crs_s = main_frag_and_rest.main_magnitude_cut(
             data_crs_all_seeds[i], 
@@ -1057,6 +1055,9 @@ def data_four_years_one_seed(data_crs_all_seeds: list, data_det_all_seeds: list,
         sources_GEO_det = sorted[1]
         mag_GEO_det = sorted[2]
 
+        #plotting the MLI objects seperately, as they have high A/M and might have orbit peturbations due to solar radiation pressure
+        plotting.i_omega_MLI_separately(inc_GEO_det, nod_GEO_det, sources_GEO_det, years, dir)
+    
         TLE_inc_det, frag_inc_det, rest_inc_det= sortdata.sort_for_sources(inc_GEO_det, sources_GEO_det)
         inc_GEO_det = np.hstack([frag_inc_det, rest_inc_det])
         TLE_nod_det, frag_nod_det, rest_nod_det= sortdata.sort_for_sources(nod_GEO_det, sources_GEO_det)
@@ -1085,6 +1086,10 @@ def data_four_years_one_seed(data_crs_all_seeds: list, data_det_all_seeds: list,
         nod_GTO_det = sorted[0]
         sources_GTO_det = sorted[1]
         mag_GTO_det = sorted[2]
+        
+        #plotting the MLI objects seperately, as they have high A/M and might have orbit peturbations due to solar radiation pressure
+        plotting.i_omega_MLI_separately(inc_GTO_det, nod_GTO_det, sources_GTO_det, years, dir)
+        
         TLE_inc_det, frag_inc_det, rest_inc_det= sortdata.sort_for_sources(inc_GTO_det, sources_GTO_det)
         inc_GTO_det = np.hstack([frag_inc_det, rest_inc_det])
         TLE_nod_det, frag_nod_det, rest_nod_det= sortdata.sort_for_sources(nod_GTO_det, sources_GTO_det)
@@ -1113,6 +1118,10 @@ def data_four_years_one_seed(data_crs_all_seeds: list, data_det_all_seeds: list,
         nod_fol_det = sorted[0]
         sources_fol_det = sorted[1]
         mag_fol_det = sorted[2]
+        
+        #plotting the MLI objects seperately, as they have high A/M and might have orbit peturbations due to solar radiation pressure
+        plotting.i_omega_MLI_separately(inc_fol_det, nod_fol_det, sources_fol_det, years, dir)
+                
         TLE_inc_det, frag_inc_det, rest_inc_det= sortdata.sort_for_sources(inc_fol_det, sources_fol_det)
         inc_fol_det = np.hstack([frag_inc_det, rest_inc_det])
         TLE_nod_det, frag_nod_det, rest_nod_det= sortdata.sort_for_sources(nod_fol_det, sources_fol_det)
@@ -1125,12 +1134,12 @@ def data_four_years_one_seed(data_crs_all_seeds: list, data_det_all_seeds: list,
 
         #function to create i omega plot for separated orbit types
         plotting.i_omega_all_orbits(np.array(nod_GEO_det), np.array(nod_GTO_det), np.array(nod_fol_det), np.array(inc_GEO_det), np.array(inc_GTO_det), np.array(inc_fol_det), f"Simulated detections {number_years} {seed}", years, dir)
+        
     plotting.i_omega_all_orbits(np.array(nod_GEO_det), np.array(nod_GTO_det), np.array(nod_fol_det), np.array(inc_GEO_det), np.array(inc_GTO_det), np.array(inc_fol_det), f"Simulated detections {number_years}", years, dir)#no seed in title
 
     return len(nod_GEO_det), len(nod_GTO_det), len(nod_fol_det)
 
 #end of enum
-
 
 def read_DISCOS_file(filename: str): 
     """function to read the DISCOS file. DISCOS files contain clusters from the simulations from Andre Horstmann. 

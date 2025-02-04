@@ -80,7 +80,7 @@ def main_celmech(year:str, err: bool, ell: bool):
 
     out_dir = os.path.join("output_celmech", "Plots")
     
-    geo_crs, gto_crs, fol_crs, geo_det, gto_det, fol_det = getdata.data_returner(year, 4)
+    geo_crs, gto_crs, fol_crs, geo_det, gto_det, fol_det = data_returner(year, 4)
 
     
     # Sorting for geo orbit crossings

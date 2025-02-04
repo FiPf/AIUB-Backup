@@ -600,36 +600,120 @@ def plot_DISCOS_file(raan: np.array, inc: np.array, ecc: np.array, breakup_epoch
     plt.savefig(file_path, bbox_inches="tight")
     plt.close()
     
-def i_omega_MLI_separately(inc: np.array, raan: np.array, sources: np.array, year: str): 
-    """i-omega plotter but with MLI in a separate color. MLI (multi layer insulation) have a high area-to-mass
-    ratio, so may have more scattered orbits. 
+def i_omega_MLI_separately(inc: np.array, raan: np.array, sources: np.array, year: str, directory: str):
+    """
+    Plots RAAN vs. Inclination, separating MLI objects for visual distinction.
 
     Args:
-        inc (np.array): inc values array of the modeled breakup events
-        raan (np.array): raan values array of the modeled breakup events
-        ecc (np.array): ecc values array of the modeled breakup events
+        inc (np.array): Inclination values of the objects.
+        raan (np.array): RAAN values of the objects.
+        sources (np.array): Array indicating MLI status (e.g., 6 for MLI).
+        year (str): Year for labeling the plot.
+        directory (str): Directory to save the plot.
     """
-    raan_converted = np.where(np.array(raan) >= 180, np.array(raan) - 360, np.array(raan))
-    raan_converted = np.mod(np.array(raan_converted) + 180, 360) - 180
+    # Convert RAAN to the range [-180, 180]
     
-    inc_MLI = [i for i in inc if i == 6]
-    raan_MLI = [r for r in raan_converted if i == 6]
+    inc = np.array(inc)
+    raan = np.array(raan)
+    sources = np.array(sources)
     
-    inc_rest = [i for i in inc if i != 6]
-    raan_rest = [i for i in raan_converted if i != 6]
+    #Remove the TLEs!
+    valid_mask = sources != 4
+    inc = inc[valid_mask]
+    raan = raan[valid_mask]
+    sources = sources[valid_mask]
     
+    raan_converted = np.mod(np.where(raan >= 180, raan - 360, raan) + 180, 360) - 180
+
+    # Filtering based on sources (assuming 6 indicates MLI)
+    mli_mask = sources == 6
+    inc_MLI = inc[mli_mask]
+    raan_MLI = raan_converted[mli_mask]
+
+    inc_rest = inc[~mli_mask]
+    raan_rest = raan_converted[~mli_mask]
+
+    # Plotting
     plt.figure(figsize=(10, 6), dpi=200)
-    plt.title(title)
-    plt.scatter(raan_MLI, inc_MLI, c = "r", s=5)
-    plt.scatter(raan_rest, inc_rest, c = "b", s=5)
-    
+    plt.title(f"RAAN vs Inclination (MLI Highlighted) - {year}")
+    plt.scatter(raan_rest, inc_rest, c="b", s=5, label="Non-MLI")
+    plt.scatter(raan_MLI, inc_MLI, c="r", s=5, label="MLI")
+
     plt.xlabel("RAAN [°]")
     plt.ylabel("Inclination [°]")
     plt.ylim(0, 22)
     plt.xlim(-180, 180)
     plt.grid(True)
+    plt.legend()
 
     file_path = f"MLI_separate_{year}.png"
     file_path = save_unique_plot(file_path, directory)
     plt.savefig(file_path, bbox_inches="tight")
     plt.close()
+    
+def i_omega_per_size(inc: np.array, raan: np.array, diameter: np.array, year: str, directory: str, separate: bool):
+    inc = np.array(inc)
+    raan = np.array(raan)
+    diameter = np.array(diameter)
+    
+    raan_converted = np.mod(np.where(raan >= 180, raan - 360, raan) + 180, 360) - 180
+
+    size_ranges_lower_bounds = [0.001, 0.005, 0.01, 0.05, 0.1, 1]
+
+    # If separate is true, create individual plots for each size range
+    if separate:
+        for lower_bound in size_ranges_lower_bounds:
+            upper_bound = size_ranges_lower_bounds[size_ranges_lower_bounds.index(lower_bound) + 1] if size_ranges_lower_bounds.index(lower_bound) + 1 < len(size_ranges_lower_bounds) else float('inf')
+            
+            mask = (diameter >= lower_bound) & (diameter < upper_bound)
+            inc_filtered = inc[mask]
+            raan_filtered = raan_converted[mask]
+            
+            # Skip if no data in the range
+            if len(inc_filtered) == 0:
+                continue
+
+            plt.figure(figsize=(10, 6), dpi=200)
+            plt.title(f"RAAN vs Inclination (Size: {lower_bound} - {upper_bound} m) - {year}")
+            plt.scatter(raan_filtered, inc_filtered, c="b", s=5)
+
+            plt.xlabel("RAAN [°]")
+            plt.ylabel("Inclination [°]")
+            plt.ylim(0, 22)
+            plt.xlim(-180, 180)
+            plt.grid(True)
+
+            file_path = f"RAAN_vs_Inc_size_{lower_bound}_to_{upper_bound}_{year}.png"
+            file_path = save_unique_plot(file_path, directory)
+            plt.savefig(file_path, bbox_inches="tight")
+            plt.close()
+
+    # If separate is false, combine all sizes in one plot with different colors
+    else:
+        plt.figure(figsize=(10, 6), dpi=200)
+        plt.title(f"RAAN vs Inclination (All Sizes) - {year}")
+
+        # Plot each size range with a different color
+        for lower_bound in size_ranges_lower_bounds:
+            upper_bound = size_ranges_lower_bounds[size_ranges_lower_bounds.index(lower_bound) + 1] if size_ranges_lower_bounds.index(lower_bound) + 1 < len(size_ranges_lower_bounds) else float('inf')
+            
+            mask = (diameter >= lower_bound) & (diameter < upper_bound)
+            inc_filtered = inc[mask]
+            raan_filtered = raan_converted[mask]
+
+            if len(inc_filtered) == 0:
+                continue
+
+            plt.scatter(raan_filtered, inc_filtered, s=5, label=f"{lower_bound} - {upper_bound} m")
+
+        plt.xlabel("RAAN [°]")
+        plt.ylabel("Inclination [°]")
+        plt.ylim(0, 22)
+        plt.xlim(-180, 180)
+        plt.grid(True)
+        plt.legend()
+
+        file_path = f"RAAN_vs_Inc_all_sizes_{year}.png"
+        file_path = save_unique_plot(file_path, directory)
+        plt.savefig(file_path, bbox_inches="tight")
+        plt.close()

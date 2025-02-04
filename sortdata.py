@@ -392,12 +392,12 @@ def remove_zero_background_mag(data: np.array, background_mag_index: int, mag_in
     """
     
     # Filter out objects with background magnitude equal to 0.000
-    mask_background = (data[background_mag_index] != 0.000) & (data[background_mag_index] < 21.3)
+    mask_background = (data[background_mag_index] != 0.000) #& (data[background_mag_index] < 21.3)
     filtered_data = data[:, mask_background]  # Apply mask to all rows
     
     # Filter out objects with object magnitude 90 or more
-    mask_magnitude = filtered_data[mag_index] < 50
-    filtered_data = filtered_data[:, mask_magnitude]  # Apply second mask
+    #mask_magnitude = filtered_data[mag_index] < 50
+    #filtered_data = filtered_data[:, mask_magnitude]  # Apply second mask
 
     #Filter out objects with objects with illumination zero
     #mask_illumination = filtered_data[illumination_index] != 0
@@ -408,7 +408,9 @@ def remove_zero_background_mag(data: np.array, background_mag_index: int, mag_in
     
     mag_obj_after = filtered_data[mag_index]
     mag_backgr_after = filtered_data[background_mag_index]
-    fig, ax = plt.subplots(1, 2, figsize=(12, 5))
+    
+    #plot used for debugging, Kreisbahnproblem
+    """fig, ax = plt.subplots(1, 2, figsize=(12, 5))
 
     ax[0].scatter(mag_backgr_before, mag_obj_before, s=5, alpha=0.5, label="Before Filtering")
     ax[0].set_xlabel("Background Magnitude")
@@ -425,6 +427,48 @@ def remove_zero_background_mag(data: np.array, background_mag_index: int, mag_in
     ax[1].grid(True)
 
     plt.tight_layout()
-    plt.show()
+    plt.show()"""
     
     return filtered_data
+
+def inclination_filter(crs_data, celmech_data, celmech_fail_mask, max_inclination):
+    """
+    Filter out objects with inclinations larger than maxinc from the crossing dataset,
+    and remove the corresponding objects from the Celmech dataset.
+    
+    The filtering is done in order. For each object (i.e. each column in crs_data),
+    if the corresponding celmech_fail_mask value indicates a failure (== 1), then that
+    object is skipped (i.e. not included in the filtered CRS dataset). For objects with 
+    successful orbit determinations (celmech_fail_mask == 0), if their crossing inclination 
+    (at row incl_index) is greater than maxinc, they are filtered out in both datasets.
+    
+    Args:
+        crs_data (np.ndarray): Crossing dataset with shape (num_params, num_objects).
+        celmech_data (np.ndarray): Celmech dataset with shape (num_objects, 4).
+        celmech_fail_mask (np.ndarray): 1D array of length num_objects (0 for success, 1 for failure).
+        maxinc (float): Maximum allowed inclination.
+        incl_index (int, optional): Index of the inclination in the CRS dataset. Defaults to 9.
+    
+    Returns:
+        filtered_crs (np.ndarray): Filtered crossing data (same shape convention: parameters x objects).
+        filtered_celmech (np.ndarray): Filtered Celmech data (rows corresponding to the kept objects).
+    """
+    # Ensure all arrays have the same length
+    min_length = min(len(crs_data[9]), len(celmech_data), len(celmech_fail_mask))
+    
+    # Trim datasets if needed
+    crs_data = [arr[:min_length] for arr in crs_data]  # Trim each CRS data array
+    celmech_data = celmech_data[:min_length]
+    celmech_fail_mask = celmech_fail_mask[:min_length]
+    
+    # Apply the inclination filter
+    crs_inclination = crs_data[9]  # Assuming inclination is at index 9
+    mask = (crs_inclination <= max_inclination) | (celmech_fail_mask == 1)
+    # This keeps objects with inclination <= max_inclination OR failed Celmech objects
+
+    # Apply mask to both CRS and Celmech data
+    filtered_crs = [arr[mask] for arr in crs_data]
+    filtered_celmech = celmech_data[mask]
+
+    # Return filtered datasets
+    return filtered_crs, filtered_celmech[:, 2], filtered_celmech[:, 3]  # Return I and Node from Celmech
