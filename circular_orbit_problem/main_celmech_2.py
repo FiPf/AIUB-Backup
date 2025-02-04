@@ -1,6 +1,6 @@
 import os
 import numpy as np
-import unique_objects
+from unique import unique_objects
 import sortdata
 import getdata 
 import plotting
