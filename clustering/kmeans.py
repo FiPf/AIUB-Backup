@@ -18,6 +18,7 @@ def k_means(data: np.array, k: int, init: str = 'random', initial_centers: np.ar
     Returns:
         ClusteringResult: namedtuple with fields labels, cluster_centers, data.
     """    
+    data = np.array(data)
     n, d = data.shape #n number of data points, d number of dimensions in the data
 
     #First initialization of cluster centers: either with initial guess or randomly
@@ -91,6 +92,7 @@ def kmeans_pp_initialization(data, k):
     Returns:
         np.array: Initialized cluster centers.
     """
+    data = np.array(data)
     n, d = data.shape
     centers = np.zeros((k, d))
 

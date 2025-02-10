@@ -3,6 +3,7 @@ import numpy as np
 import time 
 import my_kmedoids
 from clustering_utils import ClusteringResult
+from sklearn.preprocessing import MinMaxScaler
 
 import sys
 import os
@@ -28,17 +29,33 @@ def normalize_data(arr: np.array):
     """Normalize data to zero mean and unit variance. Important for clustering. 
 
     Args:
-        arr (np.array): _description_
+        arr (np.array): Input data array.
 
     Returns:
-        normalized (np.array): normalized data
-        mean (float): mean of the data before normalization
-        std (float): standard deviation of the data before normalization 
+        normalized (np.array): Normalized data.
+        data_min (np.array): Minimum values before normalization.
+        data_max (np.array): Maximum values before normalization.
     """    
-    mean = np.mean(arr, axis=0)
-    std = np.std(arr, axis=0)
-    normalized = (arr - mean) / std
-    return normalized, mean, std
+    scaler = MinMaxScaler()
+    normalized_data = scaler.fit_transform(arr)
+    return normalized_data, scaler.data_min_, scaler.data_max_
+
+def unnormalize(normalized_data: np.array, cluster_centers: np.array, data_min: np.array, data_max: np.array): 
+    """Reverts the normalization process for both data and cluster centers.
+
+    Args:
+        normalized_data (np.array): Normalized dataset.
+        cluster_centers (np.array): Normalized cluster centers.
+        data_min (np.array): Minimum values used for normalization.
+        data_max (np.array): Maximum values used for normalization.
+
+    Returns:
+        np.array: Unnormalized data.
+        np.array: Unnormalized cluster centers.
+    """
+    unnormalized_data = normalized_data * (data_max - data_min) + data_min
+    unnormalized_centers = cluster_centers * (data_max - data_min) + data_min
+    return unnormalized_data, unnormalized_centers
 
 def adjust_raan_range(raan_values):
     """Convert RAAN from [0, 360]° to [-180, 180]°
@@ -71,23 +88,6 @@ def prepare_data_for_clustering(filename: str) -> ClusterData:
     raan = adjust_raan_range(raan)
     ecc = data[10]
     return ClusterData(inc=inc, raan=raan, ecc=ecc)
-
-def unnormalize(normalized_data, data_min=None, data_max=None):
-    """unnormalize the data back to the expected range. Normally, the range should not have to be adjusted. 
-
-    Args:
-        normalized_data (named tuple): data to unnormalize (inc, raan, ecc)
-        data_min (np.array, optional): minima of the data (inc, raan, ecc). Defaults to None.
-        data_max (np.array, optional): maxima of the data (inc, raan, ecc). Defaults to None.
-
-    Returns:
-        named tuple: unnormalized data
-    """
-    if data_min is None:
-        data_min = np.array([0, -180, 0]) 
-    if data_max is None:
-        data_max = np.array([22, 180, 1])  
-    return normalized_data * (data_max - data_min) + data_min
 
 def estimate_runtime(clustering_func, *args, build_function=None, swap_function=None, **kwargs):
     """
