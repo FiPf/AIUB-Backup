@@ -87,7 +87,23 @@ def cartesian_to_keplerian(r: np.array, v: np.array):
         "True Anomaly (deg)": true_anomaly
     }
 
-def orbital_to_cartesian(a, e, i, Omega, omega, nu, mu=398600.4418):  # mu in km^3/s^2 for Earth
+def orbital_to_cartesian(a: float, e: float, i: float, Omega: float, omega: float, nu: float, mu=398600.4418):  # mu in km^3/s^2 for Earth¨
+    """transforms orbital elements to cartesian coordinates
+
+    Args:
+        a (float): semi major axis
+        e (float): eccentricity
+        i (float): inclination
+        Omega (float): Right ascenciosion of ascending node
+        omega (float): argument of perigee
+        nu (float): true anomaly
+        mu (float, optional): Gravitation value. Defaults to 398600.4418. (Earth)
+
+    Returns: 
+        position_inertial (np.array): 3d position vector
+        velocity_inertial (np.array): 3d velocity vector
+        
+    """    
     # Step 1: Calculate distance r
     r = a * (1 - e**2) / (1 + e * np.cos(np.radians(nu)))
     
