@@ -392,10 +392,8 @@ def array_extender_plugin(filename: str):
     
     with open(filename, "r") as inp: 
         lines = inp.readlines()
-        
         for line in lines[1:]: 
             parts = line.split()
-            
             runid.append(parts[0])
             ifile.append(parts[1])
             epoch.append(parts[2])
@@ -457,7 +455,7 @@ def get_celmech_OUT_files(year: str, orbit_type: str, err: bool, ell: bool):
     Returns:
         filename (str): Name of the file as string.
     """
-    directory = "input_celmech"
+    directory = os.path.join("..", "input_celmech")
     print(year[2:], orbit_type)
 
     for filename in os.listdir(directory):

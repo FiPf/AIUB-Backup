@@ -1,6 +1,12 @@
 #this file contains all functions to generate a fake tle, which is used for the input of the sgp4 propagator
+#functions to extract the data, calculate some parameters for the TLE and to write the TLE
 #it takes the epoch from the plugin.pro file and the orbital elements from the *.crs file
 import numpy as np
+
+import sys
+import os
+
+sys.path.append(os.path.abspath("..")) 
 import getdata
 from getdata import PopulationType, data_returner
 from collections import namedtuple
@@ -41,6 +47,8 @@ def compute_am(d: float, source: int):
         object_type == 'None' #small objects only, all sources excpet 1 (=fragments) and 4 (=TLE)
 
     log_d = np.log10(d)
+    small_particle_limit = 1.7 #default value in case that object_type is None
+    r_thresh = 0 #default value in case that object_type is None
     
     # Define bridging function threshold only 
     if object_type != 'None': 
@@ -103,9 +111,10 @@ def compute_am(d: float, source: int):
     area_to_mass = 10**chi
     return area_to_mass
 
-def data_from_crs(crs_filename: str): 
+def data_from_crs_and_det(crs_filename: str, det_filename: str): 
 
     crsData = namedtuple("crsData", ["diameter", "sources", "sem_major", "inc", "ecc", "arg_per", "raan", "true_lat", "background_mag"])
+    detData = namedtuple("detData", ["diameter", "sources", "sem_major", "inc", "ecc", "arg_per", "raan", "true_lat", "background_mag"])
 
     data = getdata.array_extender(crs_filename)
     diameter = data[1]
@@ -118,18 +127,36 @@ def data_from_crs(crs_filename: str):
     true_lat = data[13]
     background_mag = data[21]
 
-    return crsData(diameter, sources, sem_major, inc, ecc, arg_per, raan, true_lat, background_mag)
+    crsData = crsData(diameter, sources, sem_major, inc, ecc, arg_per, raan, true_lat, background_mag)
+
+    data = getdata.array_extender(det_filename)
+    diameter = data[1]
+    sources = data[3]
+    sem_major = data[8]
+    inc = data[9]
+    ecc = data[10]
+    arg_per = data[11]
+    raan = data[12]
+    true_lat = data[13]
+    background_mag = data[21]
+
+    detData = detData(diameter, sources, sem_major, inc, ecc, arg_per, raan, true_lat, background_mag)
+
+    return crsData, detData
 
 def data_from_plugin(year: str, orbit_type: str):
     pluginData = namedtuple("pluginData", ["epoch"])
     err = False
     ell = False
-    filename = getdata.get_celmech_OUT_files(year, orbit_type, err, ell) #find the right Celmech file for given year and orbit type
+    year2 = year[2:]
+    filename = f"plugin_{year2}_{orbit_type}.pro"
+    filename = os.path.join("..", "input", filename)
+    print(filename)
     data = getdata.array_extender_plugin(filename)
     epoch = data[2]
     return pluginData(epoch) 
 
-def data_from_celmech(year:str, dir: str, err:bool, ell: bool, orbit_type: str): 
+def data_from_celmech(year:str, dir: str, orbit_type: str, err :bool = False, ell: bool = False): 
     population_type = PopulationType.NORMAL
     total_num_of_objects = 0
     yy = year[2:]
@@ -139,86 +166,96 @@ def data_from_celmech(year:str, dir: str, err:bool, ell: bool, orbit_type: str):
 
     files = []
     file = getdata.get_celmech_OUT_files(year, orbit_type, err, ell) #find the right Celmech file for given year and orbit_type type
-    file = os.path.join("input_celmech", file)
+    file = os.path.join("..", "input_celmech", file)
     files.append(file)
     orbit_type_data, number_of_obj, dates, failed_mask = getdata.get_orbele_and_date_from_celmech(files) #extract orbit_typeal elements from Celmech files
     
     total_num_of_objects += number_of_obj
     
     # Append the data to the corresponding orbit_type type in the dictionary
-    orbit_type_data_dict[orbit_type]["num_obs"].append(orbit_type_data[0])
-    orbit_type_data_dict[orbit_type]["rms"].append(orbit_type_data[1])
-    orbit_type_data_dict[orbit_type]["time_interval"].append(orbit_type_data[2])
-    orbit_type_data_dict[orbit_type]["num_iter"].append(orbit_type_data[3])
-    orbit_type_data_dict[orbit_type]["P"].append(orbit_type_data[4])
-    orbit_type_data_dict[orbit_type]["A"].append(orbit_type_data[5])
-    orbit_type_data_dict[orbit_type]["E"].append(orbit_type_data[6])
-    orbit_type_data_dict[orbit_type]["I"].append(orbit_type_data[7])
-    orbit_type_data_dict[orbit_type]["Node"].append(orbit_type_data[8])
-    orbit_type_data_dict[orbit_type]["Per"].append(orbit_type_data[9])
-    orbit_type_data_dict[orbit_type]["IPer"].append(orbit_type_data[10])            
+    orbit_type_data_dict["num_obs"].append(orbit_type_data[0])
+    orbit_type_data_dict["rms"].append(orbit_type_data[1])
+    orbit_type_data_dict["time_interval"].append(orbit_type_data[2])
+    orbit_type_data_dict["num_iter"].append(orbit_type_data[3])
+    orbit_type_data_dict["P"].append(orbit_type_data[4])
+    orbit_type_data_dict["A"].append(orbit_type_data[5])
+    orbit_type_data_dict["E"].append(orbit_type_data[6])
+    orbit_type_data_dict["I"].append(orbit_type_data[7])
+    orbit_type_data_dict["Node"].append(orbit_type_data[8])
+    orbit_type_data_dict["Per"].append(orbit_type_data[9])
+    orbit_type_data_dict["IPer"].append(orbit_type_data[10])            
     
     maxinc = 22 #cut off all data at greater inclinations
     apogee_threshold = 10000  # in kilometers (10k km)
 
     # Filtering for inclination and apogee
-    inc_data = np.array(orbit_type_data_dict[orbit_type]["I"])
-    node_data = np.array(orbit_type_data_dict[orbit_type]["Node"])
-    ecc_data = np.array(orbit_type_data_dict[orbit_type]["E"])
-    a_data = np.array(orbit_type_data_dict[orbit_type]["A"])
+    inc_data = np.array(orbit_type_data_dict["I"])
+    node_data = np.array(orbit_type_data_dict["Node"])
+    ecc_data = np.array(orbit_type_data_dict["E"])
+    a_data = np.array(orbit_type_data_dict["A"])
 
     mask = inc_data <= maxinc
-    orbit_type_data_dict[orbit_type]["I"] = inc_data[mask]
-    orbit_type_data_dict[orbit_type]["Node"] = node_data[mask]
-    orbit_type_data_dict[orbit_type]["E"] = ecc_data[mask]
-    orbit_type_data_dict[orbit_type]["A"] = a_data[mask]
+    orbit_type_data_dict["I"] = inc_data[mask]
+    orbit_type_data_dict["Node"] = node_data[mask]
+    orbit_type_data_dict["E"] = ecc_data[mask]
+    orbit_type_data_dict["A"] = a_data[mask]
 
-    return failed_mask
+    return failed_mask, dates, orbit_type_data
 
-def combine_data(crsData: namedtuple, pluginData: namedtuple, failed_mask: np.array):
+def combine_data(crsData: namedtuple, detData: namedtuple, failed_mask: np.array, dates: np.array, orbit_type_data: np.array):
     # Convert to NumPy arrays
     background_mask = np.array(crsData.background_mag) != 0  # Remove background_mag = 0
-    valid_mask = (np.array(failed_mask) == 1) & background_mask  # Remove failed_mask == 0
+    valid_mask = (np.array(failed_mask) == 1)  # Remove failed_mask == 0
+
+    # Get sizes after filtering
+    background_filtered_size = np.sum(background_mask)
+    failed_filtered_size = np.sum(valid_mask)
+
+    # Calculate the minimum length
+    min_length = min(background_filtered_size, failed_filtered_size)
+
+    # Check for a mismatch greater than 10%
+    max_length = max(background_filtered_size, failed_filtered_size)
+    if abs(background_filtered_size - failed_filtered_size) / max_length > 0.1:
+        print(f"Warning: Large size mismatch! background_mask={background_filtered_size}, failed_mask={failed_filtered_size}")
+        print(f"Mismatch percentage: {((background_filtered_size - failed_filtered_size) / max_length):.2f}")
 
     # Apply the final mask to crsData
     filtered_crsData = crsData._replace(
-        diameter=np.array(crsData.diameter)[valid_mask],
-        sources=np.array(crsData.sources)[valid_mask],
-        sem_major=np.array(crsData.sem_major)[valid_mask],
-        inc=np.array(crsData.inc)[valid_mask],
-        ecc=np.array(crsData.ecc)[valid_mask],
-        arg_per=np.array(crsData.arg_per)[valid_mask],
-        raan=np.array(crsData.raan)[valid_mask],
-        true_lat=np.array(crsData.true_lat)[valid_mask],
-        background_mag=np.array(crsData.background_mag)[valid_mask],
+        diameter=np.array(crsData.diameter)[background_mask][:min_length],
+        sources=np.array(crsData.sources)[background_mask][:min_length],
+        sem_major=np.array(crsData.sem_major)[background_mask][:min_length],
+        inc=np.array(crsData.inc)[background_mask][:min_length],
+        ecc=np.array(crsData.ecc)[background_mask][:min_length],
+        arg_per=np.array(crsData.arg_per)[background_mask][:min_length],
+        raan=np.array(crsData.raan)[background_mask][:min_length],
+        true_lat=np.array(crsData.true_lat)[background_mask][:min_length],
+        background_mag=np.array(crsData.background_mag)[background_mask][:min_length],
     )
 
-    # Apply the final mask to pluginData
-    filtered_pluginData = pluginData._replace(
-        epoch=np.array(pluginData.epoch)[valid_mask]
-    )
+    # Apply the final mask to orbit_type_data (celmech_data)
+    orbit_type_data = np.array(orbit_type_data).T
 
-    MAX_INC =22
+    MAX_INC = 22
     inclination_mask_crs = np.array(filtered_crsData.inc) < MAX_INC
-    inclination_mask_plugin = np.array(filtered_pluginData.inc) < MAX_INC
+    inclination_mask_orbit = np.array(orbit_type_data) < MAX_INC
 
-    filtered_crsData = crsData._replace(
-        diameter=np.array(crsData.diameter)[inclination_mask_crs],
-        sources=np.array(crsData.sources)[inclination_mask_crs],
-        sem_major=np.array(crsData.sem_major)[inclination_mask_crs],
-        inc=np.array(crsData.inc)[inclination_mask_crs],
-        ecc=np.array(crsData.ecc)[inclination_mask_crs],
-        arg_per=np.array(crsData.arg_per)[inclination_mask_crs],
-        raan=np.array(crsData.raan)[inclination_mask_crs],
-        true_lat=np.array(crsData.true_lat)[inclination_mask_crs],
-        background_mag=np.array(crsData.background_mag)[inclination_mask_crs],
+    filtered_crsData = filtered_crsData._replace(
+        diameter=filtered_crsData.diameter[inclination_mask_crs],
+        sources=filtered_crsData.sources[inclination_mask_crs],
+        sem_major=filtered_crsData.sem_major[inclination_mask_crs],
+        inc=filtered_crsData.inc[inclination_mask_crs],
+        ecc=filtered_crsData.ecc[inclination_mask_crs],
+        arg_per=filtered_crsData.arg_per[inclination_mask_crs],
+        raan=filtered_crsData.raan[inclination_mask_crs],
+        true_lat=filtered_crsData.true_lat[inclination_mask_crs],
+        background_mag=filtered_crsData.background_mag[inclination_mask_crs],
     )
 
-    filtered_pluginData = pluginData._replace(
-        epoch=np.array(pluginData.epoch)[inclination_mask_plugin]
-    )
+    filtered_orbit_type_data = orbit_type_data[inclination_mask_orbit]
 
-    min_length = min(len(filtered_crsData.inc), len(filtered_pluginData.epoch))
+    # Ensure all datasets have the same length
+    min_length = min(len(filtered_crsData.inc), len(filtered_orbit_type_data))
 
     filtered_crsData = filtered_crsData._replace(
         diameter=filtered_crsData.diameter[:min_length],
@@ -232,34 +269,73 @@ def combine_data(crsData: namedtuple, pluginData: namedtuple, failed_mask: np.ar
         background_mag=filtered_crsData.background_mag[:min_length],
     )
 
-    filtered_pluginData = filtered_pluginData._replace(
-        epoch=filtered_pluginData.epoch[:min_length]
+    filtered_orbit_type_data = filtered_orbit_type_data[:min_length]
+
+    celmechData = filtered_orbit_type_data
+    filtered_crsData, celmechData = detections_filter(crsData, detData, celmechData)
+
+    return filtered_crsData, filtered_orbit_type_data
+
+def detections_filter(crsData: namedtuple, detData: namedtuple, celmechData: np.array): 
+    # Find indices in crsData where elements match detData
+    mask = np.isin(crsData.diameter, detData.diameter) & np.isin(crsData.sources, detData.sources)
+
+    # Filter crsData
+    filtered_crsData = crsData._replace(
+        diameter=np.array(crsData.diameter)[mask],
+        sources=np.array(crsData.sources)[mask],
+        sem_major=np.array(crsData.sem_major)[mask],
+        inc=np.array(crsData.inc)[mask],
+        ecc=np.array(crsData.ecc)[mask],
+        arg_per=np.array(crsData.arg_per)[mask],
+        raan=np.array(crsData.raan)[mask],
+        true_lat=np.array(crsData.true_lat)[mask],
+        background_mag=np.array(crsData.background_mag)[mask]
     )
+    
+    #TODO det filter for celmechData
 
-    return filtered_crsData, filtered_pluginData
+    return filtered_crsData, celmechData
 
-#TODOOOOOO
-def detections_filter(): 
-    pass
-
-def format_tle_epoch(epoch):
+#def format_tle_epoch(epoch):
     """Convert epoch (YYYYMMDD.ddd) into YYDDD.DDDDDDDD format for TLE."""
     year = int(str(epoch)[:4])  # Extract year
     day_of_year = int(str(epoch)[4:7])  # Extract day of year
     decimal_part = float("0." + str(epoch)[7:])  # Extract decimal part
     yy = year % 100  # Convert to two-digit year
-    return f"{yy:02}{day_of_year:03}{decimal_part:.8f}"  # Format as YYDDD.DDDDDDDD
+    return f"{yy:02}{day_of_year:03}{decimal_part:.8f}  # Format as YYDDD.DDDDDDDD"""
 
-def build_TLE(filtered_crsData: namedtuple, filtered_pluginData: namedtuple, b_star_drag: np.array, output_file="tle_output.txt"):
+def format_tle_epoch(epoch):
+    """Convert epoch (YYYYMMDD.ddd or YYYYDDD.ddd) into YYDDD.DDDDDDDD format for TLE.
+    Supports both single values and NumPy arrays.
+    """
+    # Ensure epoch is a NumPy array for vectorized operations
+    epoch = np.atleast_1d(epoch)
+    # Convert to string representation
+    epoch_str = np.array(epoch, dtype=str)
+    # Extract components
+    year = epoch_str[:, :4].astype(int)  # First 4 digits as year
+    day_of_year = epoch_str[:, 4:7].astype(int)  # Next 3 digits as day of year
+    # Handle decimal part safely (fill missing values with "0")
+    decimal_part = np.array([float("0." + e[7:]) if len(e) > 7 else 0.0 for e in epoch_str])
+    # Convert year to two-digit format
+    yy = year % 100  
+    # Format output
+    formatted_epochs = np.array([f"{yy_:02}{d_:03}{dp:.8f}" for yy_, d_, dp in zip(yy, day_of_year, decimal_part)])
+    return formatted_epochs if len(formatted_epochs) > 1 else formatted_epochs[0]  # Return scalar if input was scalar
+
+
+def build_TLE(filtered_crsData: namedtuple, filtered_celmechData: namedtuple, b_star_drag: np.array, output_file="tle_output.txt"):
     """Generate and save properly formatted TLEs to a file."""
     
+    print(filtered_celmechData)
     MU_EARTH = 398600.4418  # km^3/s^2
     with open(output_file, "w") as file:
         for i in range(len(filtered_crsData.inc)): #loop through all objects
             sat_cat_no = i #unused
             classification = "U"  # Unclassified
             international_designator = i  #unused
-            epoch = format_tle_epoch(filtered_pluginData.epoch[i])  # convert to date TLE format
+            epoch = format_tle_epoch(filtered_celmechData.epoch[i])  # convert to date TLE format
             decay_rate = 0.0 #unused
             second_derivative = "00000-0" #unused
             b_star_drag_term = f"{b_star_drag[i]:.5e}"
@@ -283,3 +359,32 @@ def build_TLE(filtered_crsData: namedtuple, filtered_pluginData: namedtuple, b_s
             file.write(line2 + "\n")
 
     print(f"TLE file '{output_file}' generated successfully.")
+
+def prepare_input_tle(year: str, orbit_type: str, seed: int):
+    year2 = year[2:]
+
+    dir = os.path.join("..", "input")
+
+    if int(year) == 2023 and int(seed) == 1: 
+        crs_filename = f"stat_Master_{year2}_{orbit_type}_s{seed}_10cm.crs"
+        crs_filename = os.path.join("..", "input", crs_filename)
+        det_filename = f"stat_Master_{year2}_{orbit_type}_s{seed}_10cm.det"
+        det_filename = os.path.join("..", "input", det_filename)
+    else: 
+        crs_filename = f"stat_Master_{year2}_{orbit_type}_s{seed}.crs"
+        crs_filename = os.path.join("..", "input", crs_filename)
+        det_filename = f"stat_Master_{year2}_{orbit_type}_s{seed}.det"
+        det_filename = os.path.join("..", "input", det_filename)
+
+    crsData, detData = data_from_crs_and_det(crs_filename, det_filename)
+    failed_mask, dates, celmech_data = data_from_celmech(year, dir, orbit_type, False, False)
+    filtered_crsData, filtered_celmechData = combine_data(crsData, detData, failed_mask, dates, celmech_data)
+
+    print(filtered_celmechData)
+
+    diameter = filtered_crsData.diameter
+    semi_major = filtered_crsData.sem_major
+    sources = filtered_crsData.sources
+    b_star_drag = compute_b_drag(diameter, semi_major, sources)
+
+    build_TLE(filtered_crsData, filtered_celmechData, b_star_drag)
