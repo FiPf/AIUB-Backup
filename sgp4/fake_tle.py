@@ -2,6 +2,8 @@
 #functions to extract the data, calculate some parameters for the TLE and to write the TLE
 #it takes the epoch from the plugin.pro file and the orbital elements from the *.crs file
 import numpy as np
+from astropy.time import Time
+from tqdm import tqdm
 
 import sys
 import os
@@ -276,84 +278,89 @@ def combine_data(crsData: namedtuple, detData: namedtuple, failed_mask: np.array
 
     return filtered_crsData, filtered_orbit_type_data
 
-def detections_filter(crsData: namedtuple, detData: namedtuple, celmechData: np.array): 
-    # Find indices in crsData where elements match detData
-    mask = np.isin(crsData.diameter, detData.diameter) & np.isin(crsData.sources, detData.sources)
+import numpy as np
+from collections import namedtuple
 
-    # Filter crsData
-    filtered_crsData = crsData._replace(
-        diameter=np.array(crsData.diameter)[mask],
-        sources=np.array(crsData.sources)[mask],
-        sem_major=np.array(crsData.sem_major)[mask],
-        inc=np.array(crsData.inc)[mask],
-        ecc=np.array(crsData.ecc)[mask],
-        arg_per=np.array(crsData.arg_per)[mask],
-        raan=np.array(crsData.raan)[mask],
-        true_lat=np.array(crsData.true_lat)[mask],
-        background_mag=np.array(crsData.background_mag)[mask]
-    )
+def detections_filter(crsData: namedtuple, detData: namedtuple, celmechData: np.array): 
+    """Filters crsData and celmechData to keep only objects present in detData."""
     
-    #TODO det filter for celmechData
+    # Create a mask with 1 where objects are in detData, 0 otherwise
+    mask = np.isin(crsData.diameter, detData.diameter) & np.isin(crsData.sources, detData.sources)
+    
+    # Convert to integer mask (1 = in detData, 0 = only in crsData)
+    mask = mask.astype(int)
+
+    #print(np.array(crsData).shape)
+
+    # Apply mask to remove objects (only keep objects where mask == 1)
+    filtered_crsData = crsData._replace(
+        diameter=np.array(crsData.diameter)[mask == 1],
+        sources=np.array(crsData.sources)[mask == 1],
+        sem_major=np.array(crsData.sem_major)[mask == 1],
+        inc=np.array(crsData.inc)[mask == 1],
+        ecc=np.array(crsData.ecc)[mask == 1],
+        arg_per=np.array(crsData.arg_per)[mask == 1],
+        raan=np.array(crsData.raan)[mask == 1],
+        true_lat=np.array(crsData.true_lat)[mask == 1],
+        background_mag=np.array(crsData.background_mag)[mask == 1]
+    )
+    #print(np.array(filtered_crsData).shape)
+    #print(np.array(celmechData).shape)
+    #TODO maybe this is not quite so good yet.........................................................
+    # Remove objects from celmechData where mask == 0
+    #filtered_celmechData = celmechData[mask == 1]
 
     return filtered_crsData, celmechData
 
-#def format_tle_epoch(epoch):
-    """Convert epoch (YYYYMMDD.ddd) into YYDDD.DDDDDDDD format for TLE."""
-    year = int(str(epoch)[:4])  # Extract year
-    day_of_year = int(str(epoch)[4:7])  # Extract day of year
-    decimal_part = float("0." + str(epoch)[7:])  # Extract decimal part
-    yy = year % 100  # Convert to two-digit year
-    return f"{yy:02}{day_of_year:03}{decimal_part:.8f}  # Format as YYDDD.DDDDDDDD"""
-
 def format_tle_epoch(epoch):
-    """Convert epoch (YYYYMMDD.ddd or YYYYDDD.ddd) into YYDDD.DDDDDDDD format for TLE.
-    Supports both single values and NumPy arrays.
-    """
-    # Ensure epoch is a NumPy array for vectorized operations
-    epoch = np.atleast_1d(epoch)
-    # Convert to string representation
-    epoch_str = np.array(epoch, dtype=str)
-    # Extract components
-    year = epoch_str[:, :4].astype(int)  # First 4 digits as year
-    day_of_year = epoch_str[:, 4:7].astype(int)  # Next 3 digits as day of year
-    # Handle decimal part safely (fill missing values with "0")
-    decimal_part = np.array([float("0." + e[7:]) if len(e) > 7 else 0.0 for e in epoch_str])
-    # Convert year to two-digit format
-    yy = year % 100  
-    # Format output
-    formatted_epochs = np.array([f"{yy_:02}{d_:03}{dp:.8f}" for yy_, d_, dp in zip(yy, day_of_year, decimal_part)])
-    return formatted_epochs if len(formatted_epochs) > 1 else formatted_epochs[0]  # Return scalar if input was scalar
+    """Convert MJD to YYDDD.DDDDDDDD format for TLE."""
+    epoch = np.atleast_1d(epoch)  # Ensure array format
+    jd = epoch + 2400000.5  # Convert MJD to JD
+    jd_time = Time(jd, format="jd")
 
-
-def build_TLE(filtered_crsData: namedtuple, filtered_celmechData: namedtuple, b_star_drag: np.array, output_file="tle_output.txt"):
-    """Generate and save properly formatted TLEs to a file."""
+    formatted_epochs = []
     
-    print(filtered_celmechData)
+    for i, t in enumerate(jd_time):
+        year = t.datetime.year
+        doy = t.datetime.timetuple().tm_yday
+        frac_day = float(((t.datetime.hour / 24) + (t.datetime.minute / 1440) + (t.datetime.second / 86400)))
+        frac_day = round(frac_day, 8)
+        yy = year % 100  # Last two digits of year
+        tle_epoch = f"{yy:02}{doy:03}.{str(frac_day).split('.')[1]}"
+        formatted_epochs.append(tle_epoch.strip())  # Ensure no extra spaces
+
+    return formatted_epochs if len(formatted_epochs) > 1 else formatted_epochs[0]
+
+
+def build_TLE(filtered_crsData, filtered_celmechData, dates, b_star_drag, output_file="tle_output.txt"):
+    """Generate and save properly formatted TLEs to a file."""
+
     MU_EARTH = 398600.4418  # km^3/s^2
     with open(output_file, "w") as file:
-        for i in range(len(filtered_crsData.inc)): #loop through all objects
-            sat_cat_no = i #unused
+        for i in tqdm(range(len(filtered_crsData.inc)), desc="Generating TLEs", unit="TLE", mininterval=0.5):
+            sat_cat_no = i  + 10000 # Unused, add 10'000 to avoid leading zeros
             classification = "U"  # Unclassified
-            international_designator = i  #unused
-            epoch = format_tle_epoch(filtered_celmechData.epoch[i])  # convert to date TLE format
-            decay_rate = 0.0 #unused
-            second_derivative = "00000-0" #unused
+            international_designator = f"{2000 % 100:02d}{i:03d}A"  # Example: "24001A" # Unused
+            epoch = format_tle_epoch(dates)[i]  # Convert to date TLE format
+            decay_rate = 0.0  # Unused
+            second_derivative = "00000-0"  # Unused
             b_star_drag_term = f"{b_star_drag[i]:.5e}"
-            element_set_no = i #unused
-            check1 = i #unused
+            element_set_no = i  # Unused
+            check1 = i  # Unused
 
-            a = filtered_crsData.sem_maj[i]
+            a = filtered_crsData.sem_major[i]
             inclination = filtered_crsData.inc[i]
             raan = filtered_crsData.raan[i]
             eccentricity = f"{filtered_crsData.ecc[i]:.7f}"[2:]  # TLE eccentricity (remove '0.')
             arg_per = filtered_crsData.arg_per[i]
             mean_anomaly = filtered_crsData.true_lat[i]  # Approximating as true latitude
             n_rad_per_sec = np.sqrt(MU_EARTH / a**3)  # Mean motion in rad/s
-            mean_motion = (n_rad_per_sec / (2 * np.pi)) * 86400 #revolutions per day
+            mean_motion = (n_rad_per_sec / (2 * np.pi)) * 86400  # Revolutions per day
             rev_number = i  # Incrementing revolution number
             check2 = i
 
-            line1 = f"1 {sat_cat_no:05d}{classification} {international_designator}   {epoch}  {decay_rate:.8f}  {second_derivative} {b_star_drag_term} 0  {element_set_no:04d}{check1}"
+            line1 = (f"1 {sat_cat_no:05d}{classification} {international_designator:<8s} {epoch}  {decay_rate:.8f}  {second_derivative} {b_star_drag_term} 0  {element_set_no:04d}{check1}")
+            #line1 = f"1 {sat_cat_no:05d}{classification} {international_designator}   {epoch}  {decay_rate:.8f}  {second_derivative} {b_star_drag_term} 0  {element_set_no:04d}{check1}"
             line2 = f"2 {sat_cat_no:05d}  {inclination:8.4f} {raan:8.4f} {eccentricity:7s}  {arg_per:8.4f}  {mean_anomaly:8.4f} {mean_motion:11.8f}{rev_number:05d}{check2}"
             file.write(line1 + "\n")
             file.write(line2 + "\n")
@@ -362,29 +369,25 @@ def build_TLE(filtered_crsData: namedtuple, filtered_celmechData: namedtuple, b_
 
 def prepare_input_tle(year: str, orbit_type: str, seed: int):
     year2 = year[2:]
-
     dir = os.path.join("..", "input")
 
     if int(year) == 2023 and int(seed) == 1: 
         crs_filename = f"stat_Master_{year2}_{orbit_type}_s{seed}_10cm.crs"
-        crs_filename = os.path.join("..", "input", crs_filename)
         det_filename = f"stat_Master_{year2}_{orbit_type}_s{seed}_10cm.det"
-        det_filename = os.path.join("..", "input", det_filename)
     else: 
         crs_filename = f"stat_Master_{year2}_{orbit_type}_s{seed}.crs"
-        crs_filename = os.path.join("..", "input", crs_filename)
         det_filename = f"stat_Master_{year2}_{orbit_type}_s{seed}.det"
-        det_filename = os.path.join("..", "input", det_filename)
+
+    crs_filename = os.path.join("..", "input", crs_filename)
+    det_filename = os.path.join("..", "input", det_filename)
 
     crsData, detData = data_from_crs_and_det(crs_filename, det_filename)
     failed_mask, dates, celmech_data = data_from_celmech(year, dir, orbit_type, False, False)
     filtered_crsData, filtered_celmechData = combine_data(crsData, detData, failed_mask, dates, celmech_data)
-
-    print(filtered_celmechData)
 
     diameter = filtered_crsData.diameter
     semi_major = filtered_crsData.sem_major
     sources = filtered_crsData.sources
     b_star_drag = compute_b_drag(diameter, semi_major, sources)
 
-    build_TLE(filtered_crsData, filtered_celmechData, b_star_drag)
+    build_TLE(filtered_crsData, filtered_celmechData, dates, b_star_drag)

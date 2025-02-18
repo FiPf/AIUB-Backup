@@ -1,7 +1,9 @@
 import numpy as np
 from scipy.spatial.distance import cdist
 from cluster_data import ClusteringResult
+from numba import jit
 
+#@jit
 def k_means(data: np.array, k: int, init: str = 'random', initial_centers: np.array = None, max_iter: int = 300, tol: float = 1e-4):
     """Perform k-means clustering. Runtime: O(n*k*d*i) with number of data points n, number of clusters k, number of 
     dimensions d and number of iterations until convergence i
