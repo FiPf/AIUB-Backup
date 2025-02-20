@@ -28,9 +28,10 @@ def compute_b_drag(diameter: np.array, semi_major: np.array, sources: np.array):
         b_star_drag_values (np.array): calculated bstar drag term, can be used in the TLE
     """
     b_star_drag_vals = []
+    b_vals = [] 
     area_to_mass_vals = []
     for d, s in zip(diameter, sources): 
-        a_m = compute_am(d, s)
+        a_m = compute_am(d, s) # two possible versions, see below
         area_to_mass_vals.append(a_m)
 
     drag_coeff = 2.2
@@ -41,8 +42,10 @@ def compute_b_drag(diameter: np.array, semi_major: np.array, sources: np.array):
         rho = density_const * (R_earth / a)
         b_star_drag = drag_coeff*ele*rho*0.5
         b_star_drag_vals.append(b_star_drag)
+        b = drag_coeff*ele
+        b_vals.append(b)
 
-    return b_star_drag_vals 
+    return b_star_drag_vals, b_vals
 
 def compute_am(d: float, source: int):
     """compute the area-to-mass ratiom A/m for an object of size d. The method for this function is
@@ -500,6 +503,8 @@ def prepare_input_tle(year: str, orbit_type: str, seed: int):
     diameter = filtered_crsData.diameter
     semi_major = filtered_crsData.sem_major
     sources = filtered_crsData.sources
-    b_star_drag = compute_b_drag(diameter, semi_major, sources)
+    b_star_drag, b_vals = compute_b_drag(diameter, semi_major, sources)
+    print(b_star_drag)
+    print(b_vals)
 
     build_TLE(filtered_crsData, filtered_celmechData, dates, b_star_drag)

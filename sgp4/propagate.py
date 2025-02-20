@@ -34,5 +34,7 @@ def propagate_tles(input_file, output_file):
                 f.write(f"{tle1}\n{tle2}\n\n")
             else:
                 f.write(f"Error propagating {tle1[:24]}: Error: {e}\n\n")
+                f.write(f"{tle1}\n{tle2}\n\n")
+                f.write("-------------------------------------------------")
             
             pbar.update(1)  # Update progress bar

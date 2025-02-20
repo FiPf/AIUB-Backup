@@ -26,6 +26,7 @@ def compute_b_drag(diameter: np.array, semi_major: np.array, sources: np.array):
         b_star_drag_values (np.array): calculated bstar drag term, can be used in the TLE
     """
     b_star_drag_vals = []
+    b_vals = [] 
     area_to_mass_vals = []
     for d, s in zip(diameter, sources): 
         a_m = compute_am(d, s) # two possible versions, see below
@@ -39,8 +40,10 @@ def compute_b_drag(diameter: np.array, semi_major: np.array, sources: np.array):
         rho = density_const * (R_earth / a)
         b_star_drag = drag_coeff*ele*rho*0.5
         b_star_drag_vals.append(b_star_drag)
+        b = drag_coeff*ele
+        b_vals.append(b)
 
-    return b_star_drag_vals 
+    return b_star_drag_vals, b_vals
 
 #version 1: using the method described in the MASTER final report
 def compute_am(d: float, source: int):
