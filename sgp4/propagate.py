@@ -1,4 +1,5 @@
 from sgp4.api import Satrec
+from sgp4.api import SGP4_ERRORS
 import astro
 import numpy as np
 from tqdm import tqdm  # Import tqdm for progress bar
@@ -11,12 +12,12 @@ def read_tles(file_path):
 
 def get_propagation_date(tle_line):
     """Extracts epoch from TLE, converts to JD, and adds one year."""
-    epoch = float(tle_line[19:30].strip())  # Extract epoch from TLE
+    epoch = float(tle_line[19:28].strip())  # Extract epoch from TLE
     year = int(tle_line[18:20])
     year = 2000 + year if year < 57 else 1900 + year  # Handle 2-digit year format
     mjd_epoch = astro.convert_TCA_to_mjd(np.array([epoch]))[0]  # Convert to MJD
     jd_epoch = astro.mjd_to_jd(mjd_epoch)  # Convert to JD
-    return jd_epoch + 365.25  # Add one year in Julian days
+    return jd_epoch + 1  # Add one year in Julian days
 
 def propagate_tles(input_file, output_file):
     """Propagates TLEs to one year after their epoch and saves results."""
@@ -30,13 +31,8 @@ def propagate_tles(input_file, output_file):
             e, r, v = satellite.sgp4(jd, fr)
             
             if e == 0:
-                keplerian_elements = astro.cartesian_to_keplerian(r, v)
-                f.write(f"{tle1}\n{tle2}\n")
-                for key, value in keplerian_elements.items():
-                    f.write(f"{key}: {value:.6f}\n")
-                f.write("\n")
+                f.write(f"{tle1}\n{tle2}\n\n")
             else:
-                f.write(f"Error propagating {tle1[:24]}: {e}\n\n")
+                f.write(f"Error propagating {tle1[:24]}: Error: {e}\n\n")
             
             pbar.update(1)  # Update progress bar
-

@@ -1,0 +1,859 @@
+Error propagating 1 10000U 00000A   05004.: Error: 6
+
+Error propagating 1 10001U 00001A   05004.: Error: 6
+
+Error propagating 1 10002U 00002A   05004.: Error: 6
+
+Error propagating 1 10003U 00003A   05004.: Error: 6
+
+Error propagating 1 10004U 00004A   05004.: Error: 6
+
+Error propagating 1 10005U 00005A   05004.: Error: 6
+
+Error propagating 1 10006U 00006A   05004.: Error: 6
+
+Error propagating 1 10007U 00007A   05004.: Error: 6
+
+Error propagating 1 10008U 00008A   05004.: Error: 6
+
+Error propagating 1 10009U 00009A   05004.: Error: 1
+
+Error propagating 1 10010U 00010A   05004.: Error: 6
+
+Error propagating 1 10011U 00011A   05004.: Error: 6
+
+Error propagating 1 10012U 00012A   05004.: Error: 6
+
+Error propagating 1 10013U 00013A   05004.: Error: 6
+
+Error propagating 1 10014U 00014A   05004.: Error: 1
+
+Error propagating 1 10015U 00015A   05004.: Error: 6
+
+Error propagating 1 10016U 00016A   05004.: Error: 6
+
+Error propagating 1 10017U 00017A   05004.: Error: 6
+
+Error propagating 1 10018U 00018A   05004.: Error: 6
+
+Error propagating 1 10019U 00019A   05004.: Error: 6
+
+Error propagating 1 10020U 00020A   05004.: Error: 1
+
+Error propagating 1 10021U 00021A   05004.: Error: 6
+
+Error propagating 1 10022U 00022A   05004.: Error: 6
+
+Error propagating 1 10023U 00023A   05004.: Error: 4
+
+Error propagating 1 10024U 00024A   05004.: Error: 6
+
+Error propagating 1 10025U 00025A   05004.: Error: 6
+
+Error propagating 1 10026U 00026A   05004.: Error: 1
+
+Error propagating 1 10027U 00027A   05004.: Error: 6
+
+Error propagating 1 10028U 00028A   05004.: Error: 6
+
+Error propagating 1 10029U 00029A   05004.: Error: 6
+
+Error propagating 1 10030U 00030A   05004.: Error: 6
+
+Error propagating 1 10031U 00031A   05004.: Error: 6
+
+Error propagating 1 10032U 00032A   05005.: Error: 6
+
+Error propagating 1 10033U 00033A   05005.: Error: 6
+
+Error propagating 1 10034U 00034A   05005.: Error: 6
+
+Error propagating 1 10035U 00035A   05005.: Error: 6
+
+Error propagating 1 10036U 00036A   05005.: Error: 6
+
+Error propagating 1 10037U 00037A   05005.: Error: 6
+
+Error propagating 1 10038U 00038A   05005.: Error: 6
+
+Error propagating 1 10039U 00039A   05005.: Error: 4
+
+1 10040U 00040A   05005.81833333  0.00000000  00000-0 1.20032e-02 0  004040
+2 10040   64.8100  45.2900 1332000   95.5500   26.0500 10.478258400004040
+
+Error propagating 1 10041U 00041A   05005.: Error: 1
+
+Error propagating 1 10042U 00042A   05005.: Error: 6
+
+Error propagating 1 10043U 00043A   05005.: Error: 6
+
+1 10044U 00044A   05005.82103009  0.00000000  00000-0 1.20032e-02 0  004444
+2 10044   64.8100  45.2900 1332000   95.5500   26.1500 10.478258400004444
+
+Error propagating 1 10045U 00045A   05005.: Error: 1
+
+1 10046U 00046A   05005.8219213  0.00000000  00000-0 3.29238e-03 0  004646
+2 10046   11.5100 339.6100 0129000  278.8200   80.4300  1.013113460004646
+
+Error propagating 1 10047U 00047A   05005.: Error: 6
+
+Error propagating 1 10048U 00048A   05005.: Error: 6
+
+Error propagating 1 10049U 00049A   05005.: Error: 6
+
+Error propagating 1 10050U 00050A   05005.: Error: 6
+
+Error propagating 1 10051U 00051A   05005.: Error: 6
+
+Error propagating 1 10052U 00052A   05005.: Error: 6
+
+Error propagating 1 10053U 00053A   05005.: Error: 6
+
+Error propagating 1 10054U 00054A   05005.: Error: 6
+
+Error propagating 1 10055U 00055A   05005.: Error: 6
+
+Error propagating 1 10056U 00056A   05005.: Error: 6
+
+Error propagating 1 10057U 00057A   05005.: Error: 6
+
+Error propagating 1 10058U 00058A   05005.: Error: 6
+
+Error propagating 1 10059U 00059A   05005.: Error: 6
+
+Error propagating 1 10060U 00060A   05005.: Error: 6
+
+Error propagating 1 10061U 00061A   05005.: Error: 6
+
+Error propagating 1 10062U 00062A   05005.: Error: 6
+
+Error propagating 1 10063U 00063A   05005.: Error: 6
+
+Error propagating 1 10064U 00064A   05005.: Error: 6
+
+Error propagating 1 10065U 00065A   05005.: Error: 6
+
+Error propagating 1 10066U 00066A   05005.: Error: 6
+
+Error propagating 1 10067U 00067A   05005.: Error: 6
+
+Error propagating 1 10068U 00068A   05005.: Error: 4
+
+Error propagating 1 10069U 00069A   05005.: Error: 6
+
+Error propagating 1 10070U 00070A   05005.: Error: 6
+
+Error propagating 1 10071U 00071A   05005.: Error: 6
+
+Error propagating 1 10072U 00072A   05005.: Error: 6
+
+Error propagating 1 10073U 00073A   05005.: Error: 1
+
+Error propagating 1 10074U 00074A   05005.: Error: 1
+
+1 10075U 00075A   05005.8147338  0.00000000  00000-0 7.16937e-03 0  007575
+2 10075   12.0100 331.8000 0639000   89.1100   87.2200  1.121088530007575
+
+Error propagating 1 10076U 00076A   05005.: Error: 6
+
+Error propagating 1 10077U 00077A   05005.: Error: 6
+
+Error propagating 1 10078U 00078A   05005.: Error: 6
+
+Error propagating 1 10079U 00079A   05005.: Error: 1
+
+Error propagating 1 10080U 00080A   05005.: Error: 6
+
+Error propagating 1 10081U 00081A   05005.: Error: 6
+
+Error propagating 1 10082U 00082A   05005.: Error: 6
+
+Error propagating 1 10083U 00083A   05005.: Error: 6
+
+Error propagating 1 10084U 00084A   05005.: Error: 6
+
+Error propagating 1 10085U 00085A   05005.: Error: 6
+
+Error propagating 1 10086U 00086A   05005.: Error: 6
+
+Error propagating 1 10087U 00087A   05005.: Error: 6
+
+Error propagating 1 10088U 00088A   05005.: Error: 6
+
+Error propagating 1 10089U 00089A   05005.: Error: 6
+
+Error propagating 1 10090U 00090A   05005.: Error: 1
+
+Error propagating 1 10091U 00091A   05005.: Error: 6
+
+Error propagating 1 10092U 00092A   05005.: Error: 6
+
+Error propagating 1 10093U 00093A   05005.: Error: 6
+
+Error propagating 1 10094U 00094A   05005.: Error: 6
+
+Error propagating 1 10095U 00095A   05005.: Error: 6
+
+Error propagating 1 10096U 00096A   05005.: Error: 6
+
+Error propagating 1 10097U 00097A   05005.: Error: 6
+
+Error propagating 1 10098U 00098A   05005.: Error: 6
+
+Error propagating 1 10099U 00099A   05005.: Error: 6
+
+Error propagating 1 10100U 00100A   05005.: Error: 6
+
+Error propagating 1 10101U 00101A   05005.: Error: 6
+
+Error propagating 1 10102U 00102A   05005.: Error: 6
+
+Error propagating 1 10103U 00103A   05005.: Error: 6
+
+Error propagating 1 10104U 00104A   05005.: Error: 6
+
+Error propagating 1 10105U 00105A   05005.: Error: 6
+
+Error propagating 1 10106U 00106A   05005.: Error: 6
+
+Error propagating 1 10107U 00107A   05005.: Error: 6
+
+Error propagating 1 10108U 00108A   05005.: Error: 6
+
+Error propagating 1 10109U 00109A   05005.: Error: 1
+
+Error propagating 1 10110U 00110A   05005.: Error: 1
+
+1 10111U 00111A   05005.8584375  0.00000000  00000-0 8.38412e-04 0  0111111
+2 10111   14.4500   4.9200 0003000   60.4300   56.5500  1.0011835100111111
+
+Error propagating 1 10112U 00112A   05005.: Error: 6
+
+Error propagating 1 10113U 00113A   05005.: Error: 6
+
+Error propagating 1 10114U 00114A   05005.: Error: 6
+
+Error propagating 1 10115U 00115A   05005.: Error: 6
+
+Error propagating 1 10116U 00116A   05005.: Error: 6
+
+Error propagating 1 10117U 00117A   05005.: Error: 6
+
+Error propagating 1 10118U 00118A   05005.: Error: 6
+
+Error propagating 1 10119U 00119A   05005.: Error: 6
+
+Error propagating 1 10120U 00120A   05005.: Error: 6
+
+1 10121U 00121A   05005.87006944  0.00000000  00000-0 3.35298e-02 0  0121121
+2 10121   88.5900  40.0700 0408000   18.4800   25.2000 12.6397923900121121
+
+Error propagating 1 10122U 00122A   05005.: Error: 6
+
+Error propagating 1 10123U 00123A   05005.: Error: 6
+
+Error propagating 1 10124U 00124A   05005.: Error: 6
+
+1 10125U 00125A   05005.91002315  0.00000000  00000-0 2.15649e-01 0  0125125
+2 10125   25.5600  31.4900 1640000   19.3900   29.8500  0.9977880800125125
+
+Error propagating 1 10126U 00126A   05005.: Error: 6
+
+Error propagating 1 10127U 00127A   05005.: Error: 1
+
+Error propagating 1 10128U 00128A   05005.: Error: 6
+
+1 10129U 00129A   05005.9184375  0.00000000  00000-0 5.57247e-03 0  0129129
+2 10129   11.3300 339.1500 0147000  222.2300   81.2700  1.0038436900129129
+
+Error propagating 1 10130U 00130A   05005.: Error: 6
+
+Error propagating 1 10131U 00131A   05005.: Error: 1
+
+Error propagating 1 10132U 00132A   05005.: Error: 6
+
+Error propagating 1 10133U 00133A   05005.: Error: 1
+
+Error propagating 1 10134U 00134A   05006.: Error: 1
+
+Error propagating 1 10135U 00135A   05006.: Error: 6
+
+Error propagating 1 10136U 00136A   05006.: Error: 1
+
+Error propagating 1 10137U 00137A   05006.: Error: 6
+
+1 10138U 00138A   05006.8146412  0.00000000  00000-0 8.14342e-04 0  0138138
+2 10138   11.0100  37.1800 0005000   21.6400  101.3000  1.0033757000138138
+
+Error propagating 1 10139U 00139A   05006.: Error: 6
+
+Error propagating 1 10140U 00140A   05006.: Error: 6
+
+Error propagating 1 10141U 00141A   05006.: Error: 6
+
+Error propagating 1 10142U 00142A   05006.: Error: 6
+
+Error propagating 1 10143U 00143A   05006.: Error: 1
+
+1 10144U 00144A   05006.8240162  0.00000000  00000-0 6.49477e-04 0  0144144
+2 10144   11.7900  32.7900 0027000  333.9300  105.2100  0.9759715300144144
+
+Error propagating 1 10145U 00145A   05006.: Error: 1
+
+Error propagating 1 10146U 00146A   05006.: Error: 1
+
+Error propagating 1 10147U 00147A   05006.: Error: 6
+
+Error propagating 1 10148U 00148A   05006.: Error: 6
+
+Error propagating 1 10149U 00149A   05006.: Error: 6
+
+Error propagating 1 10150U 00150A   05006.: Error: 6
+
+Error propagating 1 10151U 00151A   05006.: Error: 6
+
+Error propagating 1 10152U 00152A   05006.: Error: 6
+
+Error propagating 1 10153U 00153A   05006.: Error: 6
+
+Error propagating 1 10154U 00154A   05006.: Error: 6
+
+1 10155U 00155A   05006.82540509  0.00000000  00000-0 4.09177e-02 0  0155155
+2 10155   65.8000 163.9100 0683000  215.9000   27.6800 13.4617548800155155
+
+Error propagating 1 10156U 00156A   05006.: Error: 6
+
+Error propagating 1 10157U 00157A   05006.: Error: 6
+
+Error propagating 1 10158U 00158A   05006.: Error: 6
+
+Error propagating 1 10159U 00159A   05006.: Error: 6
+
+Error propagating 1 10160U 00160A   05006.: Error: 1
+
+Error propagating 1 10161U 00161A   05006.: Error: 1
+
+Error propagating 1 10162U 00162A   05006.: Error: 6
+
+1 10163U 00163A   05006.82253472  0.00000000  00000-0 3.86621e-02 0  0163163
+2 10163   61.9400 156.0300 1205000  211.0500   27.3100 12.0776908300163163
+
+Error propagating 1 10164U 00164A   05006.: Error: 6
+
+Error propagating 1 10165U 00165A   05006.: Error: 6
+
+Error propagating 1 10166U 00166A   05006.: Error: 1
+
+Error propagating 1 10167U 00167A   05006.: Error: 6
+
+Error propagating 1 10168U 00168A   05006.: Error: 6
+
+Error propagating 1 10169U 00169A   05006.: Error: 6
+
+Error propagating 1 10170U 00170A   05006.: Error: 6
+
+Error propagating 1 10171U 00171A   05006.: Error: 6
+
+Error propagating 1 10172U 00172A   05006.: Error: 6
+
+Error propagating 1 10173U 00173A   05006.: Error: 6
+
+1 10174U 00174A   05006.8147338  0.00000000  00000-0 6.88140e-03 0  0174174
+2 10174   11.2200 339.0200 0615000  281.5000   80.4800  0.9972293400174174
+
+1 10175U 00175A   05006.8153588  0.00000000  00000-0 7.08483e-03 0  0175175
+2 10175   10.9700 337.3800 0219000  226.4100   82.4800  0.9922030500175175
+
+Error propagating 1 10176U 00176A   05006.: Error: 6
+
+Error propagating 1 10177U 00177A   05006.: Error: 6
+
+Error propagating 1 10178U 00178A   05006.: Error: 6
+
+Error propagating 1 10179U 00179A   05006.: Error: 6
+
+Error propagating 1 10180U 00180A   05006.: Error: 6
+
+Error propagating 1 10181U 00181A   05006.: Error: 6
+
+Error propagating 1 10182U 00182A   05006.: Error: 6
+
+Error propagating 1 10183U 00183A   05006.: Error: 1
+
+Error propagating 1 10184U 00184A   05006.: Error: 6
+
+Error propagating 1 10185U 00185A   05006.: Error: 6
+
+Error propagating 1 10186U 00186A   05006.: Error: 6
+
+Error propagating 1 10187U 00187A   05006.: Error: 6
+
+Error propagating 1 10188U 00188A   05006.: Error: 6
+
+Error propagating 1 10189U 00189A   05006.: Error: 1
+
+Error propagating 1 10190U 00190A   05006.: Error: 1
+
+Error propagating 1 10191U 00191A   05006.: Error: 6
+
+Error propagating 1 10192U 00192A   05006.: Error: 1
+
+1 10193U 00193A   05006.8469213  0.00000000  00000-0 6.94804e-03 0  0193193
+2 10193   13.1200  12.9400 0146000   44.4400  124.9000  1.0170527500193193
+
+Error propagating 1 10194U 00194A   05006.: Error: 6
+
+Error propagating 1 10195U 00195A   05006.: Error: 6
+
+Error propagating 1 10196U 00196A   05006.: Error: 6
+
+Error propagating 1 10197U 00197A   05006.: Error: 6
+
+Error propagating 1 10198U 00198A   05006.: Error: 6
+
+Error propagating 1 10199U 00199A   05006.: Error: 6
+
+Error propagating 1 10200U 00200A   05006.: Error: 6
+
+Error propagating 1 10201U 00201A   05006.: Error: 6
+
+Error propagating 1 10202U 00202A   05006.: Error: 6
+
+Error propagating 1 10203U 00203A   05006.: Error: 1
+
+Error propagating 1 10204U 00204A   05006.: Error: 6
+
+Error propagating 1 10205U 00205A   05006.: Error: 6
+
+Error propagating 1 10206U 00206A   05006.: Error: 6
+
+Error propagating 1 10207U 00207A   05006.: Error: 6
+
+Error propagating 1 10208U 00208A   05006.: Error: 6
+
+Error propagating 1 10209U 00209A   05006.: Error: 6
+
+Error propagating 1 10210U 00210A   05006.: Error: 6
+
+1 10211U 00211A   05006.85  0.00000000  00000-0 7.67991e-03 0  0211211
+2 10211   14.6400  13.1000 0208000   27.9000  124.3600  1.0179428000211211
+
+Error propagating 1 10212U 00212A   05006.: Error: 1
+
+Error propagating 1 10213U 00213A   05006.: Error: 1
+
+Error propagating 1 10214U 00214A   05006.: Error: 6
+
+Error propagating 1 10215U 00215A   05006.: Error: 6
+
+Error propagating 1 10216U 00216A   05006.: Error: 1
+
+Error propagating 1 10217U 00217A   05006.: Error: 6
+
+Error propagating 1 10218U 00218A   05006.: Error: 6
+
+Error propagating 1 10219U 00219A   05006.: Error: 6
+
+Error propagating 1 10220U 00220A   05006.: Error: 6
+
+Error propagating 1 10221U 00221A   05006.: Error: 6
+
+Error propagating 1 10222U 00222A   05006.: Error: 6
+
+Error propagating 1 10223U 00223A   05006.: Error: 6
+
+Error propagating 1 10224U 00224A   05006.: Error: 1
+
+Error propagating 1 10225U 00225A   05006.: Error: 1
+
+Error propagating 1 10226U 00226A   05006.: Error: 6
+
+Error propagating 1 10227U 00227A   05006.: Error: 1
+
+Error propagating 1 10228U 00228A   05006.: Error: 6
+
+Error propagating 1 10229U 00229A   05006.: Error: 1
+
+Error propagating 1 10230U 00230A   05006.: Error: 6
+
+Error propagating 1 10231U 00231A   05006.: Error: 6
+
+Error propagating 1 10232U 00232A   05006.: Error: 6
+
+Error propagating 1 10233U 00233A   05006.: Error: 6
+
+Error propagating 1 10234U 00234A   05006.: Error: 6
+
+Error propagating 1 10235U 00235A   05006.: Error: 6
+
+1 10236U 00236A   05006.8731713  0.00000000  00000-0 8.53346e-04 0  0236236
+2 10236   14.2000  10.7400 0041000  220.2600   50.4800  0.9526642600236236
+
+Error propagating 1 10237U 00237A   05006.: Error: 6
+
+Error propagating 1 10238U 00238A   05006.: Error: 1
+
+Error propagating 1 10239U 00239A   05006.: Error: 6
+
+Error propagating 1 10240U 00240A   05006.: Error: 6
+
+Error propagating 1 10241U 00241A   05006.: Error: 6
+
+Error propagating 1 10242U 00242A   05006.: Error: 6
+
+Error propagating 1 10243U 00243A   05006.: Error: 6
+
+Error propagating 1 10244U 00244A   05006.: Error: 6
+
+Error propagating 1 10245U 00245A   05006.: Error: 6
+
+Error propagating 1 10246U 00246A   05006.: Error: 1
+
+Error propagating 1 10247U 00247A   05006.: Error: 6
+
+Error propagating 1 10248U 00248A   05006.: Error: 6
+
+Error propagating 1 10249U 00249A   05006.: Error: 6
+
+Error propagating 1 10250U 00250A   05006.: Error: 4
+
+Error propagating 1 10251U 00251A   05006.: Error: 6
+
+Error propagating 1 10252U 00252A   05006.: Error: 1
+
+1 10253U 00253A   05006.8774537  0.00000000  00000-0 5.98735e-03 0  0253253
+2 10253   14.8900 359.1200 0057000  310.0100  138.3700  0.9936840100253253
+
+Error propagating 1 10254U 00254A   05006.: Error: 6
+
+Error propagating 1 10255U 00255A   05006.: Error: 6
+
+Error propagating 1 10256U 00256A   05006.: Error: 6
+
+Error propagating 1 10257U 00257A   05006.: Error: 6
+
+Error propagating 1 10258U 00258A   05006.: Error: 1
+
+Error propagating 1 10259U 00259A   05006.: Error: 6
+
+Error propagating 1 10260U 00260A   05007.: Error: 1
+
+Error propagating 1 10261U 00261A   05007.: Error: 6
+
+Error propagating 1 10262U 00262A   05007.: Error: 6
+
+Error propagating 1 10263U 00263A   05007.: Error: 6
+
+Error propagating 1 10264U 00264A   05007.: Error: 1
+
+Error propagating 1 10265U 00265A   05007.: Error: 6
+
+Error propagating 1 10266U 00266A   05007.: Error: 6
+
+Error propagating 1 10267U 00267A   05007.: Error: 6
+
+1 10268U 00268A   05007.8216088  0.00000000  00000-0 6.73143e-03 0  0268268
+2 10268   13.2700  17.3000 0245000   90.0400  120.7300  1.0050134700268268
+
+Error propagating 1 10269U 00269A   05007.: Error: 6
+
+Error propagating 1 10270U 00270A   05007.: Error: 6
+
+Error propagating 1 10271U 00271A   05007.: Error: 6
+
+Error propagating 1 10272U 00272A   05007.: Error: 6
+
+Error propagating 1 10273U 00273A   05007.: Error: 6
+
+Error propagating 1 10274U 00274A   05007.: Error: 6
+
+Error propagating 1 10275U 00275A   05007.: Error: 6
+
+Error propagating 1 10276U 00276A   05007.: Error: 1
+
+Error propagating 1 10277U 00277A   05007.: Error: 6
+
+Error propagating 1 10278U 00278A   05007.: Error: 6
+
+Error propagating 1 10279U 00279A   05007.: Error: 6
+
+Error propagating 1 10280U 00280A   05007.: Error: 1
+
+Error propagating 1 10281U 00281A   05007.: Error: 6
+
+Error propagating 1 10282U 00282A   05007.: Error: 6
+
+Error propagating 1 10283U 00283A   05007.: Error: 6
+
+Error propagating 1 10284U 00284A   05007.: Error: 6
+
+Error propagating 1 10285U 00285A   05007.: Error: 6
+
+Error propagating 1 10286U 00286A   05007.: Error: 6
+
+Error propagating 1 10287U 00287A   05007.: Error: 1
+
+Error propagating 1 10288U 00288A   05007.: Error: 6
+
+Error propagating 1 10289U 00289A   05007.: Error: 6
+
+Error propagating 1 10290U 00290A   05007.: Error: 6
+
+Error propagating 1 10291U 00291A   05007.: Error: 6
+
+Error propagating 1 10292U 00292A   05007.: Error: 1
+
+Error propagating 1 10293U 00293A   05007.: Error: 6
+
+Error propagating 1 10294U 00294A   05007.: Error: 6
+
+Error propagating 1 10295U 00295A   05007.: Error: 6
+
+Error propagating 1 10296U 00296A   05007.: Error: 1
+
+Error propagating 1 10297U 00297A   05007.: Error: 1
+
+Error propagating 1 10298U 00298A   05007.: Error: 1
+
+Error propagating 1 10299U 00299A   05007.: Error: 6
+
+Error propagating 1 10300U 00300A   05007.: Error: 6
+
+Error propagating 1 10301U 00301A   05007.: Error: 6
+
+Error propagating 1 10302U 00302A   05007.: Error: 6
+
+Error propagating 1 10303U 00303A   05007.: Error: 6
+
+Error propagating 1 10304U 00304A   05007.: Error: 6
+
+Error propagating 1 10305U 00305A   05007.: Error: 1
+
+Error propagating 1 10306U 00306A   05007.: Error: 6
+
+Error propagating 1 10307U 00307A   05007.: Error: 6
+
+Error propagating 1 10308U 00308A   05007.: Error: 6
+
+Error propagating 1 10309U 00309A   05007.: Error: 6
+
+Error propagating 1 10310U 00310A   05007.: Error: 6
+
+Error propagating 1 10311U 00311A   05007.: Error: 6
+
+Error propagating 1 10312U 00312A   05007.: Error: 1
+
+Error propagating 1 10313U 00313A   05007.: Error: 6
+
+Error propagating 1 10314U 00314A   05007.: Error: 1
+
+Error propagating 1 10315U 00315A   05007.: Error: 1
+
+Error propagating 1 10316U 00316A   05007.: Error: 6
+
+Error propagating 1 10317U 00317A   05007.: Error: 6
+
+Error propagating 1 10318U 00318A   05007.: Error: 1
+
+Error propagating 1 10319U 00319A   05007.: Error: 1
+
+Error propagating 1 10320U 00320A   05007.: Error: 6
+
+Error propagating 1 10321U 00321A   05007.: Error: 6
+
+Error propagating 1 10322U 00322A   05007.: Error: 6
+
+Error propagating 1 10323U 00323A   05007.: Error: 6
+
+Error propagating 1 10324U 00324A   05007.: Error: 6
+
+Error propagating 1 10325U 00325A   05007.: Error: 6
+
+Error propagating 1 10326U 00326A   05007.: Error: 1
+
+1 10327U 00327A   05007.8509838  0.00000000  00000-0 6.62247e-04 0  0327327
+2 10327   14.4600   3.4300 0039000  124.5100   57.3900  1.0048953100327327
+
+Error propagating 1 10328U 00328A   05007.: Error: 1
+
+Error propagating 1 10329U 00329A   05007.: Error: 6
+
+Error propagating 1 10330U 00330A   05007.: Error: 6
+
+Error propagating 1 10331U 00331A   05007.: Error: 6
+
+Error propagating 1 10332U 00332A   05007.: Error: 1
+
+Error propagating 1 10333U 00333A   05007.: Error: 6
+
+Error propagating 1 10334U 00334A   05007.: Error: 1
+
+Error propagating 1 10335U 00335A   05007.: Error: 6
+
+Error propagating 1 10336U 00336A   05007.: Error: 6
+
+Error propagating 1 10337U 00337A   05007.: Error: 6
+
+Error propagating 1 10338U 00338A   05007.: Error: 6
+
+Error propagating 1 10339U 00339A   05007.: Error: 6
+
+Error propagating 1 10340U 00340A   05007.: Error: 6
+
+Error propagating 1 10341U 00341A   05007.: Error: 6
+
+Error propagating 1 10342U 00342A   05007.: Error: 6
+
+Error propagating 1 10343U 00343A   05007.: Error: 6
+
+Error propagating 1 10344U 00344A   05007.: Error: 6
+
+Error propagating 1 10345U 00345A   05007.: Error: 6
+
+1 10346U 00346A   05007.8805787  0.00000000  00000-0 4.12646e-03 0  0346346
+2 10346   11.2300 337.1800 0085000  161.4200   83.1300  1.0221767700346346
+
+Error propagating 1 10347U 00347A   05007.: Error: 6
+
+Error propagating 1 10348U 00348A   05007.: Error: 6
+
+Error propagating 1 10349U 00349A   05007.: Error: 6
+
+Error propagating 1 10350U 00350A   05007.: Error: 6
+
+Error propagating 1 10351U 00351A   05007.: Error: 6
+
+Error propagating 1 10352U 00352A   05007.: Error: 6
+
+Error propagating 1 10353U 00353A   05007.: Error: 1
+
+Error propagating 1 10354U 00354A   05007.: Error: 6
+
+1 10355U 00355A   05007.8834375  0.00000000  00000-0 4.83934e-03 0  0355355
+2 10355   11.7400 321.8600 0793000  346.7100   97.8700  1.1036431600355355
+
+Error propagating 1 10356U 00356A   05007.: Error: 6
+
+Error propagating 1 10357U 00357A   05007.: Error: 6
+
+1 10358U 00358A   05007.8816088  0.00000000  00000-0 7.04484e-03 0  0358358
+2 10358   14.6100   3.1900 1229000   41.7100   57.3600  1.1342814500358358
+
+Error propagating 1 10359U 00359A   05007.: Error: 6
+
+Error propagating 1 10360U 00360A   05007.: Error: 6
+
+Error propagating 1 10361U 00361A   05007.: Error: 1
+
+Error propagating 1 10362U 00362A   05008.: Error: 1
+
+Error propagating 1 10363U 00363A   05008.: Error: 6
+
+Error propagating 1 10364U 00364A   05008.: Error: 6
+
+Error propagating 1 10365U 00365A   05008.: Error: 6
+
+Error propagating 1 10366U 00366A   05008.: Error: 6
+
+Error propagating 1 10367U 00367A   05008.: Error: 6
+
+1 10368U 00368A   05008.27351852  0.00000000  00000-0 5.68335e-03 0  0368368
+2 10368   18.2000  24.0800 0896000  197.0500   37.1800  0.8559163300368368
+
+Error propagating 1 10369U 00369A   05008.: Error: 6
+
+Error propagating 1 10370U 00370A   05008.: Error: 6
+
+Error propagating 1 10371U 00371A   05008.: Error: 1
+
+Error propagating 1 10372U 00372A   05008.: Error: 6
+
+Error propagating 1 10373U 00373A   05008.: Error: 6
+
+Error propagating 1 10374U 00374A   05008.: Error: 6
+
+Error propagating 1 10375U 00375A   05008.: Error: 6
+
+Error propagating 1 10376U 00376A   05008.: Error: 6
+
+Error propagating 1 10377U 00377A   05008.: Error: 6
+
+Error propagating 1 10378U 00378A   05008.: Error: 6
+
+Error propagating 1 10379U 00379A   05008.: Error: 6
+
+Error propagating 1 10380U 00380A   05008.: Error: 6
+
+Error propagating 1 10381U 00381A   05008.: Error: 6
+
+Error propagating 1 10382U 00382A   05008.: Error: 1
+
+Error propagating 1 10383U 00383A   05008.: Error: 6
+
+1 10384U 00384A   05008.2640162  0.00000000  00000-0 8.38412e-04 0  0384384
+2 10384   14.4500   4.9200 0003000   60.4300   56.2700  1.0011835100384384
+
+Error propagating 1 10385U 00385A   05008.: Error: 1
+
+Error propagating 1 10386U 00386A   05008.: Error: 6
+
+Error propagating 1 10387U 00387A   05008.: Error: 6
+
+Error propagating 1 10388U 00388A   05008.: Error: 6
+
+Error propagating 1 10389U 00389A   05008.: Error: 1
+
+Error propagating 1 10390U 00390A   05008.: Error: 1
+
+Error propagating 1 10391U 00391A   05008.: Error: 6
+
+Error propagating 1 10392U 00392A   05008.: Error: 6
+
+Error propagating 1 10393U 00393A   05008.: Error: 6
+
+Error propagating 1 10394U 00394A   05008.: Error: 1
+
+Error propagating 1 10395U 00395A   05008.: Error: 6
+
+Error propagating 1 10396U 00396A   05008.: Error: 6
+
+Error propagating 1 10397U 00397A   05008.: Error: 6
+
+Error propagating 1 10398U 00398A   05008.: Error: 6
+
+Error propagating 1 10399U 00399A   05008.: Error: 6
+
+Error propagating 1 10400U 00400A   05008.: Error: 6
+
+Error propagating 1 10401U 00401A   05008.: Error: 6
+
+Error propagating 1 10402U 00402A   05008.: Error: 6
+
+Error propagating 1 10403U 00403A   05008.: Error: 1
+
+Error propagating 1 10404U 00404A   05008.: Error: 1
+
+Error propagating 1 10405U 00405A   05008.: Error: 6
+
+Error propagating 1 10406U 00406A   05008.: Error: 6
+
+Error propagating 1 10407U 00407A   05008.: Error: 6
+
+Error propagating 1 10408U 00408A   05008.: Error: 6
+
+Error propagating 1 10409U 00409A   05008.: Error: 6
+
+Error propagating 1 10410U 00410A   05008.: Error: 6
+
+Error propagating 1 10411U 00411A   05008.: Error: 6
+
+Error propagating 1 10412U 00412A   05008.: Error: 6
+
+Error propagating 1 10413U 00413A   05008.: Error: 6
+
+Error propagating 1 10414U 00414A   05008.: Error: 6
+
+Error propagating 1 10415U 00415A   05008.: Error: 6
+
+Error propagating 1 10416U 00416A   05008.: Error: 6
+

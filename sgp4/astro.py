@@ -239,3 +239,14 @@ def jd_to_gregorian(jd, fr=0.0):
     date = Time(jd + fr, format='jd').utc.iso
     
     return date  # Returns as 'YYYY-MM-DD HH:MM:SS.sss'
+
+def mjd_to_jd(mjd: float) -> float:
+    """
+    Convert Modified Julian Date (MJD) to Julian Date (JD).
+    
+    JD = MJD + 2400000.5
+    
+    :param mjd: Modified Julian Date
+    :return: Julian Date
+    """
+    return mjd + 2400000.5

@@ -15,6 +15,18 @@ from collections import namedtuple
 import os
 
 def compute_b_drag(diameter: np.array, semi_major: np.array, sources: np.array):
+    """compute the b star drag term, which is used in the TLE for the orbit propagation. 
+    Use area-to-mass ratio from PROOF/ MASTER model and use drag_coeff = 2.2 (standard default value). 
+    The density is taken from https://en.wikipedia.org/wiki/BSTAR. 
+
+    Args:
+        diameter (np.array): object diameter
+        semi_major (np.array): semi major axis of the object
+        sources (np.array): sources of the object
+
+    Returns:
+        b_star_drag_values (np.array): calculated bstar drag term, can be used in the TLE
+    """
     b_star_drag_vals = []
     area_to_mass_vals = []
     for d, s in zip(diameter, sources): 
@@ -26,19 +38,23 @@ def compute_b_drag(diameter: np.array, semi_major: np.array, sources: np.array):
     R_earth = 6378
 
     for ele, a in zip(area_to_mass_vals, semi_major): 
-        rho = density_const
+        rho = density_const * (R_earth / a)
         b_star_drag = drag_coeff*ele*rho*0.5
         b_star_drag_vals.append(b_star_drag)
 
     return b_star_drag_vals 
 
 def compute_am(d: float, source: int):
-    """
-    Compute the area-to-mass ratio (A/m) for a given object size d.
-    :param d: Object size (diameter) in meters
-    :param object_type: 'rocket' for rocket bodies, 'spacecraft' for payloads
-    :return: Area-to-mass ratio A/m in m^2/kg
-    """
+    """compute the area-to-mass ratiom A/m for an object of size d. The method for this function is
+    described in the MASTER final report! 
+
+    Args:
+        d (float): diameter of the object
+        source (int): source of the object (PROOF number 1- 6)
+
+    Returns:
+        area_to_mass (float): A/m in m^2/kg
+    """    
     object_type = ""
 
     if source == 1: 
@@ -61,7 +77,7 @@ def compute_am(d: float, source: int):
             r_thresh = 10 ** (log_d + 1.05)
             small_particle_limit = 8  # cm
     
-    # Generate random r for decision making
+    # Generate random r for decision making, draw from a uniform distribution
     r = np.random.uniform(0, 1)
     
     # whether to use small or large particle distribution
@@ -113,7 +129,36 @@ def compute_am(d: float, source: int):
     area_to_mass = 10**chi
     return area_to_mass
 
+def compute_am(d: float, source: int) -> float:
+    """
+    Compute the area-to-mass ratio A/m for an object of size d.
+    The method follows the MASTER final report.
+    
+    Args:
+        d (float): Diameter of the object (m)
+        source (int): Source category (1 = spacecraft, 4 = rocket, else = fragments/MLI)
+    
+    Returns:
+        float: A/m in m²/kg
+    """
+    if source == 1:  # Spacecraft
+        return 0.1 * d**-0.5
+    elif source == 4:  # Rocket bodies
+        return 0.05 * d**-0.4
+    else:  # Fragments and MLI
+        return 5.0 * d**-0.8
+
 def data_from_crs_and_det(crs_filename: str, det_filename: str): 
+    """extract data from crossing and detections file and store in namedtuples. 
+
+    Args:
+        crs_filename (str): filename of the crossing file
+        det_filename (str): filename of the detection file
+
+    Returns:
+        crsData (namedtuple): namedtuple containing the crossing data
+        detData (namedtuple): namedtuple containing the detection data
+    """
 
     crsData = namedtuple("crsData", ["diameter", "sources", "sem_major", "inc", "ecc", "arg_per", "raan", "true_lat", "background_mag"])
     detData = namedtuple("detData", ["diameter", "sources", "sem_major", "inc", "ecc", "arg_per", "raan", "true_lat", "background_mag"])
@@ -147,6 +192,15 @@ def data_from_crs_and_det(crs_filename: str, det_filename: str):
     return crsData, detData
 
 def data_from_plugin(year: str, orbit_type: str):
+    """get data from plugin and store in namedtuple
+
+    Args:
+        year (str): year of the data
+        orbit_type (str): orbit type of the data
+
+    Returns:
+        pluginData (namedtuple): namedtuple containing the important values (epoch!)
+    """
     pluginData = namedtuple("pluginData", ["epoch"])
     err = False
     ell = False
@@ -159,6 +213,20 @@ def data_from_plugin(year: str, orbit_type: str):
     return pluginData(epoch) 
 
 def data_from_celmech(year:str, dir: str, orbit_type: str, err :bool = False, ell: bool = False): 
+    """unpack data from celmech output file
+
+    Args:
+        year (str): year of the data
+        dir (str): where the file is stored
+        orbit_type (str): orbit type of the data
+        err (bool, optional): celmech calculations with errors. Setting to True makes no sense at all, don't do it. Defaults to False.
+        ell (bool, optional): elliptical orbits. Defaults to False.
+
+    Returns:
+        failed_mask (list): when Celmech failed to calculate the orbit, 0, else 1
+        dates (list): dates extracted from Celmech output file 
+        orbit_type_data (dict): dictionary of data from Celmech calculation
+    """
     population_type = PopulationType.NORMAL
     total_num_of_objects = 0
     yy = year[2:]
@@ -204,7 +272,22 @@ def data_from_celmech(year:str, dir: str, orbit_type: str, err :bool = False, el
 
     return failed_mask, dates, orbit_type_data
 
-def combine_data(crsData: namedtuple, detData: namedtuple, failed_mask: np.array, dates: np.array, orbit_type_data: np.array):
+def combine_data(crsData: namedtuple, detData: namedtuple, failed_mask: np.array, dates: np.array, orbit_type_data: np.array, det: bool = True):
+    """read out crossing data and celmech data. remove backgroundmagnitude = 0 in crossing data, apply failed mask
+    and bring the epoch together with the 6 orbital elements. Apply the detection filter if needed.
+
+    Args:
+        crsData (namedtuple): contains the crossing data
+        detData (namedtuple): contains the detections data
+        failed_mask (np.array): failed mask from failed orbit determination in Celmech
+        dates (np.array): dates extracted from Celmech
+        orbit_type_data (np.array): celmech data
+        det (bool, optional): If True, only detections are written in the TLE, else also crossings. Defaults to True.
+
+    Returns:
+        filtered_crsData (namedtuple): crossing data filtered as desired. If det = True, only detected objects
+        filtered_orbit_type_data (dict): celmech data, filtered as desired. 
+    """    
     # Convert to NumPy arrays
     background_mask = np.array(crsData.background_mag) != 0  # Remove background_mag = 0
     valid_mask = (np.array(failed_mask) == 1)  # Remove failed_mask == 0
@@ -274,16 +357,23 @@ def combine_data(crsData: namedtuple, detData: namedtuple, failed_mask: np.array
     filtered_orbit_type_data = filtered_orbit_type_data[:min_length]
 
     celmechData = filtered_orbit_type_data
-    filtered_crsData, celmechData = detections_filter(crsData, detData, celmechData)
+    if det: 
+        filtered_crsData, celmechData = detections_filter(crsData, detData, celmechData)
 
     return filtered_crsData, filtered_orbit_type_data
 
-import numpy as np
-from collections import namedtuple
-
 def detections_filter(crsData: namedtuple, detData: namedtuple, celmechData: np.array): 
-    """Filters crsData and celmechData to keep only objects present in detData."""
-    
+    """removes all objects from crossings that have not been detected. also removes them from celmech data.
+
+    Args:
+        crsData (namedtuple): crossing data
+        detData (namedtuple): detections data
+        celmechData (np.array): celmech data
+
+    Returns:
+        filtered_crsData (namedtuple): without crossings, detections only
+        celmechData (np.array): without crossings
+    """        
     # Create a mask with 1 where objects are in detData, 0 otherwise
     mask = np.isin(crsData.diameter, detData.diameter) & np.isin(crsData.sources, detData.sources)
     
@@ -312,8 +402,15 @@ def detections_filter(crsData: namedtuple, detData: namedtuple, celmechData: np.
 
     return filtered_crsData, celmechData
 
-def format_tle_epoch(epoch):
-    """Convert MJD to YYDDD.DDDDDDDD format for TLE."""
+def format_tle_epoch(epoch: np.array):
+    """Converts epoch from Celmech in MJD to YYDDD.DDDDDDDD format for TLE. 
+
+    Args:
+        epoch (np.array): epochs from Celmech file in MJD format
+
+    Returns:
+        formatted_epochs (list): formatted epochs for TLE
+    """    
     epoch = np.atleast_1d(epoch)  # Ensure array format
     jd = epoch + 2400000.5  # Convert MJD to JD
     jd_time = Time(jd, format="jd")
@@ -332,8 +429,16 @@ def format_tle_epoch(epoch):
     return formatted_epochs if len(formatted_epochs) > 1 else formatted_epochs[0]
 
 
-def build_TLE(filtered_crsData, filtered_celmechData, dates, b_star_drag, output_file="tle_output.txt"):
-    """Generate and save properly formatted TLEs to a file."""
+def build_TLE(filtered_crsData: namedtuple, filtered_celmechData: namedtuple, dates: np.array, b_star_drag: np.array, output_file: str ="tle_output.txt"):
+    """Generate and save properly formatted TLEs to a file.
+
+    Args:
+        filtered_crsData (namedtuple): crossing data, prefiltered and ready for TLE
+        filtered_celmechData (namedtuple): celmech data, prefiltered and ready for TLE
+        dates (np.array): dates from celmech file
+        b_star_drag (np.array): b star drag for TLE file
+        output_file (str, optional): Where to store the output file containing the TLEs. Defaults to "tle_output.txt".
+    """      
 
     MU_EARTH = 398600.4418  # km^3/s^2
     with open(output_file, "w") as file:
@@ -368,6 +473,13 @@ def build_TLE(filtered_crsData, filtered_celmechData, dates, b_star_drag, output
     print(f"TLE file '{output_file}' generated successfully.")
 
 def prepare_input_tle(year: str, orbit_type: str, seed: int):
+    """bring the input in the right format for the TLE and write the TLE. 
+
+    Args:
+        year (str): year of the data
+        orbit_type (str): orbit type of the data
+        seed (int): seed of the data
+    """
     year2 = year[2:]
     dir = os.path.join("..", "input")
 
