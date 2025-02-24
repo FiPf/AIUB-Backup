@@ -4,6 +4,12 @@ from astropy import units as u
 from astropy.time import Time
 from datetime import datetime, timedelta
 
+#sgp4 stuff
+from sgp4.api import Satrec
+from astropy import units as u
+from poliastro.twobody import Orbit
+from poliastro.bodies import Earth
+
 def cartesian_to_keplerian(r: np.array, v: np.array):
     """convert cartesian coordinates and velocity to six Kepler orbital elements
 
@@ -250,3 +256,66 @@ def mjd_to_jd(mjd: float) -> float:
     :return: Julian Date
     """
     return mjd + 2400000.5
+
+def r_v_to_elements_sgp4(r, v):
+    """
+    Converts position and velocity vectors in Earth-centered inertial (ECI) coordinates to classical orbital elements.
+
+    Parameters:
+        r (list or array): Position vector in km [x, y, z]
+        v (list or array): Velocity vector in km/s [vx, vy, vz]
+
+    Returns:
+        dict: Dictionary containing orbital elements:
+            - semi_major_axis [km]
+            - eccentricity
+            - inclination [deg]
+            - raan [deg]
+            - argument_of_perigee [deg]
+            - true_anomaly [deg]
+    """
+    # Convert r and v to astropy units
+    r = r * u.km
+    v = v * u.km / u.s
+
+    # Create orbit from r and v
+    orbit = Orbit.from_vectors(Earth, r, v)
+
+    return {
+        "semi_major_axis": orbit.a.to(u.km).value,
+        "eccentricity": orbit.ecc.value,
+        "inclination": orbit.inc.to(u.deg).value,
+        "raan": orbit.raan.to(u.deg).value,
+        "argument_of_perigee": orbit.argp.to(u.deg).value,
+        "true_anomaly": orbit.nu.to(u.deg).value
+    }
+
+def elements_to_r_v_sgp4(orbital_elements: np.array):
+    """convert from orbital elements to 3d position and velocity in Earth-centered inertial (ECI) coordinates in km and km/s
+
+    Args:
+        orbital_elements (np.array): orbital elements in the following order: 
+        orbital_elements (np.array): resulting orbital elements in the following order: 
+        -semi major axis [km]
+        -eccentricity 
+        -inclination [radians]
+        -raan [radians]
+        -argument of perigee [radians]
+        -true anomaly [radians]
+
+    Returns:
+        r (np.array): 3d position in Earth-centered inertial (ECI) coordinates in km
+        v (np.array): 3d velicity in Earth-centered inertial (ECI) coordinates in km/s
+    """     
+    a, ecc, inc, raan, argp, nu = orbital_elements
+
+    # Convert to astropy units
+    a = a * u.km
+    inc = inc * u.deg
+    raan = raan * u.deg
+    argp = argp * u.deg
+    nu = nu * u.deg
+
+    orbit = Orbit.from_classical(Earth, a, ecc, inc, raan, argp, nu)
+    r, v = orbit.rv()
+    return r, v

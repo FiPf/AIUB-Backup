@@ -464,12 +464,12 @@ def build_TLE(filtered_crsData: namedtuple, filtered_celmechData: namedtuple, da
             mean_anomaly = filtered_crsData.true_lat[i]  # Approximating as true latitude
             n_rad_per_sec = np.sqrt(MU_EARTH / a**3)  # Mean motion in rad/s
             mean_motion = (n_rad_per_sec / (2 * np.pi)) * 86400  # Revolutions per day
+            mean_motion = round((n_rad_per_sec / (2 * np.pi)) * 86400, 8)  # Revolutions per day, rounded
             rev_number = i  # Incrementing revolution number
             check2 = i
 
             line1 = (f"1 {sat_cat_no:05d}{classification} {international_designator:<8s} {epoch}  {decay_rate:.8f}  {second_derivative} {b_star_drag_term} 0  {element_set_no:04d}{check1}")
-            #line1 = f"1 {sat_cat_no:05d}{classification} {international_designator}   {epoch}  {decay_rate:.8f}  {second_derivative} {b_star_drag_term} 0  {element_set_no:04d}{check1}"
-            line2 = f"2 {sat_cat_no:05d}  {inclination:8.4f} {raan:8.4f} {eccentricity:7s}  {arg_per:8.4f}  {mean_anomaly:8.4f} {mean_motion:11.8f}{rev_number:05d}{check2}"
+            line2 = f"2 {sat_cat_no:05d} {inclination:8.4f} {raan:8.4f} {eccentricity:7s} {arg_per:8.4f} {mean_anomaly:8.4f} {mean_motion:11.8f} {rev_number:05d} {check2}"
             file.write(line1 + "\n")
             file.write(line2 + "\n")
 
