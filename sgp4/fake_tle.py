@@ -458,48 +458,41 @@ def compute_mean_anomaly(true_lat: np.array, arg_per: np.array, eccentricity: np
 
     return mean_anomaly_deg
 
-def build_TLE(filtered_crsData: namedtuple, filtered_celmechData: namedtuple, dates: np.array, b_star_drag: np.array, output_file: str ="tle_output.txt"):
-    """Generate and save properly formatted TLEs to a file.
-
-    Args:
-        filtered_crsData (namedtuple): crossing data, prefiltered and ready for TLE
-        filtered_celmechData (namedtuple): celmech data, prefiltered and ready for TLE
-        dates (np.array): dates from celmech file
-        b_star_drag (np.array): b star drag for TLE file
-        output_file (str, optional): Where to store the output file containing the TLEs. Defaults to "tle_output.txt".
-    """      
-
+def build_TLE(filtered_crsData: namedtuple, filtered_celmechData: namedtuple, dates: np.array, b_star_drag: np.array, output_file: str = "tle_output.txt"):
+    """Generate and save properly formatted TLEs to a file (optimized version)."""
+    
     MU_EARTH = 398600.4418  # km^3/s^2
+    num_objects = len(filtered_crsData.inc)
+
+    # Precompute values outside the loop
+    sat_cat_no = np.arange(num_objects) + 10000
+    epoch_dates = format_tle_epoch(dates)  # Convert to TLE format once
+    b_star_drag_terms = np.array([f"{b:.5e}" for b in b_star_drag])
+
+    a = filtered_crsData.sem_major
+    inclination = filtered_crsData.inc
+    raan = filtered_crsData.raan
+    eccentricity = np.array([f"{e:.7f}"[2:] for e in filtered_crsData.ecc])
+    arg_per = filtered_crsData.arg_per
+
+    # Compute mean anomalies in bulk
+    mean_anomaly = compute_mean_anomaly(filtered_crsData.true_lat, filtered_crsData.arg_per, filtered_crsData.ecc)
+
+    # Compute mean motion in bulk
+    n_rad_per_sec = np.sqrt(MU_EARTH / a**3)
+    mean_motion = np.round((n_rad_per_sec / (2 * np.pi)) * 86400, 8)  # Revolutions per day
+
+    # Generate all TLE lines at once and write in bulk
+    lines = []
+    for i in tqdm(range(num_objects), desc="Generating TLEs", unit="TLE", mininterval=0.5):
+        international_designator = f"{2000 % 100:02d}{i:03d}A"
+        line1 = (f"1 {sat_cat_no[i]:05d}U {international_designator:<8s} {epoch_dates[i]}  0.00000000  00000-0 {b_star_drag_terms[i]} 0  {i:04d}{i}")
+        line2 = (f"2 {sat_cat_no[i]:05d} {inclination[i]:8.4f} {raan[i]:8.4f} {eccentricity[i]:7s} {arg_per[i]:8.4f} {mean_anomaly[i]:8.4f} {mean_motion[i]:11.8f} {i:05d} {i}")
+        lines.append(line1 + "\n" + line2 + "\n")
+
+    # Write to file in bulk (faster than writing line-by-line)
     with open(output_file, "w") as file:
-        for i in tqdm(range(len(filtered_crsData.inc)), desc="Generating TLEs", unit="TLE", mininterval=0.5):
-            sat_cat_no = i  + 10000 # Unused, add 10'000 to avoid leading zeros
-            classification = "U"  # Unclassified
-            international_designator = f"{2000 % 100:02d}{i:03d}A"  # Example: "24001A" # Unused
-            epoch = format_tle_epoch(dates)[i]  # Convert to date TLE format
-            decay_rate = 0.0  # Unused
-            second_derivative = "00000-0"  # Unused
-            b_star_drag_term = f"{b_star_drag[i]:.5e}"
-            element_set_no = i  # Unused
-            check1 = i  # Unused
-
-            a = filtered_crsData.sem_major[i]
-            inclination = filtered_crsData.inc[i]
-            raan = filtered_crsData.raan[i]
-            eccentricity = f"{filtered_crsData.ecc[i]:.7f}"[2:]  # TLE eccentricity (remove '0.')
-            arg_per = filtered_crsData.arg_per[i]
-
-            mean_anomaly = compute_mean_anomaly(filtered_crsData.true_lat[i], filtered_crsData.arg_per[i], filtered_crsData.ecc[i])
-
-            n_rad_per_sec = np.sqrt(MU_EARTH / a**3)  # Mean motion in rad/s
-            mean_motion = (n_rad_per_sec / (2 * np.pi)) * 86400  # Revolutions per day
-            mean_motion = round((n_rad_per_sec / (2 * np.pi)) * 86400, 8)  # Revolutions per day, rounded
-            rev_number = i  # Incrementing revolution number
-            check2 = i
-
-            line1 = (f"1 {sat_cat_no:05d}{classification} {international_designator:<8s} {epoch}  {decay_rate:.8f}  {second_derivative} {b_star_drag_term} 0  {element_set_no:04d}{check1}")
-            line2 = f"2 {sat_cat_no:05d} {inclination:8.4f} {raan:8.4f} {eccentricity:7s} {arg_per:8.4f} {mean_anomaly:8.4f} {mean_motion:11.8f} {rev_number:05d} {check2}"
-            file.write(line1 + "\n")
-            file.write(line2 + "\n")
+        file.writelines(lines)
 
     print(f"TLE file '{output_file}' generated successfully.")
 
