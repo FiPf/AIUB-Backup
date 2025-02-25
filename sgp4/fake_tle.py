@@ -383,8 +383,6 @@ def detections_filter(crsData: namedtuple, detData: namedtuple, celmechData: np.
     # Convert to integer mask (1 = in detData, 0 = only in crsData)
     mask = mask.astype(int)
 
-    #print(np.array(crsData).shape)
-
     # Apply mask to remove objects (only keep objects where mask == 1)
     filtered_crsData = crsData._replace(
         diameter=np.array(crsData.diameter)[mask == 1],
@@ -534,7 +532,5 @@ def prepare_input_tle(year: str, orbit_type: str, seed: int):
     semi_major = filtered_crsData.sem_major
     sources = filtered_crsData.sources
     b_star_drag, b_vals = compute_b_drag(diameter, semi_major, sources)
-    print(b_star_drag)
-    print(b_vals)
 
     build_TLE(filtered_crsData, filtered_celmechData, dates, b_star_drag)

@@ -4,23 +4,43 @@ import astro
 import numpy as np
 from tqdm import tqdm  # Import tqdm for progress bar
 
-def read_tles(file_path):
-    """Reads TLEs from a text file and returns them as a list of tuples."""
+def read_tles(file_path: str):
+    """read TLEs from a TLE file and return a list of tuples (line 1 and line 2 of TLE format)
+
+    Args:
+        file_path (str): name of the TLE file
+
+    Returns:
+        (list): list of tuples containing (line1, line2) or the TLE format
+        
+    """    
     with open(file_path, 'r') as f:
         lines = f.readlines()
     return [(lines[i].strip(), lines[i+1].strip()) for i in range(0, len(lines), 2)]
 
-def get_propagation_date(tle_line):
-    """Extracts epoch from TLE, converts to JD, and adds one year."""
+def get_propagation_date(tle_line: str):
+    """extract epoch from the TLE, convert to JD and add one year
+
+    Args:
+        tle_line (str): Line 1 from TLE, contains the epoch
+
+    Returns:
+        (float): epoch from TLE plus one year
+    """    
     epoch = float(tle_line[19:28].strip())  # Extract epoch from TLE
     year = int(tle_line[18:20])
     year = 2000 + year if year < 57 else 1900 + year  # Handle 2-digit year format
     mjd_epoch = astro.convert_TCA_to_mjd(np.array([epoch]))[0]  # Convert to MJD
     jd_epoch = astro.mjd_to_jd(mjd_epoch)  # Convert to JD
-    return jd_epoch + 1  # Add one year in Julian days
+    return jd_epoch + 365.25  # Add one year in Julian days (1 year = 365.25 days)
 
-def propagate_tles(input_file, output_file):
-    """Propagates TLEs to one year after their epoch and saves results."""
+def propagate_tles(input_file: str, output_file: str):
+    """Propagates TLEs to one year after their epoch and saves results. This is very slow :(
+
+    Args:
+        input_file (str): file containing the TLE which should be propagated
+        output_file (str): name of the output file, will be created and the output will be stored in it
+    """    
     tles = read_tles(input_file)
     results = []
     
@@ -57,8 +77,6 @@ def propagate_tles(input_file, output_file):
                 )
 
             results.append(result)
-            if i % 100 == 0:
-                print(f"Processing {i+1}/{len(tles)} TLEs")
 
             pbar.update(1)
 
