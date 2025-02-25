@@ -132,7 +132,7 @@ def compute_am(d: float, source: int):
     area_to_mass = 10**chi
     return area_to_mass
 
-def compute_am(d: float, source: int) -> float:
+#def compute_am(d: float, source: int) -> float:
     """
     Compute the area-to-mass ratio A/m for an object of size d.
     The method follows the MASTER final report.
@@ -431,6 +431,34 @@ def format_tle_epoch(epoch: np.array):
 
     return formatted_epochs if len(formatted_epochs) > 1 else formatted_epochs[0]
 
+def compute_mean_anomaly(true_lat: np.array, arg_per: np.array, eccentricity: np.array):
+    """
+    Computes the mean anomaly (M) from true latitude (theta), argument of perigee (ω), and eccentricity (e).
+    This function supports NumPy arrays for vectorized operations.
+
+    Args:
+        true_lat (np.array): Array of true latitudes (degrees)
+        arg_per (np.array): Array of argument of perigees (degrees)
+        eccentricity (np.array): Array of eccentricities
+
+    Returns:
+        np.array: Array of mean anomalies (degrees)
+    """
+
+    #compute true anomaly nu
+    true_anomaly = np.radians(true_lat - arg_per)  # Convert to radians
+
+    #compute eccentric anomaly E
+    sqrt_term = np.sqrt((1 - eccentricity) / (1 + eccentricity))
+    tan_E_half = sqrt_term * np.tan(true_anomaly / 2)
+    eccentric_anomaly = 2 * np.arctan(tan_E_half)
+
+    #compute mean anomaly M
+    mean_anomaly_rad = eccentric_anomaly - eccentricity * np.sin(eccentric_anomaly)
+
+    mean_anomaly_deg = np.degrees(mean_anomaly_rad)
+
+    return mean_anomaly_deg
 
 def build_TLE(filtered_crsData: namedtuple, filtered_celmechData: namedtuple, dates: np.array, b_star_drag: np.array, output_file: str ="tle_output.txt"):
     """Generate and save properly formatted TLEs to a file.
@@ -461,7 +489,9 @@ def build_TLE(filtered_crsData: namedtuple, filtered_celmechData: namedtuple, da
             raan = filtered_crsData.raan[i]
             eccentricity = f"{filtered_crsData.ecc[i]:.7f}"[2:]  # TLE eccentricity (remove '0.')
             arg_per = filtered_crsData.arg_per[i]
-            mean_anomaly = filtered_crsData.true_lat[i]  # Approximating as true latitude
+
+            mean_anomaly = compute_mean_anomaly(filtered_crsData.true_lat[i], filtered_crsData.arg_per[i], filtered_crsData.ecc[i])
+
             n_rad_per_sec = np.sqrt(MU_EARTH / a**3)  # Mean motion in rad/s
             mean_motion = (n_rad_per_sec / (2 * np.pi)) * 86400  # Revolutions per day
             mean_motion = round((n_rad_per_sec / (2 * np.pi)) * 86400, 8)  # Revolutions per day, rounded

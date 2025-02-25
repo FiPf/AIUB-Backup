@@ -19,85 +19,49 @@ def get_propagation_date(tle_line):
     jd_epoch = astro.mjd_to_jd(mjd_epoch)  # Convert to JD
     return jd_epoch + 1  # Add one year in Julian days
 
-def modify_eccentricity(tle2):
-    """Extracts eccentricity from TLE line 2, adds the zero in front and reconstructs the line"""
-    tle_parts = tle2.split()
-    if len(tle_parts) < 8:
-        raise ValueError(f"Unexpected TLE format: {tle2}")
-
-    # Extract and modify eccentricity (7th field in TLE format)
-    eccentricity_str = tle2[27:33]  # Eccentricity is stored as 7 digits with an implied decimal
-    eccentricity = float(f"0.{eccentricity_str}") # Convert to float and add the missing zero
-    tle2_modified = tle2[:26] + f"{eccentricity:.7f}"[2:9] + tle2[33:]  # Reinsert into TLE
-
-    return tle2_modified
-
-def modify_mean_motion(tle2):
-    """Extracts mean motion from TLE line 2, converts to rad/min, and reconstructs the line."""
-    if len(tle2) < 63:
-        raise ValueError(f"Unexpected TLE format: {tle2}")
-
-    # Extract mean motion (last field in TLE format)
-    mean_motion_str = tle2[54:63].strip()  # Ensure correct column range
-    print("Mean Motion (revs/day):", mean_motion_str)
-    
-    mean_motion = float(mean_motion_str)  # Convert to float (revs/day)
-
-    # Convert from revs/day to rad/min
-    mean_motion_rad_min = mean_motion * (2 * np.pi / 1440)
-
-    # Format back to TLE standard (keeping the same width)
-    mean_motion_formatted = f"{mean_motion_rad_min:11.8f}"  # 11 characters, 8 decimals
-    tle2_modified = tle2[:52] + mean_motion_formatted + tle2[63:]
-
-    return tle2_modified
-
 def propagate_tles(input_file, output_file):
     """Propagates TLEs to one year after their epoch and saves results."""
     tles = read_tles(input_file)
-    print(tles[0])  # Example: ('TLE line 1', 'TLE line 2')
-
-    with open(output_file, 'w') as f, tqdm(total=len(tles), desc="Propagating TLEs", unit="TLE") as pbar:
-        for tle1, tle2 in tles:
-            tle2_modified = modify_eccentricity(tle2)  # Correct eccentricity first
-            tle2_modified = modify_mean_motion(tle2_modified)  # Then correct mean motion
-            print("TLE1", tle1)
-            print("TLE2", tle2)
-            print("Modified TLE2", tle2_modified)
-            
-            satellite = Satrec.twoline2rv(tle1, tle2_modified)
-            print(f"Epoch: {satellite.jdsatepoch} JD")
-            print(f"Mean Motion: {satellite.no_kozai} rad/min")
-            print("Converted Back:", (satellite.no_kozai * 1440) / (2 * np.pi))  # Should match revs/day
-            print(f"Eccentricity: {satellite.ecco}")
-            print(f"Inclination: {np.degrees(satellite.inclo)}°")
-            print(f"RAAN: {np.degrees(satellite.nodeo)}°")
-            print(f"Argument of Perigee: {np.degrees(satellite.argpo)}°")
-            print(f"Mean Anomaly: {np.degrees(satellite.mo)}°")
-            print(f"BStar: {satellite.bstar}")
-
+    results = []
+    
+    with tqdm(total=len(tles), desc="Propagating TLEs", unit="TLE", mininterval=1.0) as pbar:
+        for i, (tle1, tle2) in enumerate(tles):
+            satellite = Satrec.twoline2rv(tle1, tle2)
             jd_target = get_propagation_date(tle1)
             jd, fr = divmod(jd_target, 1)
+
             e, r, v = satellite.sgp4(jd, fr)
 
             if e == 0:
                 orbit_elements = astro.r_v_to_elements_sgp4(np.array(r), np.array(v))
+                dist = np.linalg.norm(r)
 
-                f.write(f"Position: {r}\n")
-                f.write(f"Velocity: {v}\n\n")
-                f.write("Orbital Elements:\n")
-                f.write(f"Semi-major axis: {orbit_elements['semi_major_axis']} km\n")
-                f.write(f"Eccentricity: {orbit_elements['eccentricity']}\n")
-                f.write(f"Inclination: {orbit_elements['inclination']}°\n")
-                f.write(f"RAAN: {orbit_elements['raan']}°\n")
-                f.write(f"Argument of Perigee: {orbit_elements['argument_of_perigee']}°\n")
-                f.write(f"True Anomaly: {orbit_elements['true_anomaly']}°\n")
-                f.write("-------------------------------------------------\n\n")
+                result = (
+                    f"Position: {r}\nVelocity: {v}\n\n"
+                    f"Distance from center of Earth: {dist} km\n"
+                    f"Orbital Elements:\n"
+                    f"Semi-major axis: {orbit_elements['semi_major_axis']} km\n"
+                    f"Eccentricity: {orbit_elements['eccentricity']}\n"
+                    f"Inclination: {orbit_elements['inclination']}°\n"
+                    f"RAAN: {orbit_elements['raan']}°\n"
+                    f"Argument of Perigee: {orbit_elements['argument_of_perigee']}°\n"
+                    f"True Anomaly: {orbit_elements['true_anomaly']}°\n"
+                    f"-------------------------------------------------\n\n"
+                )
             else:
-                f.write(f"Error propagating {tle1[:24]}: Error: {e}\n\n")
-                dist = np.sqrt(r[0]**2 + r[1]**2 + r[2]**2)
-                f.write(f"{r}\n{v}\n\n")
-                f.write(f"{dist}\n")
-                f.write("-------------------------------------------------\n")
+                result = (
+                    f"Error propagating {tle1[:24]}: Error: {e}\n\n"
+                    f"{r}\n{v}\n\n"
+                    f"{dist}\n"
+                    f"-------------------------------------------------\n"
+                )
+
+            results.append(result)
+            if i % 100 == 0:
+                print(f"Processing {i+1}/{len(tles)} TLEs")
 
             pbar.update(1)
+
+    # Write all results at once
+    with open(output_file, 'w') as f:
+        f.writelines(results)
