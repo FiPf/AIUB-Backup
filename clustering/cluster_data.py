@@ -2,6 +2,8 @@ from collections import namedtuple
 import numpy as np
 import time 
 import my_kmedoids
+import kmeans
+import fuzzy_c_means
 from clustering_utils import ClusteringResult
 from sklearn.preprocessing import MinMaxScaler
 
@@ -184,7 +186,7 @@ def bin_data(num_years_per_bin: int, overlap_years: int, crs_det: str, populatio
 
     return data_batches
 
-def estimate_runtime(clustering_func, *args, build_function=None, swap_function=None, **kwargs):
+#def estimate_runtime(clustering_func, *args, build_function=None, swap_function=None, **kwargs):
     """
     Measures the execution time of a clustering function. If build_function or swap_function
     is provided, uses pam_clustering instead of clustering_func.
@@ -226,5 +228,62 @@ def estimate_runtime(clustering_func, *args, build_function=None, swap_function=
     print(f"Runtime for {clustering_func.__name__ if clustering_func != my_kmedoids.pam_clustering else 'pam_clustering'}"
           f" (build: {build_function.__name__ if build_function else 'default build'}, "
           f"swap: {swap_function.__name__ if swap_function else 'default swap'}): {runtime:.6f} seconds")
+
+    return result, runtime
+
+import time
+import my_kmedoids
+
+def estimate_runtime(clustering_func, *args, build_function=None, swap_function=None, **kwargs):
+    """
+    Measures the execution time of a clustering function, supporting different clustering types:
+    - K-based clustering (e.g., K-Medoids, K-Means, Fuzzy C-Means)
+    - Density-based clustering (e.g., DBSCAN)
+    - Other methods with or without `k`.
+
+    Args:
+        clustering_func (Callable): The clustering function to evaluate.
+        *args: Positional arguments for the clustering function (data, and optionally k).
+        build_function (Callable, optional): The BUILD function for `pam_clustering`. Defaults to None.
+        swap_function (Callable, optional): The SWAP function for `pam_clustering`. Defaults to None.
+        **kwargs: Additional keyword arguments for the clustering function.
+
+    Returns:
+        Tuple: (result, runtime_in_seconds)
+    """
+    start_time = time.time()
+    
+    # Determine if k is required
+    needs_k = clustering_func in [my_kmedoids.pam_clustering, my_kmedoids.fastpam1_swap, 
+                                  my_kmedoids.fastpam2_swap, my_kmedoids.fastpam_lab_build,
+                                  kmeans.k_means, fuzzy_c_means.fuzzy_c_means]  # Add other k-based methods here
+
+    if needs_k:
+        if len(args) < 2:
+            raise ValueError(f"{clustering_func.__name__} requires at least two arguments: (data, k)")
+        data, k = args[:2]
+        if not isinstance(k, int):
+            raise TypeError(f"Expected k to be an integer, but got {type(k).__name__}: {k}")
+    else:
+        if len(args) < 1:
+            raise ValueError(f"{clustering_func.__name__} requires at least one argument: (data)")
+        data = args[0]
+
+    # Handle specific cases
+    if clustering_func == my_kmedoids.pam_clustering:
+        build_function = build_function or my_kmedoids.pam_build
+        swap_function = swap_function or my_kmedoids.pam_swap
+        result = my_kmedoids.pam_clustering(data, k, build_function, swap_function)
+
+    elif clustering_func.__name__ == "dbscan_clustering":
+        result = clustering_func(data, **kwargs)  # DBSCAN does not need k
+
+    else:
+        result = clustering_func(data, k, **kwargs) if needs_k else clustering_func(data, **kwargs)
+
+    end_time = time.time()
+    runtime = end_time - start_time
+
+    print(f"Runtime for {clustering_func.__name__}: {runtime:.6f} seconds")
 
     return result, runtime

@@ -1,7 +1,6 @@
 import numpy as np
 from sklearn.cluster import DBSCAN
-from cluster_data import estimate_runtime
-from cluster_plotter import ClusterPlotter
+from clustering_utils import ClusteringResult  # Ensure correct import
 
 def dbscan_clustering(data: np.array, eps: float = 0.5, min_samples: int = 5):
     """
@@ -9,12 +8,21 @@ def dbscan_clustering(data: np.array, eps: float = 0.5, min_samples: int = 5):
 
     Args:
         data (np.array): The dataset to cluster.
-        eps (float): The maximum distance between two samples for one to be considered as in the neighborhood of the other.
-        min_samples (int): The number of samples in a neighborhood for a point to be considered as a core point.
+        eps (float): Maximum distance between two samples for them to be considered neighbors.
+        min_samples (int): Number of points to form a dense region.
 
     Returns:
-        labels (np.array): Cluster labels for each point.
+        ClusteringResult: Named tuple with labels and dummy cluster centers.
     """
     dbscan = DBSCAN(eps=eps, min_samples=min_samples)
     labels = dbscan.fit_predict(data)
-    return labels
+
+    # DBSCAN does not have cluster centers, so we use NaN placeholders
+    unique_clusters = np.unique(labels[labels != -1])  # Ignore noise (-1)
+    cluster_centers = np.array([np.mean(data[labels == cluster], axis=0) if np.any(labels == cluster) else np.nan
+                                for cluster in unique_clusters])
+    # we return None as a placeholder for cluster centers to make it compatible with the other algorithms
+
+    
+    return ClusteringResult(labels=labels, cluster_centers=cluster_centers, data=data)
+

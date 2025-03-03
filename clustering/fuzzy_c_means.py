@@ -1,6 +1,6 @@
 # fuzzy_c_means.py
 import numpy as np
-from cluster_data import ClusteringResult
+from clustering_utils import ClusteringResult
 import skfda
 from skfda.ml.clustering import FuzzyCMeans
 

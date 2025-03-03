@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.spatial.distance import cdist
-from cluster_data import ClusteringResult
+from clustering_utils import ClusteringResult
 from numba import jit
 
 #@jit
