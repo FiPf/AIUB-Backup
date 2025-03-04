@@ -32,19 +32,30 @@ class ClusterPlotter:
             grid (bool, optional): Plot with grid. Defaults to True.
         """        
         plt.figure(figsize=(10, 7))
-        coloring = c if c is not None else self.normalized_data[:, 2]
-
-        scatter = plt.scatter(self.normalized_data[:, 1], self.normalized_data[:, 0],
-                              c=coloring, cmap=color_scheme, s=point_size)
         
-        if show_centers:
+        # Check if data has 3 dimensions
+        if self.normalized_data.shape[1] == 3:
+            coloring = c if c is not None else self.normalized_data[:, 2]  # Use third dimension for color
+            colorbar_label = 'Custom Color' if c is not None else 'Eccentricity'
+            show_colorbar = True
+        else:
+            coloring = self.labels  # Use cluster labels for color
+            show_colorbar = False
+        
+        scatter = plt.scatter(self.normalized_data[:, 1], self.normalized_data[:, 0],
+                            c=coloring, cmap=color_scheme, s=point_size)
+        
+        if show_centers and hasattr(self, 'cluster_centers'):
             plt.scatter(self.cluster_centers[:, 1], self.cluster_centers[:, 0],
                         c='red', marker='X', s=100, label='Cluster Centers')
-
+        
         plt.xlabel('RAAN [°]')
         plt.ylabel('Inclination [°]')
         plt.title(title)
-        plt.colorbar(scatter, label='Custom Color' if c is not None else 'Eccentricity')
+        
+        if show_colorbar:
+            plt.colorbar(scatter, label=colorbar_label)
+        
         plt.legend()
         if grid:
             plt.grid(True)

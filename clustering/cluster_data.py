@@ -57,8 +57,10 @@ def unnormalize(normalized_data: np.array, cluster_centers: np.array, data_min: 
         np.array: Unnormalized data.
         np.array: Unnormalized cluster centers.
     """
+    unnormalized_centers = None
     unnormalized_data = normalized_data * (data_max - data_min) + data_min
-    unnormalized_centers = cluster_centers * (data_max - data_min) + data_min
+    if cluster_centers is not None:
+        unnormalized_centers = cluster_centers * (data_max - data_min) + data_min
     return unnormalized_data, unnormalized_centers
 
 def adjust_raan_range(raan_values):
