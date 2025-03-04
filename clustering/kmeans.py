@@ -2,6 +2,7 @@ import numpy as np
 from scipy.spatial.distance import cdist
 from clustering_utils import ClusteringResult
 from numba import jit
+from collections import namedtuple
 
 #@jit
 def k_means(data: np.array, k: int, init: str = 'random', initial_centers: np.array = None, max_iter: int = 300, tol: float = 1e-4):
@@ -55,7 +56,7 @@ def k_means(data: np.array, k: int, init: str = 'random', initial_centers: np.ar
     
     return ClusteringResult(labels=labels, cluster_centers=centers, data=data)
 
-def compute_distortion(clustering_result: ClusteringResult) -> float:
+def compute_distortion(ClusteringResult: namedtuple) -> float:
     """
     Computes the distortion function J(c, μ) for k-means clustering.
     J(c, μ) = sum(||x(i) - μc(i) ||^2)
@@ -72,12 +73,10 @@ def compute_distortion(clustering_result: ClusteringResult) -> float:
     Returns:
         distortion (float): The total distortion (sum of squared distances to cluster centroids).
     """
-    data = np.array([clustering_result.data.inc, 
-                     clustering_result.data.raan, 
-                     clustering_result.data.ecc]).T  # Shape (m, 3)
+    data = ClusteringResult.data
     
-    labels = np.array(clustering_result.labels)
-    centroids = np.array(clustering_result.cluster_centers)
+    labels = np.array(ClusteringResult.labels)
+    centroids = np.array(ClusteringResult.cluster_centers)
     
     distortion = np.sum(np.linalg.norm(data - centroids[labels], axis=1) ** 2)
     

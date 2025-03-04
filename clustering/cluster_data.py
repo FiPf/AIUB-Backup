@@ -13,10 +13,42 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import getdata
 from getdata import PopulationType
 import sortdata
+from cluster_plotter import ClusterPlotter
 
 #change the ClusterData namedtuple if you want to add more dimensions
 ClusterData = namedtuple("ClusterData", ["inc", "raan"])
 #ClusterData = namedtuple("ClusterData", ["inc", "raan", "ecc"]) #later we can add the eccentricity
+
+def run_clustering(algorithm, name, data, data_min, data_max, *args, **kwargs):
+    """Runs a clustering algorithm, prints results, and visualizes clusters.
+
+    Args:
+        algorithm (Callable): Clustering function.
+        name (str): Name of the algorithm.
+        data (np.array): Normalized dataset.
+        data_min (np.array): Minimum values before normalization.
+        data_max (np.array): Maximum values before normalization.
+        *args: Positional arguments for the clustering function.
+        **kwargs: Keyword arguments for the clustering function.
+
+    Returns:
+        ClusteringResult: Named tuple with clustering results.
+        float: Execution time.
+    """
+    plot = kwargs.pop("plot", True)  # Default to True if not provided
+
+    print(f"\n{name} result:")
+    result, runtime = estimate_runtime(algorithm, data, *args, **kwargs)
+    print("Labels:", result.labels)
+    print("Cluster centers:\n", result.cluster_centers)
+    print(f"Runtime: {runtime:.6f} seconds")
+
+    # Unnormalize cluster centers
+    unnormalized_data, cluster_centers = unnormalize(result.data, result.cluster_centers, data_min, data_max)
+    if plot: 
+        plotter = ClusterPlotter(unnormalized_data, result.labels, cluster_centers)
+        plotter.clusters_2d_plot(f"{name} - 2D Cluster Visualization")
+    return result, runtime
 
 def cluster_data_to_array(data_list: namedtuple):
     """Convert ClusterData namedtuple to an numpy array. Works for any number of dimensions.
