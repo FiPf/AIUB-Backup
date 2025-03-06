@@ -14,12 +14,14 @@ import getdata
 from getdata import PopulationType
 import sortdata
 from cluster_plotter import ClusterPlotter
+import scores
 
 #change the ClusterData namedtuple if you want to add more dimensions
 ClusterData = namedtuple("ClusterData", ["inc", "raan"])
 #ClusterData = namedtuple("ClusterData", ["inc", "raan", "ecc"]) #later we can add the eccentricity
 
 def run_clustering(algorithm, name, data, data_min, data_max, *args, **kwargs):
+    #Dokumentation nicht mehr aktuell!!!!!!!!!!!!!!!!!!!!!!!!
     """Runs a clustering algorithm, prints results, and visualizes clusters.
 
     Args:
@@ -34,21 +36,36 @@ def run_clustering(algorithm, name, data, data_min, data_max, *args, **kwargs):
     Returns:
         ClusteringResult: Named tuple with clustering results.
         float: Execution time.
+        int: Number of clusters.
+        dict: Number of points per cluster.
     """
+    metrics = [] #list containing all the scores, 2d standard deviation, cluster densities
     plot = kwargs.pop("plot", True)  # Default to True if not provided
 
     print(f"\n{name} result:")
     result, runtime = estimate_runtime(algorithm, data, *args, **kwargs)
-    print("Labels:", result.labels)
-    print("Cluster centers:\n", result.cluster_centers)
-    print(f"Runtime: {runtime:.6f} seconds")
+
+    # Calculate the number of clusters and the number of points per cluster
+    n_clusters = len(set(result.labels))  # Number of unique labels (clusters)
+    points_per_cluster = {i: list(result.labels).count(i) for i in set(result.labels)}  # Count points per cluster
+
+    #calculate all the metrics
+    DB_sc = scores.DB_score(result)
+    CH_sc = scores.CH_score(result)
+    dunn_index_sc = scores.dunn_index_score(result)
+    sil_sc = scores.sil_score(result)
+    cluster_std = scores.cluster_std_eigen(result)
+    square_density = scores.cluster_density_squares(result)
+    hull_density = scores.cluster_density_convex_hull(result)
+    metrics = [DB_sc, CH_sc, dunn_index_sc, sil_sc, cluster_std, square_density, hull_density]
 
     # Unnormalize cluster centers
     unnormalized_data, cluster_centers = unnormalize(result.data, result.cluster_centers, data_min, data_max)
     if plot: 
         plotter = ClusterPlotter(unnormalized_data, result.labels, cluster_centers)
         plotter.clusters_2d_plot(f"{name} - 2D Cluster Visualization")
-    return result, runtime
+    
+    return result, runtime, n_clusters, points_per_cluster, metrics 
 
 def cluster_data_to_array(data_list: namedtuple):
     """Convert ClusterData namedtuple to an numpy array. Works for any number of dimensions.
@@ -265,8 +282,6 @@ def bin_data(num_years_per_bin: int, overlap_years: int, crs_det: str, populatio
 
     return result, runtime
 
-import time
-import my_kmedoids
 
 def estimate_runtime(clustering_func, *args, build_function=None, swap_function=None, **kwargs):
     """

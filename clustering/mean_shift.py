@@ -15,11 +15,11 @@ import getdata
 from getdata import PopulationType
 import sortdata
 
-from cluster_data import ClusteringResult
-from clustering_utils import ClusterData
+from cluster_data import ClusteringResult, ClusterData
+from clustering_utils import ClusteringResult
 import cluster_data
 
-def find_clusters_mean_shift_clustering(data: ClusterData, bandwidth: float = 0.1) -> ClusteringResult:
+def mean_shift_clustering(data: ClusterData, bandwidth: float = 0.1) -> ClusteringResult:
     """Performs Mean Shift Clustering on orbital data (inc, raan, ecc). The function normalizes the input data using Min-Max scaling before clustering 
     and reverts the results back to the original scale for interpretability.
 

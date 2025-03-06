@@ -74,7 +74,9 @@ def sil_score(ClusteringResult: namedtuple):
 
 #2d standard deviation
 #calculate the covariance matrix and its eigenvalues. useful for clusters that are not axis aligned or elongated
-def cluster_std_eigen(data, labels):
+def cluster_std_eigen(ClusteringResult: namedtuple):
+    data = ClusteringResult.data
+    labels = ClusteringResult.labels
     unique_labels = np.unique(labels)
     stds = {}
 
