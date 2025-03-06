@@ -887,6 +887,7 @@ class PopulationType(Enum):
     TH25 = "new"
     NORMAL = ""
     NEWPOP_JAN = "janpo"
+    NEWPOP_MARCH = "marpo"
 
 def data_for_one_year_one_seed(year: str, seed: str, population_type: PopulationType):
     """used to get all the simulation data for a specific year and seed, not separated/sorted
@@ -999,7 +1000,6 @@ def data_four_years_one_seed(data_crs_all_seeds: list, data_det_all_seeds: list,
     Returns:
         
     """
-    
     import main_frag_and_rest
     print(years) #print years to terminal, so you know whether the program is progressing or not
     

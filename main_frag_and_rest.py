@@ -1,9 +1,11 @@
 import numpy as np
-import unique_objects
+from unique import unique_objects
+#import unique_objects
 import sortdata
 import getdata 
 import plotting
 import calculations
+
 #the main function is used to process the data for one seed and one run and get all the desired plots/numbers
 #version of main using data = file directly instead of using array_extender, input is not str (file for the array extender), but np.array
 #all fragments means: fragments + rest are included in the data
