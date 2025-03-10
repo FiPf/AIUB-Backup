@@ -21,24 +21,6 @@ ClusterData = namedtuple("ClusterData", ["inc", "raan"])
 #ClusterData = namedtuple("ClusterData", ["inc", "raan", "ecc"]) #later we can add the eccentricity
 
 def run_clustering(algorithm, name, data, data_min, data_max, *args, **kwargs):
-    #Dokumentation nicht mehr aktuell!!!!!!!!!!!!!!!!!!!!!!!!
-    """Runs a clustering algorithm, prints results, and visualizes clusters.
-
-    Args:
-        algorithm (Callable): Clustering function.
-        name (str): Name of the algorithm.
-        data (np.array): Normalized dataset.
-        data_min (np.array): Minimum values before normalization.
-        data_max (np.array): Maximum values before normalization.
-        *args: Positional arguments for the clustering function.
-        **kwargs: Keyword arguments for the clustering function.
-
-    Returns:
-        ClusteringResult: Named tuple with clustering results.
-        float: Execution time.
-        int: Number of clusters.
-        dict: Number of points per cluster.
-    """
     metrics = [] #list containing all the scores, 2d standard deviation, cluster densities
     plot = kwargs.pop("plot", True)  # Default to True if not provided
 
@@ -237,51 +219,6 @@ def bin_data(num_years_per_bin: int, overlap_years: int, crs_det: str, populatio
 
     return data_batches
 
-#def estimate_runtime(clustering_func, *args, build_function=None, swap_function=None, **kwargs):
-    """
-    Measures the execution time of a clustering function. If build_function or swap_function
-    is provided, uses pam_clustering instead of clustering_func.
-
-    Args:
-        clustering_func (Callable): The clustering function to evaluate.
-        *args: Positional arguments for the clustering function (expects data and k).
-        build_function (Callable, optional): The BUILD function for pam_clustering. Defaults to None.
-        swap_function (Callable, optional): The SWAP function for pam_clustering. Defaults to None.
-        **kwargs: Additional keyword arguments for the clustering function.
-
-    Returns:
-        Tuple (result, runtime_in_seconds)
-    """
-    #print("args:", args)
-    #print("kwargs:", kwargs)
-    start_time = time.time()
-
-    # Extract data and k properly
-    if len(args) < 2:
-        raise ValueError("Expected at least two positional arguments: (data, k)")
-    
-    data, k = args[0], args[1]
-
-    if not isinstance(k, int):
-        raise TypeError(f"Expected k to be an integer, but got {type(k).__name__}: {k}")
-
-    # Ensure pam_clustering uses the correct build and swap functions
-    if clustering_func == my_kmedoids.pam_clustering:
-        build_function = build_function or my_kmedoids.pam_build
-        swap_function = swap_function or my_kmedoids.pam_swap
-        result = my_kmedoids.pam_clustering(data, k, build_function, swap_function)#problem here
-    else:
-        result = clustering_func(data, k, **kwargs)
-
-    end_time = time.time()
-    runtime = end_time - start_time
-
-    print(f"Runtime for {clustering_func.__name__ if clustering_func != my_kmedoids.pam_clustering else 'pam_clustering'}"
-          f" (build: {build_function.__name__ if build_function else 'default build'}, "
-          f"swap: {swap_function.__name__ if swap_function else 'default swap'}): {runtime:.6f} seconds")
-
-    return result, runtime
-
 
 def estimate_runtime(clustering_func, *args, build_function=None, swap_function=None, **kwargs):
     """
@@ -318,10 +255,20 @@ def estimate_runtime(clustering_func, *args, build_function=None, swap_function=
             raise ValueError(f"{clustering_func.__name__} requires at least one argument: (data)")
         data = args[0]
 
-    # Handle specific cases
+    # Debug: Check data shape before calling the clustering function
+    print(f"Data shape before clustering: {data.shape}")
+
+    # Handle specific cases for pam_clustering
     if clustering_func == my_kmedoids.pam_clustering:
-        build_function = build_function or my_kmedoids.pam_build
-        swap_function = swap_function or my_kmedoids.pam_swap
+        if build_function is not None: 
+            build_function = build_function
+        else: 
+            build_function = my_kmedoids.pam_build
+
+        if swap_function is not None: 
+            swap_function = swap_function
+        else: 
+            swap_function = my_kmedoids.pam_swap
         result = my_kmedoids.pam_clustering(data, k, build_function, swap_function)
 
     elif clustering_func.__name__ == "dbscan_clustering":

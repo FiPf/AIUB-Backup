@@ -6,7 +6,7 @@ from scipy.spatial.distance import cdist
 from clustering_utils import ClusteringResult
 from collections import namedtuple
 from typing import Callable
-from scipy.spatial import ConvexHull
+from scipy.spatial import ConvexHull, qhull
 import numpy as np
 
 #https://scikit-learn.org/stable/modules/generated/sklearn.metrics.davies_bouldin_score.html
@@ -122,11 +122,7 @@ def cluster_density_squares(ClusteringResult: namedtuple):
 
     return densities, boundaries
 
-def cluster_density_convex_hull(ClusteringResult: namedtuple):
-    #idea: iterate over all clusters. 
-    #take the minima and maxima of the cluster coordinates in both x and y directions
-    #take this values to form the convex hull, calculate the area of that convex hull (use hull.volume, more efficient than Monte Carlo)
-    #take the number of clusters within the convec hull and find the cluster denisty based on the convex hull area
+def cluster_density_convex_hull(ClusteringResult):
     data = ClusteringResult.data
     labels = ClusteringResult.labels
     unique_labels = np.unique(labels)
@@ -136,17 +132,34 @@ def cluster_density_convex_hull(ClusteringResult: namedtuple):
     for label in unique_labels:
         cluster_points = data[labels == label]
 
+        print(f"Processing cluster {label} with {len(cluster_points)} points")
+
         if len(cluster_points) < 3:
-            densities[label] = np.inf  # Convex hull is not defined for <3 points
+            print(f"Skipping cluster {label}: only {len(cluster_points)} points (need at least 3)")
+            densities[label] = np.inf
+            boundaries[label] = None
+            continue
+        
+        if np.all(cluster_points == cluster_points[0]):  
+            print(f"Skipping cluster {label}: all points are identical")
+            densities[label] = np.inf
             boundaries[label] = None
             continue
 
-        hull = ConvexHull(cluster_points)
-        hull_area = hull.volume  # In 2D, hull.volume gives the area
-        num_points = len(cluster_points)
+        try:
+            hull = ConvexHull(cluster_points)
+            hull_area = hull.volume  # In 2D, hull.volume gives the area
+            num_points = len(cluster_points)
 
-        density = num_points / hull_area if hull_area > 0 else np.inf
-        densities[label] = density
-        boundaries[label] = cluster_points[hull.vertices]  # Boundary points forming the convex hull
+            density = num_points / hull_area if hull_area > 0 else np.inf
+            densities[label] = density
+            boundaries[label] = cluster_points[hull.vertices]  # Boundary points forming the convex hull
+
+            print(f"Cluster {label}: hull area = {hull_area}, density = {density}")
+
+        except qhull.QhullError as e:
+            print(f"ConvexHull failed for cluster {label}: {e}")
+            densities[label] = np.inf
+            boundaries[label] = None  # Handle error gracefully
 
     return densities, boundaries

@@ -69,6 +69,7 @@ def pam_build(data: np.array , k: int):
                 best_candidate = candidate
         medoids.append(best_candidate)
     cost = total_cost(data, medoids)
+    print(np.array(medoids).shape)
     return medoids, cost
 
 def fastpam_lab_build(data, k):
@@ -193,12 +194,15 @@ def fastpam1_swap(data: np.array, k: int, max_iter: int =300, tol: float =1e-4):
         ClusteringResult: Named tuple with labels, cluster centers, and data.
     """
     n = data.shape[0]
+    print(n)
+    print(data.shape, "shape of data in fastpam1 swap")
 
     # Step 1: Initialize medoids randomly
     medoid_indices = np.random.choice(n, k, replace=True)
     medoids = data[medoid_indices]
 
     # Compute initial total cost
+    print(data.shape, medoids.shape, "medoids shape here")
     distances = cdist(data, medoids)  # Compute distances to medoids
     labels = np.argmin(distances, axis=1)  # Assign clusters
     total_cost = np.sum(np.min(distances, axis=1))  # Compute TD
@@ -358,7 +362,7 @@ def fastpam2_swap(data, k, max_iter=300, tol=1e-4, tau=0.5):
 
     return ClusteringResult(labels=labels, cluster_centers=medoids, data=data)
 
-def pam_clustering(data: np.array, k: int, build_function: Callable = None, swap_function : Callable =None):
+def pam_clustering(data: np.array, k: int, build_function: Callable = None, swap_function : Callable = None):
     """Perform k-medoids clustering using PAM (BUILD and SWAP phases). For the SWAP phase, we can use different algorithms. 
 
     Args:
@@ -369,6 +373,9 @@ def pam_clustering(data: np.array, k: int, build_function: Callable = None, swap
     Returns:
         ClusteringResult: named tuple with fields labels, cluster_centers, data.
     """  
+    # Debug: Check the shape of the data passed in
+    print(f"Data shape at the start of pam_clustering: {data.shape}")
+    
     if build_function is None: 
         medoids, cost = pam_build(data, k)
     else:
@@ -383,21 +390,29 @@ def pam_clustering(data: np.array, k: int, build_function: Callable = None, swap
 
     # Ensure medoids are properly indexed
     medoids = np.array(medoids, dtype=int)
-    
-    # Assign each point to its closest medoid.
-    medoids_ = data[medoids]  # Convert indices to actual points
+    print(f"Medoids shape after build and swap: {medoids.shape}")
 
+    # Convert medoids indices to actual data points
+    medoids_ = data[medoids]
+    
+    # Debug: Check shape of medoids_
+    print(f"Medoids after selecting data points: {medoids_.shape}")
+    
     if medoids_.ndim == 1:
         medoids_ = medoids_.reshape(1, -1)  # Ensure 2D shape if there's only one medoid
+        print(f"Reshaped medoids to 2D: {medoids_.shape}")
 
     # Compute distances from each point to each medoid
     distances = cdist(data, medoids_)
+    print(f"Distances shape: {distances.shape}")
+
+    # Assign each point to its closest medoid
     labels = np.argmin(distances, axis=1)
+    print(f"Labels shape: {labels.shape}")
 
     return ClusteringResult(labels=labels, cluster_centers=medoids_, data=data)
 
 #boring implementations from sklearn and python. likely faster than custom implementation. 
-
 def kmedoids_sklearn(data: np.array, k: int):
     """K-Medoids clustering using scikit-learn-extra. https://scikit-learn-extra.readthedocs.io/en/stable/generated/sklearn_extra.cluster.KMedoids.html 
 

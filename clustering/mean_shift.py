@@ -19,28 +19,23 @@ from cluster_data import ClusteringResult, ClusterData
 from clustering_utils import ClusteringResult
 import cluster_data
 
-def mean_shift_clustering(data: ClusterData, bandwidth: float = 0.1) -> ClusteringResult:
+def mean_shift_clustering(data: np.ndarray, bandwidth: float = 0.5) -> ClusteringResult:
     """Performs Mean Shift Clustering on orbital data (inc, raan, ecc). The function normalizes the input data using Min-Max scaling before clustering 
     and reverts the results back to the original scale for interpretability.
 
     Args:
-        data (ClusterData): A named tuple containing the orbital elements: inc, raan, ecc. 
-        bandwidth (float, optional): The bandwidth parameter for the Mean Shift algorithm, controlling the window size 
-        for clustering. Smaller values detect finer clusters, while larger values merge 
-        nearby points. Defaults to 0.1.
+        data (np.ndarray): A 2D NumPy array where each row represents an object, and each column represents an orbital parameter (inc, raan).
+        bandwidth (float, optional): The bandwidth parameter for the Mean Shift algorithm. Defaults to 0.1.
 
     Returns:
-        ClusteringResult: a named tuple containing: 
+        ClusteringResult: A named tuple containing:
         - `labels`: Cluster labels assigned to each data point.
-        - `cluster_centers`: Cluster centers in the original (unnormalized) scale.
-        - `data`: The unnormalized data after inverse scaling.
+        - `cluster_centers`: Cluster centers in the original scale.
+        - `data`: The unnormalized data.
     """    
-    # Combine data
-    combined_data = np.vstack((data.inc, data.raan )).T#, data.ecc)).T
-
     # Normalize the data
     scaler = MinMaxScaler()
-    normalized_data = scaler.fit_transform(combined_data)
+    normalized_data = scaler.fit_transform(data)
 
     # Perform MeanShift clustering
     mean_shift = MeanShift(bandwidth=bandwidth)
@@ -48,13 +43,12 @@ def mean_shift_clustering(data: ClusterData, bandwidth: float = 0.1) -> Clusteri
     labels = mean_shift.labels_
     cluster_centers = mean_shift.cluster_centers_
 
-    # Unnormalize the data and cluster centers
-    unnormalized_data = cluster_data.unnormalize(normalized_data, scaler.data_min_, scaler.data_max_)
+    # Unnormalize cluster centers
     original_scale_centers = scaler.inverse_transform(cluster_centers)
 
     # Return the result as a namedtuple
-    return ClusteringResult(labels=labels, cluster_centers=original_scale_centers,
-                            data=unnormalized_data)
+    return ClusteringResult(labels=labels, cluster_centers=original_scale_centers, data=data)
+
 
     
 def compute_cost_function(data, bandwidth):
