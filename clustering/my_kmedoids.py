@@ -7,23 +7,21 @@ from scipy.spatial.distance import cdist
 
 #https://arxiv.org/abs/1810.05691 algorithms are based on this paper!
 
-def total_cost(data: np.array, medoids: np.array):
-    """Compute the total cost given medoids (indices) for the data.
-    The cost is the sum of the distances from each point to its nearest medoid.
-
-    J = sum_{i=1}^n d(x_i, m_{c_i})
+def total_cost(data: np.array, medoid_indices: np.array):
+    """Compute the total cost given medoid indices for the data.
 
     Args:
-        data (np.array): data in which the clusters were found
-        medoids (np.array): medoids at the end of the clustering
+        data (np.array): Dataset
+        medoid_indices (np.array): Indices of medoids
 
     Returns:
-        cost (float): computed cost
+        cost (float): Total clustering cost
     """
     cost = 0
     n = data.shape[0]
+    medoids = data[medoid_indices]  # Convert indices to actual data points
     for i in range(n):
-        cost += min(np.linalg.norm(data[i] - data[m]) for m in medoids)
+        cost += min(np.linalg.norm(data[i] - m) for m in medoids)
     return cost
 
 def pam_build(data: np.array , k: int):
@@ -164,6 +162,8 @@ def pam_swap(data: np.array, medoids: np.array):
     current_cost = total_cost(data, medoids)
     best_delta = 0
     best_swap = None
+    print(medoids, "medoids")
+    medoids = list(medoids)
     for m in medoids:
         for candidate in range(n):
             if candidate in medoids:
@@ -179,88 +179,76 @@ def pam_swap(data: np.array, medoids: np.array):
         return new_medoids, new_cost, True
     else:
         return medoids, current_cost, False
-    
-def fastpam1_swap(data: np.array, k: int, max_iter: int =300, tol: float =1e-4):
-    """
-    FastPAM1 algorithm for k-medoids clustering (optimized SWAP step).
-    
-    Parameters:
-        data (np.array): Normalized data points (n x d).
-        k (int): Number of clusters (medoids).
-        max_iter (int): Maximum number of iterations.
-        tol (float): Convergence tolerance for total cost reduction.
 
-    Returns:
-        ClusteringResult: Named tuple with labels, cluster centers, and data.
-    """
+
+def fastpam1_swap(data: np.array, k: int, max_iter: int = 300, tol: float = 1e-4):
     n = data.shape[0]
-    print(n)
-    print(data.shape, "shape of data in fastpam1 swap")
 
-    # Step 1: Initialize medoids randomly
-    medoid_indices = np.random.choice(n, k, replace=True)
+    # Step 1: Initialize distinct medoids randomly
+    medoid_indices = np.random.choice(n, k, replace=False)
     medoids = data[medoid_indices]
 
     # Compute initial total cost
-    print(data.shape, medoids.shape, "medoids shape here")
-    distances = cdist(data, medoids)  # Compute distances to medoids
-    labels = np.argmin(distances, axis=1)  # Assign clusters
-    total_cost = np.sum(np.min(distances, axis=1))  # Compute TD
+    distances = cdist(data, medoids)
+    labels = np.argmin(distances, axis=1)
+    total_cost = np.sum(np.min(distances, axis=1))
 
     for iteration in range(max_iter):
         best_swap = None
         best_cost_reduction = 0
 
-        # Precompute nearest and second-nearest medoid distances
         nearest_distances = np.min(distances, axis=1)
         second_nearest_distances = np.partition(distances, 1, axis=1)[:, 1]
         nearest_medoids = np.argmin(distances, axis=1)
 
-        # Iterate over all non-medoids
         for xj_idx in range(n):
             if xj_idx in medoid_indices:
-                continue  # Skip if it's already a medoid
+                continue  # Skip if already a medoid
 
-            # Compute ∆TD vector for swapping xj into medoid set
             delta_TD = -nearest_distances.copy()
 
             for xo_idx in range(n):
                 if xo_idx == xj_idx:
                     continue
                 
-                doj = np.linalg.norm(data[xo_idx] - data[xj_idx])  # Distance to new medoid
+                doj = np.linalg.norm(data[xo_idx] - data[xj_idx])
                 current_medoid_idx = nearest_medoids[xo_idx]
                 dn = nearest_distances[xo_idx]
                 ds = second_nearest_distances[xo_idx]
 
-                delta_TD[current_medoid_idx] += min(doj, ds) - dn  # Loss update
+                if current_medoid_idx < k:  # Ensure index is valid
+                    delta_TD[current_medoid_idx] += min(doj, ds) - dn
 
                 if doj < dn:
                     for mi in range(k):
-                        if mi == current_medoid_idx:
-                            continue
-                        delta_TD[mi] += doj - dn
+                        if medoid_indices[mi] != current_medoid_idx:
+                            delta_TD[mi] += doj - dn
 
-            # Find best medoid to swap
-            best_mi = np.argmin(delta_TD)
-            if delta_TD[best_mi] < best_cost_reduction:
-                best_cost_reduction = delta_TD[best_mi]
-                best_swap = (medoid_indices[best_mi], xj_idx)
+            # Choose the best medoid index safely
+            best_mi_idx = np.argmin(delta_TD[:k])  # Ensure within bounds
+            best_mi = medoid_indices[best_mi_idx]
+
+            if best_mi_idx >= k:  # Prevent out-of-bounds errors
+                continue
+
+            if delta_TD[best_mi_idx] < best_cost_reduction:
+                best_cost_reduction = delta_TD[best_mi_idx]
+                best_swap = (best_mi, xj_idx)
 
         # If no improvement, stop
-        if best_cost_reduction >= -tol:
-            break
+        if best_swap is None or best_cost_reduction >= -tol:
+            return medoids, total_cost, best_cost_reduction < -tol
 
         # Perform the best swap
-        medoid_indices[np.where(medoid_indices == best_swap[0])[0][0]] = best_swap[1]
+        swap_idx = np.where(medoid_indices == best_swap[0])[0][0]
+        medoid_indices[swap_idx] = best_swap[1]
         medoids = data[medoid_indices]
-        
-        # Update distances
+
+        # Update distances and total cost
         distances = cdist(data, medoids)
-        labels = np.argmin(distances, axis=1)
         total_cost += best_cost_reduction
 
-    return ClusteringResult(labels=labels, cluster_centers=medoids, data=data)
+    return medoids, total_cost, False  # Did not fully converge
 
 def fastpam2_swap(data, k, max_iter=300, tol=1e-4, tau=0.5):
     """
@@ -360,57 +348,54 @@ def fastpam2_swap(data, k, max_iter=300, tol=1e-4, tau=0.5):
                     else:
                         best_cost_reduction[j] = 0  # Skip this swap
 
-    return ClusteringResult(labels=labels, cluster_centers=medoids, data=data)
+    return medoids, total_cost, best_cost_reduction < -tol
 
-def pam_clustering(data: np.array, k: int, build_function: Callable = None, swap_function : Callable = None):
-    """Perform k-medoids clustering using PAM (BUILD and SWAP phases). For the SWAP phase, we can use different algorithms. 
+    #return ClusteringResult(labels=labels, cluster_centers=medoids, data=data)
 
-    Args:
-        data (np.array): number of data points
-        k (int): number of medoids/clusters
-        swap_function (Callable, optional): Different versions of the swap function, some are faster. Defaults to None.
 
-    Returns:
-        ClusteringResult: named tuple with fields labels, cluster_centers, data.
-    """  
-    # Debug: Check the shape of the data passed in
+def pam_clustering(data: np.array, k: int, build_function: Callable = None, swap_function: Callable = None):
+    """Perform k-medoids clustering using PAM (BUILD and SWAP phases)."""
     print(f"Data shape at the start of pam_clustering: {data.shape}")
     
     if build_function is None: 
         medoids, cost = pam_build(data, k)
     else:
         medoids, cost = build_function(data, k)  
-
+    
+    print(f"Initial medoids: {medoids}")
+    medoids = np.array(medoids).flatten()
+    
+    if medoids.ndim != 1:
+        raise ValueError(f"Medoids should be 1D, but got shape {medoids.shape}")
+    
     improved = True
+    
     while improved:
-        if swap_function is None:
+        if swap_function is None or swap_function is pam_swap:
             medoids, cost, improved = pam_swap(data, medoids)
-        else:
-            medoids, cost, improved = swap_function(data, medoids)
-
-    # Ensure medoids are properly indexed
-    medoids = np.array(medoids, dtype=int)
-    print(f"Medoids shape after build and swap: {medoids.shape}")
-
-    # Convert medoids indices to actual data points
+        else: 
+            print(f"Before swap function, medoids: {medoids}, type: {type(medoids)}")
+            medoids, cost, improved = swap_function(data, k)
+    
+    medoids = np.array(medoids, dtype=int).flatten()
+    print(f"Final medoids (indices): {medoids}")
+    
     medoids_ = data[medoids]
     
-    # Debug: Check shape of medoids_
+    if medoids_.ndim == 1:
+        medoids_ = medoids_.reshape(1, -1)
+        print(f"Reshaped medoids to 2D: {medoids_.shape}")
+    
     print(f"Medoids after selecting data points: {medoids_.shape}")
     
-    if medoids_.ndim == 1:
-        medoids_ = medoids_.reshape(1, -1)  # Ensure 2D shape if there's only one medoid
-        print(f"Reshaped medoids to 2D: {medoids_.shape}")
-
-    # Compute distances from each point to each medoid
     distances = cdist(data, medoids_)
     print(f"Distances shape: {distances.shape}")
-
-    # Assign each point to its closest medoid
+    
     labels = np.argmin(distances, axis=1)
     print(f"Labels shape: {labels.shape}")
-
+    
     return ClusteringResult(labels=labels, cluster_centers=medoids_, data=data)
+
 
 #boring implementations from sklearn and python. likely faster than custom implementation. 
 def kmedoids_sklearn(data: np.array, k: int):

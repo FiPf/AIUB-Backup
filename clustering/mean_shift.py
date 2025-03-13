@@ -15,8 +15,7 @@ import getdata
 from getdata import PopulationType
 import sortdata
 
-from cluster_data import ClusteringResult, ClusterData
-from clustering_utils import ClusteringResult
+from clustering_utils import ClusteringResult, ClusterData
 import cluster_data
 
 def mean_shift_clustering(data: np.ndarray, bandwidth: float = 0.5) -> ClusteringResult:

@@ -4,8 +4,9 @@ import time
 import my_kmedoids
 import kmeans
 import fuzzy_c_means
-from clustering_utils import ClusteringResult
+from clustering_utils import ClusteringResult, ClusterData
 from sklearn.preprocessing import MinMaxScaler
+from tqdm import tqdm
 
 import sys
 import os
@@ -15,39 +16,52 @@ from getdata import PopulationType
 import sortdata
 from cluster_plotter import ClusterPlotter
 import scores
+import mean_shift, DBSCAN
 
 #change the ClusterData namedtuple if you want to add more dimensions
-ClusterData = namedtuple("ClusterData", ["inc", "raan"])
+#ClusterData = namedtuple("ClusterData", ["inc", "raan"])
 #ClusterData = namedtuple("ClusterData", ["inc", "raan", "ecc"]) #later we can add the eccentricity
 
 def run_clustering(algorithm, name, data, data_min, data_max, *args, **kwargs):
-    metrics = [] #list containing all the scores, 2d standard deviation, cluster densities
+    print(f"args received in run_clustering: {args}, type: {type(args)}")
+
+    metrics = []  # List containing all the scores, 2D standard deviation, cluster densities
     plot = kwargs.pop("plot", True)  # Default to True if not provided
 
     print(f"\n{name} result:")
-    result, runtime = estimate_runtime(algorithm, data, *args, **kwargs)
-
-    # Calculate the number of clusters and the number of points per cluster
-    n_clusters = len(set(result.labels))  # Number of unique labels (clusters)
-    points_per_cluster = {i: list(result.labels).count(i) for i in set(result.labels)}  # Count points per cluster
-
-    #calculate all the metrics
-    DB_sc = scores.DB_score(result)
-    CH_sc = scores.CH_score(result)
-    dunn_index_sc = scores.dunn_index_score(result)
-    sil_sc = scores.sil_score(result)
-    cluster_std = scores.cluster_std_eigen(result)
-    square_density = scores.cluster_density_squares(result)
-    hull_density = scores.cluster_density_convex_hull(result)
-    metrics = [DB_sc, CH_sc, dunn_index_sc, sil_sc, cluster_std, square_density, hull_density]
-
-    # Unnormalize cluster centers
-    unnormalized_data, cluster_centers = unnormalize(result.data, result.cluster_centers, data_min, data_max)
-    if plot: 
-        plotter = ClusterPlotter(unnormalized_data, result.labels, cluster_centers)
-        plotter.clusters_2d_plot(f"{name} - 2D Cluster Visualization")
     
-    return result, runtime, n_clusters, points_per_cluster, metrics 
+    # Initialize progress bar
+    with tqdm(total=3, desc=f"Running {name}", unit="step") as pbar:
+        result, runtime = estimate_runtime(algorithm, data, *args, **kwargs)
+        pbar.update(1)  # Step 1: Clustering done
+
+        # Calculate the number of clusters and the number of points per cluster
+        n_clusters = len(set(result.labels))  # Number of unique labels (clusters)
+        points_per_cluster = {i: list(result.labels).count(i) for i in set(result.labels)}  # Count points per cluster
+
+        if n_clusters > 1:
+            # Calculate all the metrics
+            DB_sc = scores.DB_score(result)
+            CH_sc = scores.CH_score(result)
+            dunn_index_sc = scores.dunn_index_score(result)
+            sil_sc = scores.sil_score(result)
+            cluster_std = scores.cluster_std_eigen(result)
+            square_density = scores.cluster_density_squares(result)
+            hull_density = scores.cluster_density_convex_hull(result)
+            metrics = [DB_sc, CH_sc, dunn_index_sc, sil_sc, cluster_std, square_density, hull_density]
+        
+        pbar.update(1)  # Step 2: Metrics computed
+
+        # Unnormalize cluster centers
+        unnormalized_data, cluster_centers = unnormalize(result.data, result.cluster_centers, data_min, data_max)
+        if plot: 
+            plotter = ClusterPlotter(unnormalized_data, result.labels, cluster_centers)
+            plotter.clusters_2d_plot(f"{name} - 2D Cluster Visualization")
+        
+        pbar.update(1)  # Step 3: Plotting done (if enabled)
+
+    return result, runtime, n_clusters, points_per_cluster, metrics
+
 
 def cluster_data_to_array(data_list: namedtuple):
     """Convert ClusterData namedtuple to an numpy array. Works for any number of dimensions.
@@ -219,67 +233,58 @@ def bin_data(num_years_per_bin: int, overlap_years: int, crs_det: str, populatio
 
     return data_batches
 
-
 def estimate_runtime(clustering_func, *args, build_function=None, swap_function=None, **kwargs):
     """
-    Measures the execution time of a clustering function, supporting different clustering types:
-    - K-based clustering (e.g., K-Medoids, K-Means, Fuzzy C-Means)
-    - Density-based clustering (e.g., DBSCAN)
-    - Other methods with or without `k`.
-
-    Args:
-        clustering_func (Callable): The clustering function to evaluate.
-        *args: Positional arguments for the clustering function (data, and optionally k).
-        build_function (Callable, optional): The BUILD function for `pam_clustering`. Defaults to None.
-        swap_function (Callable, optional): The SWAP function for `pam_clustering`. Defaults to None.
-        **kwargs: Additional keyword arguments for the clustering function.
-
-    Returns:
-        Tuple: (result, runtime_in_seconds)
+    Measures execution time of a clustering function, handling different clustering algorithms.
     """
     start_time = time.time()
     
-    # Determine if k is required
-    needs_k = clustering_func in [my_kmedoids.pam_clustering, my_kmedoids.fastpam1_swap, 
-                                  my_kmedoids.fastpam2_swap, my_kmedoids.fastpam_lab_build,
-                                  kmeans.k_means, fuzzy_c_means.fuzzy_c_means]  # Add other k-based methods here
-
-    if needs_k:
+    # Identify the type of clustering method
+    k_based_methods = {kmeans.k_means, fuzzy_c_means.fuzzy_c_means, my_kmedoids.pam_clustering}
+    density_based_methods = {DBSCAN.dbscan_clustering, mean_shift.mean_shift_clustering}
+    
+    # Extract arguments correctly
+    if clustering_func in k_based_methods:
         if len(args) < 2:
             raise ValueError(f"{clustering_func.__name__} requires at least two arguments: (data, k)")
         data, k = args[:2]
-        if not isinstance(k, int):
+        
+        # Ensure k is an integer
+        if isinstance(k, (list, np.ndarray)) and len(k) == 1:
+            k = int(k[0])
+        elif not isinstance(k, int):
             raise TypeError(f"Expected k to be an integer, but got {type(k).__name__}: {k}")
-    else:
+    
+    elif clustering_func in density_based_methods:
         if len(args) < 1:
             raise ValueError(f"{clustering_func.__name__} requires at least one argument: (data)")
         data = args[0]
-
-    # Debug: Check data shape before calling the clustering function
+    
     print(f"Data shape before clustering: {data.shape}")
-
-    # Handle specific cases for pam_clustering
+    
+    # Handle specific clustering function cases
     if clustering_func == my_kmedoids.pam_clustering:
-        if build_function is not None: 
-            build_function = build_function
-        else: 
-            build_function = my_kmedoids.pam_build
-
-        if swap_function is not None: 
-            swap_function = swap_function
-        else: 
-            swap_function = my_kmedoids.pam_swap
-        result = my_kmedoids.pam_clustering(data, k, build_function, swap_function)
-
-    elif clustering_func.__name__ == "dbscan_clustering":
-        result = clustering_func(data, **kwargs)  # DBSCAN does not need k
-
+        build_function = build_function or my_kmedoids.pam_build
+        swap_function = swap_function or my_kmedoids.pam_swap
+        print(build_function, swap_function)
+        result = clustering_func(data, k, build_function, swap_function)
+    
+    elif clustering_func == kmeans.k_means:
+        result = clustering_func(data, k, **kwargs)
+    
+    elif clustering_func == fuzzy_c_means.fuzzy_c_means:
+        result = clustering_func(data, k, **kwargs)
+    
+    elif clustering_func == DBSCAN.dbscan_clustering:
+        result = clustering_func(data, **kwargs)  # No k required
+    
+    elif clustering_func == mean_shift.mean_shift_clustering:
+        result = clustering_func(data, **kwargs)  # No k required
+    
     else:
-        result = clustering_func(data, k, **kwargs) if needs_k else clustering_func(data, **kwargs)
-
-    end_time = time.time()
-    runtime = end_time - start_time
-
+        raise ValueError(f"Unsupported clustering function: {clustering_func.__name__}")
+    
+    runtime = time.time() - start_time
     print(f"Runtime for {clustering_func.__name__}: {runtime:.6f} seconds")
-
+    
     return result, runtime
