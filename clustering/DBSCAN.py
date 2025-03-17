@@ -6,6 +6,8 @@ def dbscan_clustering(data: np.array, eps: float = 10, min_samples: int = 10):
     """
     Perform DBSCAN clustering.
 
+    
+
     Args:
         data (np.array): The dataset to cluster.
         eps (float): Maximum distance between two samples for them to be considered neighbors.

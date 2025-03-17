@@ -46,8 +46,8 @@ def run_clustering(algorithm, name, data, data_min, data_max, *args, **kwargs):
             dunn_index_sc = scores.dunn_index_score(result)
             sil_sc = scores.sil_score(result)
             cluster_std = scores.cluster_std_eigen(result)
-            square_density = scores.cluster_density_squares(result)
-            hull_density = scores.cluster_density_convex_hull(result)
+            square_density, square_bounds = scores.cluster_density_squares(result)
+            hull_density, hull_bounds = scores.cluster_density_convex_hull(result)
             metrics = [DB_sc, CH_sc, dunn_index_sc, sil_sc, cluster_std, square_density, hull_density]
         
         pbar.update(1)  # Step 2: Metrics computed
@@ -140,98 +140,65 @@ def prepare_data_for_clustering(filename: str) -> ClusterData:
     ecc = data[10]
     return ClusterData(inc=inc, raan=raan)#, ecc=ecc) #later
 
-def bin_finder(num_years_per_bin: int, overlap_years: int):
-    """Create bins of years with a specified overlap. used as helper function in bin_data.
-
-    Args:
-        num_years_per_bin (int): Number of years in each bin.
-        overlap_years (int): Number of overlapping years between bins.
-
-    Returns:
-        list of np.ndarray: year ranges according to the binning. 
-    """
-    start_year = 2002
-    end_year = 2023
-
-    year_ranges = []
+def generate_running_year_ranges(start_year, end_year, window_size=4):
+    year_ranges = {}
     current_start = start_year
-
-    while current_start < end_year:
-        bin_end = min(current_start + num_years_per_bin, end_year)
-        year_ranges.append(np.arange(current_start, bin_end))
-        current_start += num_years_per_bin - overlap_years  # Move start forward considering overlap
-
-        if bin_end == end_year:
-            break
-
+    while current_start + window_size - 1 <= end_year:
+        current_end = current_start + window_size - 1
+        year_ranges[f"{current_start}-{current_end}"] = np.arange(current_start, current_end + 1)
+        current_start += 1
     return year_ranges
 
-def find_filename(year: str, seed: str, orbit: str, crs_det: str, population_type: PopulationType):
-    """find the right filename for the data. used as helper function in bin_data
+def merge_cluster_data(cluster_data_list):
+    """Merge multiple ClusterData objects into a single ClusterData."""
+    inc_all = np.concatenate([cd.inc for cd in cluster_data_list])
+    raan_all = np.concatenate([cd.raan for cd in cluster_data_list])
+    return ClusterData(inc=inc_all, raan=raan_all) #you can add eccentricity later
 
-    Args:
-        year (str): year of the data
-        seed (str): seed of the data
-        orbit (str): orbit type, geo, gto or followup
-        crs_det (str): if crs, then the crossing data is extracted. if det, then the detections data is extracted. 
-        population_type (PopulationType): which batch of simulation output to use. 
+def bin_data_for_clustering(year_ranges: dict, print_res: bool = True): 
+    seeds = [1]
+    orbit_types = ["geo", "gto", "fol"]
+    file_lists = {year_range: {orbit: [] for orbit in orbit_types} for year_range in year_ranges}
 
-    Returns:
-        file (str): file with complete path to the data
-    """
-    year2 = year[2:]
-    
-    if int(year2) < (18 if population_type == PopulationType.NEWPOP_TH3 else 19):
-        suffix = ""
-    else:
-        #suffix = f"_{population_type.value}"
-        suffix = population_type.value if population_type.value else ""
-
-    file = f"stat_Master_{year2}_{orbit}_s{seed}{suffix}.{crs_det}"
-    file = os.path.join("..","input", file)
-
-    return file
-
-def bin_data(num_years_per_bin: int, overlap_years: int, crs_det: str, population_type: PopulationType):
-    """bin the data according to specific bin sizes and overlaps. 
-
-    Args:
-        num_years_per_bin (int): number of years per bin
-        overlap_years (int): overlapping years between the bins
-        crs_det (str): if crs, then the crossing data is extracted. if det, then the detections data is extracted. 
-        population_type (PopulationType): which batch of simulation output to use.
-
-    Returns:
-        data_batches (dict): contains the data ordered in the bins, ready for processing. 
-    """    
-    year_ranges = bin_finder(num_years_per_bin, overlap_years)
-    orbit_types = ["geo", "gto", "fol", "all"]  
-    data_batches = {}
-    seed = "1"
-
-    for years in year_ranges: 
-        bins = []
-        combined_inc = []
-        combined_raan = []
-        
+    for year_range, years in year_ranges.items():
         for year in years:
-            sub_data = []
-            
-            for orbit in ["geo", "gto", "fol"]:
-                filename = find_filename(str(year), seed, orbit, crs_det, population_type)
-                data = prepare_data_for_clustering(filename)
-                sub_data.append(data)
+            year_str = str(year)[2:]  
+            for orbit in orbit_types:
+                for seed in seeds:
+                    if year_str != "23": 
+                        file = f"../input/stat_Master_{year_str}_{orbit}_s{seed}.crs"
+                    else: 
+                        file = f"../input/stat_Master_{year_str}_{orbit}_s{seed}_10cm.crs"
+                    
+                    file_lists[year_range][orbit].append(file)
 
-            if "all" in orbit_types: 
-                combined_inc.extend(np.concatenate([d.inc for d in sub_data]))
-                combined_raan.extend(np.concatenate([d.raan for d in sub_data]))
-                bins.append(ClusterData(inc=np.array(combined_inc), raan=np.array(combined_raan)))
-            else:
-                bins.extend(sub_data)
+    if print_res: 
+        for year_range, orbits in file_lists.items():
+            print(f"\nYear Range: {year_range}")
+            for orbit, files in orbits.items():
+                print(f"  {orbit.upper()} Files: {files}")
 
-        data_batches[tuple(years)] = bins
+    results = []  # Store tuples of (ClusterData, year_range)
 
-    return data_batches
+    for year_range, orbits in file_lists.items():
+        inc_all, raan_all = [], []
+
+        for orbit, files in orbits.items():
+            cluster_data_list = [prepare_data_for_clustering(f) for f in files]
+            merged_data = merge_cluster_data(cluster_data_list)
+
+            # Extract and accumulate `inc` and `raan`
+            inc_all.append(merged_data.inc)
+            raan_all.append(merged_data.raan)
+
+        # Merge all data into single arrays
+        inc_all = np.concatenate(inc_all) if inc_all else np.array([])
+        raan_all = np.concatenate(raan_all) if raan_all else np.array([])
+
+        # Append tuple (ClusterData, year_range) to results
+        results.append((ClusterData(inc=inc_all, raan=raan_all), year_range))
+
+    return results  # List of (ClusterData, year_range) tuples
 
 def estimate_runtime(clustering_func, *args, build_function=None, swap_function=None, **kwargs):
     """

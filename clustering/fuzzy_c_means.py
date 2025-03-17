@@ -2,7 +2,7 @@
 import numpy as np
 from clustering_utils import ClusteringResult
 import skfda
-from skfda.ml.clustering import FuzzyCMeans
+#from skfda.ml.clustering import FuzzyCMeans
 
 def fuzzy_c_means(data: np.array, k: int , m: int =2, max_iter: int =100, tol: float =1e-4):
     """perform fuzzy c means clustering. Runtime: O(i*n*c^2*d) with number of iterations i, number of data points n, 

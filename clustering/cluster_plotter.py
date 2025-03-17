@@ -4,6 +4,18 @@ from mpl_toolkits.mplot3d import Axes3D
 import os
 #from cluster_data import unnormalize
 
+def clear_directory(directory: str): 
+        """delete every file from the current directory (used to ensure that no plots/files are overwritten when rerunning the code)
+
+        Args:
+            directory (str): directory to clear
+        """
+        files = os.listdir(directory)
+        for file_name in files:
+            file_path = os.path.join(directory, file_name)
+            if os.path.isfile(file_path):
+                    os.remove(file_path)
+
 class ClusterPlotter:
     """
     A class to handle 2D and 3D plotting of clustered data.
@@ -38,6 +50,7 @@ class ClusterPlotter:
             count += 1 
         
         return new_file_path
+    
 
     def clusters_2d_plot(self, title: str, save_name=None, color_scheme='viridis', c=None, point_size=5, show_centers=True, grid=True):
         """Plot the clusters in 2D with customizable coloring.
