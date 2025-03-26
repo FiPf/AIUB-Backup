@@ -5,3 +5,16 @@ output_celmech/
 TLE_files/
 input_celmech/
 __py_cache__
+cluster_result/
+dbscan_grid_search_normal_bins_observed/
+dbsan_grid_search_running_bins/
+dbscan_observed_normal_bins/
+dbscan_tests_normal_bins/
+dbscan_tests_running_bins/
+dbscan*/
+fuzzy_*/
+k_means_tests*/
+kmeans*/
+mean_shift*/
+optics_*/
+cluster_result/

@@ -17,30 +17,44 @@ import sortdata
 from cluster_plotter import ClusterPlotter
 import scores
 import mean_shift, DBSCAN
+from typing import Callable
+import OPTICS
+import HDBSCAN
+import DENCLUE
 
-#change the ClusterData namedtuple if you want to add more dimensions
-#ClusterData = namedtuple("ClusterData", ["inc", "raan"])
-#ClusterData = namedtuple("ClusterData", ["inc", "raan", "ecc"]) #later we can add the eccentricity
+def run_clustering(algorithm: Callable, name: str, data: np.array, data_min: np.array, data_max: np.array, *args, **kwargs):
+    """
+    runs a given clustering algorithm. Meaning the algorithm is started, different scores are calculated and the clustered data 
+    is plotted if plotting is enabled. 
 
-def run_clustering(algorithm, name, data, data_min, data_max, *args, **kwargs):
-    print(f"args received in run_clustering: {args}, type: {type(args)}")
+    Args:
+        algorithm (Callable): function which starts the clustering algorithm
+        name (str): name of the clustering algorithm
+        data (np.array): data to be clustered
+        data_min (np.array): tuple, contains the minimum of the data for each dimension
+        data_max (np.array): tuple, contains the maximum of the data for each dimension
+
+    Returns:
+        result (ClusteringResult): named tuple containg labels, cluster_centers and the data
+        runtime (float): runtime of the algorithm
+        n_clusters (int): number of clusters
+        points_per_cluster (dict): number of points for each cluster, stored in a dictionary
+        metrics (np.array): contains all the scores and metrics calculated for this algorithm
+    """
 
     metrics = []  # List containing all the scores, 2D standard deviation, cluster densities
     plot = kwargs.pop("plot", True)  # Default to True if not provided
 
     print(f"\n{name} result:")
     
-    # Initialize progress bar
     with tqdm(total=3, desc=f"Running {name}", unit="step") as pbar:
         result, runtime = estimate_runtime(algorithm, data, *args, **kwargs)
         pbar.update(1)  # Step 1: Clustering done
 
-        # Calculate the number of clusters and the number of points per cluster
         n_clusters = len(set(result.labels))  # Number of unique labels (clusters)
         points_per_cluster = {i: list(result.labels).count(i) for i in set(result.labels)}  # Count points per cluster
 
         if n_clusters > 1:
-            # Calculate all the metrics
             DB_sc = scores.DB_score(result)
             CH_sc = scores.CH_score(result)
             dunn_index_sc = scores.dunn_index_score(result)
@@ -52,7 +66,6 @@ def run_clustering(algorithm, name, data, data_min, data_max, *args, **kwargs):
         
         pbar.update(1)  # Step 2: Metrics computed
 
-        # Unnormalize cluster centers
         unnormalized_data, cluster_centers = unnormalize(result.data, result.cluster_centers, data_min, data_max)
         if plot: 
             plotter = ClusterPlotter(unnormalized_data, result.labels, cluster_centers)
@@ -140,7 +153,18 @@ def prepare_data_for_clustering(filename: str) -> ClusterData:
     ecc = data[10]
     return ClusterData(inc=inc, raan=raan)#, ecc=ecc) #later
 
-def generate_running_year_ranges(start_year, end_year, window_size=4):
+def generate_running_year_ranges(start_year: int, end_year: int, window_size: int=4):
+    """create year ranges to bin the data. The overlap of the year ranges is always window_size - 1. 
+    Used to analyze the cluster evolution.
+
+    Args:
+        start_year (int): start of the data
+        end_year (int): end of the data
+        window_size (int, optional): How many years to put in one plot. Defaults to 4.
+
+    Returns:
+        year_ranges (np.array): years grouped in the desired way 
+    """
     year_ranges = {}
     current_start = start_year
     while current_start + window_size - 1 <= end_year:
@@ -149,13 +173,29 @@ def generate_running_year_ranges(start_year, end_year, window_size=4):
         current_start += 1
     return year_ranges
 
-def merge_cluster_data(cluster_data_list):
-    """Merge multiple ClusterData objects into a single ClusterData."""
+def merge_cluster_data(cluster_data_list: list):
+    """Merge multiple ClusterData objects into a single ClusterData.
+
+    Args:
+        cluster_data_list (list): list of ClusterData objects that should be put in a single ClusterData object.
+
+    Returns:
+        (ClusterData): ClusterData object containing all the data
+    """    
     inc_all = np.concatenate([cd.inc for cd in cluster_data_list])
     raan_all = np.concatenate([cd.raan for cd in cluster_data_list])
     return ClusterData(inc=inc_all, raan=raan_all) #you can add eccentricity later
 
 def bin_data_for_clustering(year_ranges: dict, print_res: bool = True): 
+    """find the right files and bin the data according to the given year_ranges. 
+
+    Args:
+        year_ranges (dict): grouped years how the data should be binned
+        print_res (bool, optional): Print the filenames and year_ranges for a check. Defaults to True.
+
+    Returns:
+        results (list): List of (ClusterData, year_range) tuples
+    """
     seeds = [1]
     orbit_types = ["geo", "gto", "fol"]
     file_lists = {year_range: {orbit: [] for orbit in orbit_types} for year_range in year_ranges}
@@ -187,28 +227,68 @@ def bin_data_for_clustering(year_ranges: dict, print_res: bool = True):
             cluster_data_list = [prepare_data_for_clustering(f) for f in files]
             merged_data = merge_cluster_data(cluster_data_list)
 
-            # Extract and accumulate `inc` and `raan`
             inc_all.append(merged_data.inc)
             raan_all.append(merged_data.raan)
 
-        # Merge all data into single arrays
         inc_all = np.concatenate(inc_all) if inc_all else np.array([])
         raan_all = np.concatenate(raan_all) if raan_all else np.array([])
 
-        # Append tuple (ClusterData, year_range) to results
         results.append((ClusterData(inc=inc_all, raan=raan_all), year_range))
 
     return results  # List of (ClusterData, year_range) tuples
 
-def estimate_runtime(clustering_func, *args, build_function=None, swap_function=None, **kwargs):
-    """
-    Measures execution time of a clustering function, handling different clustering algorithms.
-    """
+def bin_observed_data(uncorr_obs_files: list, year_ranges: dict, print_res: bool = False):
+    results = []  # Store tuples of (ClusterData, year_range)
+    
+    for year_range, years in year_ranges.items():
+        obs_files = [os.path.join("..", "input", uncorr_obs_files[y]) for y in years if y in uncorr_obs_files]
+
+        if print_res:
+            print(f"\nYear Range: {year_range}")
+            print(f"  Files: {obs_files}")
+
+        data = getdata.array_extender_obs(obs_files)
+
+        # Extract relevant parameters
+        inc = np.array(data[11], dtype=float)
+        raan = np.array(data[12], dtype=float)
+
+        # Apply the same sorting as in sortdata.data_sorter
+        max_inc = 22
+        valid_indices_inc = np.where(inc < max_inc)[0]
+        inc = inc[valid_indices_inc]
+        inc[inc < 0] = 0
+        raan = raan[valid_indices_inc]
+
+        # Sort by RAAN
+        sorted_indices_raan = np.argsort(raan)
+        inc = inc[sorted_indices_raan]
+        raan = raan[sorted_indices_raan]
+
+        raan = adjust_raan_range(raan)
+
+        # Store the clustered data
+        results.append((ClusterData(inc=inc, raan=raan), year_range))
+
+    return results
+
+def estimate_runtime(clustering_func: Callable, *args, build_function: Callable=None, swap_function: Callable=None, **kwargs):
+    """Measures execution time of a clustering function, handling different clustering algorithms.
+
+    Args:
+        clustering_func (Callable): function which contains the clustering algorithm
+        build_function (Callable, optional): Build function, only used for versions of PAM/kmedoids. Defaults to None.
+        swap_function (Callable, optional): Swap function, only used for versions of PAM/kmedoids. Defaults to None.
+
+    Returns:
+        result (ClusteringResult): named tuple containing labels, cluster_centers and data
+        runtime (float): runtime of the given algorithm
+    """    
     start_time = time.time()
     
     # Identify the type of clustering method
     k_based_methods = {kmeans.k_means, fuzzy_c_means.fuzzy_c_means, my_kmedoids.pam_clustering}
-    density_based_methods = {DBSCAN.dbscan_clustering, mean_shift.mean_shift_clustering}
+    density_based_methods = {DBSCAN.dbscan_clustering, mean_shift.mean_shift_clustering, OPTICS.optics_clustering, HDBSCAN.hdbscan_clustering, DENCLUE.denclue_clustering}
     
     # Extract arguments correctly
     if clustering_func in k_based_methods:
@@ -227,7 +307,7 @@ def estimate_runtime(clustering_func, *args, build_function=None, swap_function=
             raise ValueError(f"{clustering_func.__name__} requires at least one argument: (data)")
         data = args[0]
     
-    print(f"Data shape before clustering: {data.shape}")
+    #print(f"Data shape before clustering: {data.shape}")
     
     # Handle specific clustering function cases
     if clustering_func == my_kmedoids.pam_clustering:
@@ -244,9 +324,14 @@ def estimate_runtime(clustering_func, *args, build_function=None, swap_function=
     
     elif clustering_func == DBSCAN.dbscan_clustering:
         result = clustering_func(data, **kwargs)  # No k required
-    
     elif clustering_func == mean_shift.mean_shift_clustering:
         result = clustering_func(data, **kwargs)  # No k required
+    elif clustering_func == OPTICS.optics_clustering: 
+        result = clustering_func(data, **kwargs) # No k required
+    elif clustering_func == HDBSCAN.hdbscan_clustering: 
+        result = clustering_func(data, **kwargs) # No k required
+    elif clustering_func == DENCLUE.denclue_clustering: 
+        result = clustering_func(data, **kwargs) # No k required
     
     else:
         raise ValueError(f"Unsupported clustering function: {clustering_func.__name__}")
