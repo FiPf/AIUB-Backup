@@ -51,38 +51,47 @@ class ClusterPlotter:
         
         return new_file_path
 
-    def clusters_2d_plot(self, title: str, save_name=None, color_scheme='Set1', point_size=5, show_centers=True):
+    def clusters_2d_plot(self, title: str, save_name=None, color_scheme='Dark2', point_size=5, show_centers=True):
         """Plot the clusters in 2D with fixed coloring, sorting clusters by size.
 
         Args:
             title (str): Title of the plot.
             save_name (str, optional): File path to save the plot. If None, the plot is displayed.
-            color_scheme (str, optional): Color scheme for the clusters. Defaults to 'Set1'.
+            color_scheme (str, optional): Color scheme for the clusters. Defaults to 'Dark2'.
             point_size (int, optional): Size of the data points. Defaults to 5.
             show_centers (bool, optional): Show the centers of the clusters or not. Defaults to True.
         """
         plt.figure(figsize=(10, 7))
 
-        # Sort clusters by size
+        # Sort clusters by size, ignoring noise (-1)
         unique_labels, counts = np.unique(self.labels, return_counts=True)
-        sorted_indices = np.argsort(-counts)  # Sort descending
-        sorted_labels = unique_labels[sorted_indices]
 
-        # Generate colormap with a fixed number of colors
+        # Separate noise and valid clusters
+        is_noise = unique_labels == -1
+        valid_labels = unique_labels[~is_noise]
+        valid_counts = counts[~is_noise]
+
+        # Sort clusters by size (descending)
+        sorted_indices = np.argsort(-valid_counts)
+        sorted_labels = valid_labels[sorted_indices]
+
+        # Generate colormap with a fixed number of colors, excluding red
         color_map = cm.get_cmap(color_scheme, len(sorted_labels))
 
         # Assign colors based on sorted cluster order
         label_to_color = {label: color_map(i) for i, label in enumerate(sorted_labels)}
+        label_to_color[-1] = (1, 0, 0, 1)  # Noise is always red (RGBA format)
 
-        # Apply colors
-        coloring = np.array([label_to_color[label] for label in self.labels])
+        # Apply colors (fixing ValueError)
+        coloring = [label_to_color[label] for label in self.labels]
+        coloring = np.array(coloring, dtype=object)  # Ensure NumPy handles lists correctly
 
         # Scatter plot of data points
         plt.scatter(self.normalized_data[:, 1], self.normalized_data[:, 0], c=coloring, s=point_size)
 
         # Plot cluster centers
         if show_centers and hasattr(self, 'cluster_centers') and self.cluster_centers is not None:
-            plt.scatter(self.cluster_centers[:, 1], self.cluster_centers[:, 0], c='red', marker='X', s=100, label='Cluster Centers')
+            plt.scatter(self.cluster_centers[:, 1], self.cluster_centers[:, 0], c='black', marker='X', s=100, label='Cluster Centers')
 
         # Fixed plot settings
         plt.xlabel('RAAN [°]')
@@ -99,12 +108,14 @@ class ClusterPlotter:
         else:
             plt.show()
 
-    def clusters_3d_plot(self, title: str, color_scheme='Set1', c=None, point_size=5, show_centers=True):
+
+
+    def clusters_3d_plot(self, title: str, color_scheme='Dark2', c=None, point_size=5, show_centers=True):
         """Plot the clusters in 3D with customizable coloring.
 
         Args:
             title (str): Title of the plot. 
-            color_scheme (str, optional): _description_. Defaults to 'Set1'.
+            color_scheme (str, optional): _description_. Defaults to 'Dark2'.
             c (_type_, optional): _description_. Defaults to None.
             point_size (int, optional): _description_. Defaults to 5.
             show_centers (bool, optional): _description_. Defaults to True.

@@ -119,7 +119,7 @@ def unnormalize(normalized_data: np.array, cluster_centers: np.array, data_min: 
     unnormalized_centers = None
     unnormalized_data = normalized_data * (data_max - data_min) + data_min
     
-    if cluster_centers is not None and len(cluster_centers) > 0:
+    """if cluster_centers is not None and len(cluster_centers) > 0:
         unnormalized_centers = cluster_centers * (data_max - data_min) + data_min
     elif cluster_centers is None or len(cluster_centers) == 0: 
         # If cluster_centers is None or an empty array, compute the centers as the mean of the data points for each cluster
@@ -134,7 +134,7 @@ def unnormalize(normalized_data: np.array, cluster_centers: np.array, data_min: 
             # Unnormalize the cluster center
             unnormalized_center = cluster_center * (data_max - data_min) + data_min
             unnormalized_centers.append(unnormalized_center)
-        unnormalized_centers = np.array(unnormalized_centers)
+        unnormalized_centers = np.array(unnormalized_centers)"""
 
     return unnormalized_data, unnormalized_centers
 
