@@ -13,14 +13,14 @@ def denclue_clustering(data: np.array, epsilon: float = 1e-5, max_iter: int = 10
         bandwidth (float): Bandwidth for the kernel function.
 
     Returns:
-        ClusteringResult: Named tuple with labels and dummy cluster centers.
+        ClusteringResult: Named tuple with labels and cluster centers.
     """
     # Kernel function (Gaussian)
     def kernel_function(d, bandwidth):
         return np.exp(-0.5 * (d / bandwidth)**2)
 
     n_samples, n_features = data.shape
-    labels = -1 * np.ones(n_samples)
+    labels = -1 * np.ones(n_samples)  # Initialize all labels as noise (-1)
     cluster_centers = []
 
     # Compute pairwise distances
@@ -37,9 +37,10 @@ def denclue_clustering(data: np.array, epsilon: float = 1e-5, max_iter: int = 10
 
         for i in range(n_samples):
             # Find the attractor (maximum density) closest to point i
-            nearest_attractor = np.argmax(densities[i])
-
+            # Assign points to the cluster with the maximum density
             if densities[i] > epsilon:
+                # Point i should belong to the attractor with the highest density
+                nearest_attractor = np.argmax(densities)
                 new_labels[i] = nearest_attractor
 
         # Check for convergence
@@ -50,7 +51,15 @@ def denclue_clustering(data: np.array, epsilon: float = 1e-5, max_iter: int = 10
 
     # Find cluster centers
     unique_clusters = np.unique(labels[labels != -1])  # Exclude noise points (-1)
-    cluster_centers = np.array([np.mean(data[labels == cluster], axis=0) if np.any(labels == cluster) else np.nan
-                                for cluster in unique_clusters])
+    
+    cluster_centers = []
+    for cluster in unique_clusters:
+        # Get points in the cluster
+        cluster_points = data[labels == cluster]
+        # Compute the mean of the points in the cluster as the center
+        cluster_center = np.mean(cluster_points, axis=0)
+        cluster_centers.append(cluster_center)
+
+    cluster_centers = np.array(cluster_centers)
 
     return ClusteringResult(labels=labels, cluster_centers=cluster_centers, data=data)

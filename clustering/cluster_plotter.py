@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 import os
-#from cluster_data import unnormalize
+import matplotlib.cm as cm
 
 def clear_directory(directory: str): 
         """delete every file from the current directory (used to ensure that no plots/files are overwritten when rerunning the code)
@@ -50,65 +50,61 @@ class ClusterPlotter:
             count += 1 
         
         return new_file_path
-    
 
-    def clusters_2d_plot(self, title: str, save_name=None, color_scheme='viridis', c=None, point_size=5, show_centers=True, grid=True):
-        """Plot the clusters in 2D with customizable coloring.
+    def clusters_2d_plot(self, title: str, save_name=None, color_scheme='Set1', point_size=5, show_centers=True):
+        """Plot the clusters in 2D with fixed coloring, sorting clusters by size.
 
         Args:
-            title (str): title of the plot
+            title (str): Title of the plot.
             save_name (str, optional): File path to save the plot. If None, the plot is displayed.
-            color_scheme (str, optional): Color scheme for the clusters. Defaults to 'viridis'.
-            c (_type_, optional): If no color scheme is indicated, everything has this color. Defaults to None.
+            color_scheme (str, optional): Color scheme for the clusters. Defaults to 'Set1'.
             point_size (int, optional): Size of the data points. Defaults to 5.
             show_centers (bool, optional): Show the centers of the clusters or not. Defaults to True.
-            grid (bool, optional): Plot with grid. Defaults to True.
         """
         plt.figure(figsize=(10, 7))
 
-        # Check if data has 3 dimensions
-        if self.normalized_data.shape[1] == 3:
-            coloring = c if c is not None else self.normalized_data[:, 2]  # Use third dimension for color
-            colorbar_label = 'Custom Color' if c is not None else 'Eccentricity'
-            show_colorbar = True
-        else:
-            coloring = self.labels  # Use cluster labels for color
-            show_colorbar = False
+        # Sort clusters by size
+        unique_labels, counts = np.unique(self.labels, return_counts=True)
+        sorted_indices = np.argsort(-counts)  # Sort descending
+        sorted_labels = unique_labels[sorted_indices]
 
-        scatter = plt.scatter(self.normalized_data[:, 1], self.normalized_data[:, 0],
-                            c=coloring, cmap=color_scheme, s=point_size)
+        # Generate colormap with a fixed number of colors
+        color_map = cm.get_cmap(color_scheme, len(sorted_labels))
 
-        if show_centers and hasattr(self, 'cluster_centers'):
-            plt.scatter(self.cluster_centers[:, 1], self.cluster_centers[:, 0],
-                        c='red', marker='X', s=100, label='Cluster Centers')
+        # Assign colors based on sorted cluster order
+        label_to_color = {label: color_map(i) for i, label in enumerate(sorted_labels)}
 
+        # Apply colors
+        coloring = np.array([label_to_color[label] for label in self.labels])
+
+        # Scatter plot of data points
+        plt.scatter(self.normalized_data[:, 1], self.normalized_data[:, 0], c=coloring, s=point_size)
+
+        # Plot cluster centers
+        if show_centers and hasattr(self, 'cluster_centers') and self.cluster_centers is not None:
+            plt.scatter(self.cluster_centers[:, 1], self.cluster_centers[:, 0], c='red', marker='X', s=100, label='Cluster Centers')
+
+        # Fixed plot settings
         plt.xlabel('RAAN [°]')
         plt.ylabel('Inclination [°]')
         plt.title(title)
+        plt.grid(True)
 
-        if show_colorbar:
-            plt.colorbar(scatter, label=colorbar_label)
-
-        plt.legend()
-        if grid:
-            plt.grid(True)
-
-        # Save plot if save_name is provided
+        # Save or show the plot
         if save_name is not None:
             unique_save_path = self.save_unique_plot(save_name, os.path.dirname(save_name))
             plt.savefig(unique_save_path, dpi=300, bbox_inches='tight')
             print(f"Plot saved as: {unique_save_path}")
-            plt.close()  # Close the figure to free memory
+            plt.close()
         else:
             plt.show()
 
-
-    def clusters_3d_plot(self, title: str, color_scheme='viridis', c=None, point_size=5, show_centers=True):
+    def clusters_3d_plot(self, title: str, color_scheme='Set1', c=None, point_size=5, show_centers=True):
         """Plot the clusters in 3D with customizable coloring.
 
         Args:
             title (str): Title of the plot. 
-            color_scheme (str, optional): _description_. Defaults to 'viridis'.
+            color_scheme (str, optional): _description_. Defaults to 'Set1'.
             c (_type_, optional): _description_. Defaults to None.
             point_size (int, optional): _description_. Defaults to 5.
             show_centers (bool, optional): _description_. Defaults to True.

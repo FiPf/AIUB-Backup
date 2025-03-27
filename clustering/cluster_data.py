@@ -65,7 +65,6 @@ def run_clustering(algorithm: Callable, name: str, data: np.array, data_min: np.
             metrics = [DB_sc, CH_sc, dunn_index_sc, sil_sc, cluster_std, square_density, hull_density]
         
         pbar.update(1)  # Step 2: Metrics computed
-
         unnormalized_data, cluster_centers = unnormalize(result.data, result.cluster_centers, data_min, data_max)
         if plot: 
             plotter = ClusterPlotter(unnormalized_data, result.labels, cluster_centers)
@@ -102,23 +101,41 @@ def normalize_data(arr: np.array):
     normalized_data = scaler.fit_transform(arr)
     return normalized_data, scaler.data_min_, scaler.data_max_
 
-def unnormalize(normalized_data: np.array, cluster_centers: np.array, data_min: np.array, data_max: np.array): 
+def unnormalize(normalized_data: np.array, cluster_centers: np.array, data_min: np.array, data_max: np.array, labels=None): 
     """Reverts the normalization process for both data and cluster centers.
+       If cluster_centers is None or an empty array, computes the cluster centers as the mean of data points assigned to each cluster.
 
     Args:
         normalized_data (np.array): Normalized dataset.
         cluster_centers (np.array): Normalized cluster centers.
         data_min (np.array): Minimum values used for normalization.
         data_max (np.array): Maximum values used for normalization.
+        labels (np.array, optional): Labels assigned to the data points for clustering.
 
     Returns:
         np.array: Unnormalized data.
-        np.array: Unnormalized cluster centers.
+        np.array: Unnormalized cluster centers (or computed centers if `cluster_centers` is None or empty).
     """
     unnormalized_centers = None
     unnormalized_data = normalized_data * (data_max - data_min) + data_min
-    if cluster_centers is not None:
+    
+    if cluster_centers is not None and len(cluster_centers) > 0:
         unnormalized_centers = cluster_centers * (data_max - data_min) + data_min
+    elif cluster_centers is None or len(cluster_centers) == 0: 
+        # If cluster_centers is None or an empty array, compute the centers as the mean of the data points for each cluster
+        if labels is None:
+            raise ValueError("Labels must be provided when cluster_centers is None or empty.")
+        
+        unique_labels = np.unique(labels)
+        unnormalized_centers = []
+        for label in unique_labels:
+            cluster_points = normalized_data[labels == label]
+            cluster_center = np.mean(cluster_points, axis=0)  # Compute the mean of points in the cluster
+            # Unnormalize the cluster center
+            unnormalized_center = cluster_center * (data_max - data_min) + data_min
+            unnormalized_centers.append(unnormalized_center)
+        unnormalized_centers = np.array(unnormalized_centers)
+
     return unnormalized_data, unnormalized_centers
 
 def adjust_raan_range(raan_values):
