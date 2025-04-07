@@ -58,6 +58,9 @@ def CH_score(ClusteringResult: namedtuple):
 
     return score
 
+def normalize_CH_score(calinski_score, min_score, max_score):
+    return (calinski_score - min_score) / (max_score - min_score) if max_score != min_score else 0.0
+
 def dunn_index_score(ClusteringResult: namedtuple):
     """evaluates the compactness and separation of clusters. It is defined as the ratio between the **minimum inter-cluster distance** 
     (the smallest distance between points in different clusters) and the **maximum intra-cluster distance** 
@@ -102,7 +105,11 @@ def dunn_index_score(ClusteringResult: namedtuple):
     if not intra_cluster_distances or not inter_cluster_distances:
         return -1  
 
-    return min(inter_cluster_distances) / max(intra_cluster_distances)
+    dunn = min(inter_cluster_distances) / max(intra_cluster_distances)
+    return dunn
+
+def normalize_dunn_index(dunn_index, min_score, max_score):
+    return (dunn_index - min_score) / (max_score - min_score) if max_score != min_score else 0.0
 
 def sil_score(ClusteringResult: namedtuple):
     """measures how well-separated and compact clusters are, ranging from -1 to 1.  
@@ -270,7 +277,9 @@ def plot_scores_for_different_binnings(array_of_metrics, array_of_yearranges, ar
     metrics_per_score = {score: [] for score in score_names}
     
     for metrics, year_range, binwidth in zip(array_of_metrics, array_of_yearranges, array_of_binwidths):
-        label = f"{year_range[0]}–{year_range[-1]}"
+        # Shorten the year label to only show last two digits of the years
+        short_year_range = year_range[2:4] + "-" + year_range[7:]
+        label = f"{short_year_range}"
         for i, score in enumerate(score_names):
             if metrics[i] is not None:
                 metrics_per_score[score].append((label, metrics[i], binwidth))
@@ -297,7 +306,7 @@ def plot_scores_for_different_binnings(array_of_metrics, array_of_yearranges, ar
         plt.xlabel("Year Range")
         plt.ylabel(score)
         plt.title(f"{score} for Different Binning Widths")
-        plt.xticks(x_pos, x_labels, rotation=45)
+        plt.xticks(x_pos, x_labels, rotation=45, fontsize=3)  # Adjust the font size for readability
         plt.grid()
 
         # Show legend once per bin width
