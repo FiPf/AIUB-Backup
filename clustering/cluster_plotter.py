@@ -83,8 +83,7 @@ class ClusterPlotter:
         label_to_color[-1] = (1, 0, 0, 1)  # Noise is always red (RGBA format)
 
         # Apply colors (fixing ValueError)
-        coloring = [label_to_color[label] for label in self.labels]
-        coloring = np.array(coloring, dtype=object)  # Ensure NumPy handles lists correctly
+        coloring = [label_to_color[label] for label in self.labels]  # Keep as list, no np.array()
 
         # Scatter plot of data points
         plt.scatter(self.normalized_data[:, 1], self.normalized_data[:, 0], c=coloring, s=point_size)
@@ -107,6 +106,7 @@ class ClusterPlotter:
             plt.close()
         else:
             plt.show()
+
 
 
 

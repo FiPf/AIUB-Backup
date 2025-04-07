@@ -8,6 +8,9 @@ from collections import namedtuple
 from typing import Callable
 from scipy.spatial import ConvexHull, qhull
 import numpy as np
+import matplotlib.pyplot as plt
+import os
+from matplotlib.cm import get_cmap
 
 def DB_score(ClusteringResult: namedtuple): 
     """measures the average similarity ratio of each cluster with its most similar cluster, taking into account:
@@ -258,3 +261,57 @@ def cluster_density_convex_hull(ClusteringResult):
             boundaries[label] = None  # Handle error 
 
     return densities, boundaries
+
+def plot_scores_for_different_binnings(array_of_metrics, array_of_yearranges, array_of_binwidths, store_dir):
+    score_names = ["Davies-Bouldin", "Calinski-Harabasz", "Dunn Index", "Silhouette Score"]
+    os.makedirs(store_dir, exist_ok=True)
+
+    # Prepare data structure: score -> list of (year label, score value, bin width)
+    metrics_per_score = {score: [] for score in score_names}
+    
+    for metrics, year_range, binwidth in zip(array_of_metrics, array_of_yearranges, array_of_binwidths):
+        label = f"{year_range[0]}–{year_range[-1]}"
+        for i, score in enumerate(score_names):
+            if metrics[i] is not None:
+                metrics_per_score[score].append((label, metrics[i], binwidth))
+
+    # Get distinct bin widths and assign colors
+    unique_binwidths = sorted(set(array_of_binwidths))
+    color_map = get_cmap("tab10")
+    binwidth_colors = {bw: color_map(i) for i, bw in enumerate(unique_binwidths)}
+
+    # Plot for each score
+    for score in score_names:
+        plt.figure(figsize=(12, 6))
+        
+        entries = metrics_per_score[score]
+        x_labels = [e[0] for e in entries]
+        y_vals = [e[1] for e in entries]
+        binwidths = [e[2] for e in entries]
+        x_pos = np.arange(len(x_labels))
+
+        # Plot each point with color by binwidth
+        for i, (x, y, bw) in enumerate(zip(x_pos, y_vals, binwidths)):
+            plt.scatter(x, y, color=binwidth_colors[bw], label=f"{bw} years" if x == x_pos[0] else "", s=60)
+
+        plt.xlabel("Year Range")
+        plt.ylabel(score)
+        plt.title(f"{score} for Different Binning Widths")
+        plt.xticks(x_pos, x_labels, rotation=45)
+        plt.grid()
+
+        # Show legend once per bin width
+        handles = []
+        labels_seen = set()
+        for bw in binwidths:
+            if bw not in labels_seen:
+                handles.append(plt.Line2D([], [], marker='o', color='w', label=f"{bw} years",
+                                          markerfacecolor=binwidth_colors[bw], markersize=10))
+                labels_seen.add(bw)
+        plt.legend(handles=handles, title="Binning Width")
+
+        plot_path = os.path.join(store_dir, f"{score.replace(' ', '_').lower()}_binnings.png")
+        plt.savefig(plot_path, dpi=300, bbox_inches="tight")
+        plt.close()
+
+    print(f"Colored comparison plots saved in: {store_dir}")

@@ -24,7 +24,7 @@ import DENCLUE
 
 def run_clustering(algorithm: Callable, name: str, data: np.array, data_min: np.array, data_max: np.array, *args, **kwargs):
     """
-    runs a given clustering algorithm. Meaning the algorithm is started, different scores are calculated and the clustered data 
+    Runs a given clustering algorithm. Meaning the algorithm is started, different scores are calculated, and the clustered data 
     is plotted if plotting is enabled. 
 
     Args:
@@ -35,7 +35,7 @@ def run_clustering(algorithm: Callable, name: str, data: np.array, data_min: np.
         data_max (np.array): tuple, contains the maximum of the data for each dimension
 
     Returns:
-        result (ClusteringResult): named tuple containg labels, cluster_centers and the data
+        result (ClusteringResult): named tuple containing labels, cluster_centers, and the data
         runtime (float): runtime of the algorithm
         n_clusters (int): number of clusters
         points_per_cluster (dict): number of points for each cluster, stored in a dictionary
@@ -45,32 +45,28 @@ def run_clustering(algorithm: Callable, name: str, data: np.array, data_min: np.
     metrics = []  # List containing all the scores, 2D standard deviation, cluster densities
     plot = kwargs.pop("plot", True)  # Default to True if not provided
 
-    print(f"\n{name} result:")
+    # Start the clustering algorithm and calculate runtime
+    result, runtime = estimate_runtime(algorithm, data, *args, **kwargs)
+
+    n_clusters = len(set(result.labels))  # Number of unique labels (clusters)
+    points_per_cluster = {i: list(result.labels).count(i) for i in set(result.labels)}  # Count points per cluster
+
+    if n_clusters > 1:
+        DB_sc = scores.DB_score(result)
+        CH_sc = scores.CH_score(result)
+        dunn_index_sc = scores.dunn_index_score(result)
+        sil_sc = scores.sil_score(result)
+        cluster_std = scores.cluster_std_eigen(result)
+        square_density, square_bounds = scores.cluster_density_squares(result)
+        hull_density, hull_bounds = scores.cluster_density_convex_hull(result)
+        metrics = [DB_sc, CH_sc, dunn_index_sc, sil_sc, cluster_std, square_density, hull_density]
+
+    unnormalized_data, cluster_centers = unnormalize(result.data, result.cluster_centers, data_min, data_max)
     
-    with tqdm(total=3, desc=f"Running {name}", unit="step") as pbar:
-        result, runtime = estimate_runtime(algorithm, data, *args, **kwargs)
-        pbar.update(1)  # Step 1: Clustering done
-
-        n_clusters = len(set(result.labels))  # Number of unique labels (clusters)
-        points_per_cluster = {i: list(result.labels).count(i) for i in set(result.labels)}  # Count points per cluster
-
-        if n_clusters > 1:
-            DB_sc = scores.DB_score(result)
-            CH_sc = scores.CH_score(result)
-            dunn_index_sc = scores.dunn_index_score(result)
-            sil_sc = scores.sil_score(result)
-            cluster_std = scores.cluster_std_eigen(result)
-            square_density, square_bounds = scores.cluster_density_squares(result)
-            hull_density, hull_bounds = scores.cluster_density_convex_hull(result)
-            metrics = [DB_sc, CH_sc, dunn_index_sc, sil_sc, cluster_std, square_density, hull_density]
-        
-        pbar.update(1)  # Step 2: Metrics computed
-        unnormalized_data, cluster_centers = unnormalize(result.data, result.cluster_centers, data_min, data_max)
-        if plot: 
-            plotter = ClusterPlotter(unnormalized_data, result.labels, cluster_centers)
-            plotter.clusters_2d_plot(f"{name} - 2D Cluster Visualization")
-        
-        pbar.update(1)  # Step 3: Plotting done (if enabled)
+    # Plotting the clusters if enabled
+    if plot: 
+        plotter = ClusterPlotter(unnormalized_data, result.labels, cluster_centers)
+        plotter.clusters_2d_plot(f"{name} - 2D Cluster Visualization")
 
     return result, runtime, n_clusters, points_per_cluster, metrics
 

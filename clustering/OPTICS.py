@@ -3,7 +3,7 @@ from sklearn.cluster import OPTICS
 from clustering_utils import ClusteringResult
 import matplotlib.pyplot as plt
 
-def optics_clustering(data: np.array, min_samples: int = 10, max_eps: float = np.inf, xi: float = 0.05, plot_reachability: bool = False):
+def optics_clustering(data: np.array, min_samples, max_eps, xi, plot_reachability: bool = False):
     """
     Perform OPTICS clustering.
 
