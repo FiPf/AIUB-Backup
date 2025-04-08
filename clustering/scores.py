@@ -277,39 +277,47 @@ def plot_scores_for_different_binnings(array_of_metrics, array_of_yearranges, ar
     metrics_per_score = {score: [] for score in score_names}
     
     for metrics, year_range, binwidth in zip(array_of_metrics, array_of_yearranges, array_of_binwidths):
-        # Shorten the year label to only show last two digits of the years
         short_year_range = year_range[2:4] + "-" + year_range[7:]
         label = f"{short_year_range}"
+
+        if len(metrics) < 4:
+            metrics = metrics + [None] * (4 - len(metrics))
+
         for i, score in enumerate(score_names):
             if metrics[i] is not None:
                 metrics_per_score[score].append((label, metrics[i], binwidth))
 
-    # Get distinct bin widths and assign colors
     unique_binwidths = sorted(set(array_of_binwidths))
     color_map = get_cmap("tab10")
     binwidth_colors = {bw: color_map(i) for i, bw in enumerate(unique_binwidths)}
 
-    # Plot for each score
     for score in score_names:
+        entries = metrics_per_score[score]
+        total_expected = len(array_of_metrics)
+        total_actual = len(entries)
+
+        if total_actual == 0:
+            print(f"All values for '{score}' are None — skipping plot.")
+            continue
+        elif total_actual < total_expected:
+            print(f"Some values for '{score}' are None ({total_expected - total_actual} missing).")
+
         plt.figure(figsize=(12, 6))
         
-        entries = metrics_per_score[score]
         x_labels = [e[0] for e in entries]
         y_vals = [e[1] for e in entries]
         binwidths = [e[2] for e in entries]
         x_pos = np.arange(len(x_labels))
 
-        # Plot each point with color by binwidth
         for i, (x, y, bw) in enumerate(zip(x_pos, y_vals, binwidths)):
             plt.scatter(x, y, color=binwidth_colors[bw], label=f"{bw} years" if x == x_pos[0] else "", s=60)
 
         plt.xlabel("Year Range")
         plt.ylabel(score)
         plt.title(f"{score} for Different Binning Widths")
-        plt.xticks(x_pos, x_labels, rotation=45, fontsize=3)  # Adjust the font size for readability
+        plt.xticks(x_pos, x_labels, rotation=45, fontsize=3)
         plt.grid()
 
-        # Show legend once per bin width
         handles = []
         labels_seen = set()
         for bw in binwidths:
@@ -323,4 +331,4 @@ def plot_scores_for_different_binnings(array_of_metrics, array_of_yearranges, ar
         plt.savefig(plot_path, dpi=300, bbox_inches="tight")
         plt.close()
 
-    print(f"Colored comparison plots saved in: {store_dir}")
+    print(f"\n Colored comparison plots saved in: {store_dir}")

@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.cluster import DBSCAN
 from clustering_utils import ClusteringResult  # Ensure correct import
 
-def dbscan_clustering(data: np.array, eps: float = 10, min_samples: int = 10):
+def dbscan_clustering(data: np.array, eps: float, min_samples: int):
     """
     Perform DBSCAN clustering.
 

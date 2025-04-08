@@ -236,3 +236,25 @@ class ClusterPlotter:
         ax.legend()
 
         plt.show()
+
+def save_table_as_image(df, filename, title=None, fontsize=10):
+    fig, ax = plt.subplots(figsize=(len(df.columns)*2, len(df)*0.6 + 1))
+    ax.axis('off')
+
+    table = ax.table(
+        cellText=df.values,
+        colLabels=df.columns,
+        rowLabels=df.index,
+        cellLoc='center',
+        loc='center',
+    )
+    table.auto_set_font_size(False)
+    table.set_fontsize(fontsize)
+    table.scale(1.2, 1.2)
+
+    if title:
+        plt.title(title, fontsize=14, pad=20)
+
+    plt.tight_layout()
+    plt.savefig(filename)
+    plt.close()
