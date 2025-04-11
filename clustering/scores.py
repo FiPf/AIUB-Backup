@@ -58,9 +58,6 @@ def CH_score(ClusteringResult: namedtuple):
 
     return score
 
-def normalize_CH_score(calinski_score, min_score, max_score):
-    return (calinski_score - min_score) / (max_score - min_score) if max_score != min_score else 0.0
-
 def dunn_index_score(ClusteringResult: namedtuple):
     """evaluates the compactness and separation of clusters. It is defined as the ratio between the **minimum inter-cluster distance** 
     (the smallest distance between points in different clusters) and the **maximum intra-cluster distance** 
@@ -108,8 +105,8 @@ def dunn_index_score(ClusteringResult: namedtuple):
     dunn = min(inter_cluster_distances) / max(intra_cluster_distances)
     return dunn
 
-def normalize_dunn_index(dunn_index, min_score, max_score):
-    return (dunn_index - min_score) / (max_score - min_score) if max_score != min_score else 0.0
+def normalize_score(score, min_score, max_score):
+    return (score - min_score) / (max_score - min_score) if max_score != min_score else 0.0
 
 def sil_score(ClusteringResult: namedtuple):
     """measures how well-separated and compact clusters are, ranging from -1 to 1.  
