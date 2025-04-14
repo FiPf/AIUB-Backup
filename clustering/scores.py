@@ -21,6 +21,7 @@ def DB_score(ClusteringResult: namedtuple):
 
     https://scikit-learn.org/stable/modules/generated/sklearn.metrics.davies_bouldin_score.html
     https://en.wikipedia.org/wiki/Davies%E2%80%93Bouldin_index 
+    https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=4766909 
     Args:
         ClusteringResult (namedtuple): results from the clustering containing labels, cluster_centers and data.
 
@@ -44,6 +45,7 @@ def CH_score(ClusteringResult: namedtuple):
 
     https://en.wikipedia.org/wiki/Calinski%E2%80%93Harabasz_index
     https://scikit-learn.org/stable/modules/generated/sklearn.metrics.calinski_harabasz_score.html 
+    https://www.tandfonline.com/doi/epdf/10.1080/03610927408827101?needAccess=true
 
     Args:
         ClusteringResult (namedtuple): results from the clustering containing labels, cluster_centers and data.

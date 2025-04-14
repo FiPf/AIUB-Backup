@@ -75,11 +75,19 @@ class ClusterPlotter:
         sorted_indices = np.argsort(-valid_counts)
         sorted_labels = valid_labels[sorted_indices]
 
-        # Generate colormap with a fixed number of colors, excluding red
-        color_map = cm.get_cmap(color_scheme, len(sorted_labels))
+        # Generate two colormaps: one for general clusters and one that excludes red
+        color_map_1 = cm.get_cmap(color_scheme, len(sorted_labels))  # First colormap (can repeat)
+        color_map_2 = cm.get_cmap('tab20c', len(sorted_labels))  # Second colormap (avoids red)
 
-        # Assign colors based on sorted cluster order
-        label_to_color = {label: color_map(i) for i, label in enumerate(sorted_labels)}
+        # Assign colors from both colormaps to avoid repeating colors
+        label_to_color = {}
+        for i, label in enumerate(sorted_labels):
+            if i % 2 == 0:
+                label_to_color[label] = color_map_1(i // 2)  # Use color map 1 for even indices
+            else:
+                label_to_color[label] = color_map_2(i // 2)  # Use color map 2 for odd indices
+
+        # Assign noise to red
         label_to_color[-1] = (1, 0, 0, 1)  # Noise is always red (RGBA format)
 
         # Apply colors (fixing ValueError)
@@ -106,7 +114,6 @@ class ClusterPlotter:
             plt.close()
         else:
             plt.show()
-
 
 
 
