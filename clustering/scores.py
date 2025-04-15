@@ -108,6 +108,7 @@ def dunn_index_score(ClusteringResult: namedtuple):
     return dunn
 
 def normalize_score(score, min_score, max_score):
+    """normalize score in interval [0,1] such that different scores are comparable"""
     return (score - min_score) / (max_score - min_score) if max_score != min_score else 0.0
 
 def sil_score(ClusteringResult: namedtuple):
