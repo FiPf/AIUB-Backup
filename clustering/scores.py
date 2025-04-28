@@ -12,6 +12,9 @@ import matplotlib.pyplot as plt
 import os
 from matplotlib.cm import get_cmap
 
+#used for the DBCV score
+from dbcv_score_implementation import DBCV
+
 def DB_score(ClusteringResult: namedtuple): 
     """measures the average similarity ratio of each cluster with its most similar cluster, taking into account:
     a) intra-cluster similarity (compactness)
@@ -148,6 +151,12 @@ def sil_score(ClusteringResult: namedtuple):
         score -= (5 - num_clusters) * 0.1  
         
     return score
+
+def DBCV_score(ClusteringResult: namedtuple): 
+    data = ClusteringResult.data 
+    labels = ClusteringResult.labels
+    dbcv_score = DBCV(data, labels)
+    return dbcv_score
 
 def cluster_std_eigen(ClusteringResult: namedtuple):
     """2d standard deviation

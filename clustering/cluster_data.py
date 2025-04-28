@@ -70,6 +70,51 @@ def run_clustering(algorithm: Callable, name: str, data: np.array, data_min: np.
 
     return result, runtime, n_clusters, points_per_cluster, metrics
 
+def run_clustering_dbcv_score(algorithm: Callable, name: str, data: np.array, data_min: np.array, data_max: np.array, *args, **kwargs):
+    """
+    Runs a given clustering algorithm. Meaning the algorithm is started, different scores are calculated, and the clustered data 
+    is plotted if plotting is enabled. 
+
+    Args:
+        algorithm (Callable): function which starts the clustering algorithm
+        name (str): name of the clustering algorithm
+        data (np.array): data to be clustered
+        data_min (np.array): tuple, contains the minimum of the data for each dimension
+        data_max (np.array): tuple, contains the maximum of the data for each dimension
+
+    Returns:
+        result (ClusteringResult): named tuple containing labels, cluster_centers, and the data
+        runtime (float): runtime of the algorithm
+        n_clusters (int): number of clusters
+        points_per_cluster (dict): number of points for each cluster, stored in a dictionary
+        metrics (np.array): contains all the scores and metrics calculated for this algorithm
+    """
+
+    metrics = []  # List containing all the scores, 2D standard deviation, cluster densities
+    plot = kwargs.pop("plot", True)  # Default to True if not provided
+
+    # Start the clustering algorithm and calculate runtime
+    result, runtime = estimate_runtime(algorithm, data, *args, **kwargs)
+
+    n_clusters = len(set(result.labels))  # Number of unique labels (clusters)
+    points_per_cluster = {i: list(result.labels).count(i) for i in set(result.labels)}  # Count points per cluster
+
+    if n_clusters > 1:
+        print("Calculating DBCV score...")
+        dbcv_score = scores.dbcv_score(result)
+        cluster_std = scores.cluster_std_eigen(result)
+        square_density, square_bounds = scores.cluster_density_squares(result)
+        hull_density, hull_bounds = scores.cluster_density_convex_hull(result)
+        metrics = [dbcv_score, cluster_std, square_density, hull_density]
+
+    unnormalized_data, cluster_centers = unnormalize(result.data, result.cluster_centers, data_min, data_max)
+    
+    # Plotting the clusters if enabled
+    if plot: 
+        plotter = ClusterPlotter(unnormalized_data, result.labels, cluster_centers)
+        plotter.clusters_2d_plot(f"{name} - 2D Cluster Visualization")
+
+    return result, runtime, n_clusters, points_per_cluster, metrics
 
 def cluster_data_to_array(data_list: namedtuple):
     """Convert ClusterData namedtuple to an numpy array. Works for any number of dimensions.
