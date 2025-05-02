@@ -6,6 +6,11 @@ edition = "2021"
 [dependencies]
 pyo3 = { version = "0.24.2", features = ["extension-module"] }
 numpy = "0.24.0"  # Optional, if you want to handle numpy arrays directly
+ndarray = "0.16.1"
+ndarray-stats = "0.6.0"
+petgraph = "0.8.1"
+sprs = "0.11.3"
+itertools = "0.14.0"
 
 [lib]
 name = "my_dbcv_module"
