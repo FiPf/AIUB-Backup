@@ -14,6 +14,7 @@ from matplotlib.cm import get_cmap
 
 #used for the DBCV score
 from dbcv_score_implementation import DBCV
+import my_dbcv_module
 
 def DB_score(ClusteringResult: namedtuple): 
     """measures the average similarity ratio of each cluster with its most similar cluster, taking into account:
@@ -152,11 +153,16 @@ def sil_score(ClusteringResult: namedtuple):
         
     return score
 
-def DBCV_score(ClusteringResult: namedtuple): 
+def DBCV_score_python(ClusteringResult: namedtuple): 
     data = ClusteringResult.data 
     labels = ClusteringResult.labels
     dbcv_score = DBCV(data, labels)
     return dbcv_score
+
+def DBCV_score_rust(ClusteringResult: namedtuple):
+    data = ClusteringResult.data 
+    labels = ClusteringResult.labels
+    return my_dbcv_module.dbcv_score(data, labels, None)
 
 def cluster_std_eigen(ClusteringResult: namedtuple):
     """2d standard deviation
