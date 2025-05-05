@@ -101,7 +101,7 @@ def run_clustering_dbcv_score(algorithm: Callable, name: str, data: np.array, da
 
     if n_clusters > 1:
         print("Calculating DBCV score...")
-        dbcv_score = scores.dbcv_score(result)
+        dbcv_score = scores.DBCV_score_rust(result)
         cluster_std = scores.cluster_std_eigen(result)
         square_density, square_bounds = scores.cluster_density_squares(result)
         hull_density, hull_bounds = scores.cluster_density_convex_hull(result)

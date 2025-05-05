@@ -116,37 +116,66 @@ class ClusterPlotter:
             plt.show()
 
 
-
-    def clusters_3d_plot(self, title: str, color_scheme='Dark2', c=None, point_size=5, show_centers=True):
-        """Plot the clusters in 3D with customizable coloring.
+    def clusters_3d_plot(self, title: str, save_name=None, color_scheme='Dark2', point_size=5, show_centers=True):
+        """Plot the clusters in 3D with fixed coloring, sorting clusters by size.
 
         Args:
-            title (str): Title of the plot. 
-            color_scheme (str, optional): _description_. Defaults to 'Dark2'.
-            c (_type_, optional): _description_. Defaults to None.
-            point_size (int, optional): _description_. Defaults to 5.
-            show_centers (bool, optional): _description_. Defaults to True.
-        """        
+            title (str): Title of the plot.
+            save_name (str, optional): File path to save the plot. If None, the plot is displayed.
+            color_scheme (str, optional): Color scheme for the clusters. Defaults to 'Dark2'.
+            point_size (int, optional): Size of the data points. Defaults to 5.
+            show_centers (bool, optional): Show the centers of the clusters or not. Defaults to True.
+        """
         fig = plt.figure(figsize=(10, 7))
         ax = fig.add_subplot(111, projection='3d')
 
-        coloring = c if c is not None else self.normalized_data[:, 2]
+        # Sort clusters by size, ignoring noise (-1)
+        unique_labels, counts = np.unique(self.labels, return_counts=True)
+        is_noise = unique_labels == -1
+        valid_labels = unique_labels[~is_noise]
+        valid_counts = counts[~is_noise]
 
-        scatter = ax.scatter(self.normalized_data[:, 1], self.normalized_data[:, 2], self.normalized_data[:, 0],
-                             c=coloring, cmap=color_scheme, s=point_size)
+        sorted_indices = np.argsort(-valid_counts)
+        sorted_labels = valid_labels[sorted_indices]
 
-        if show_centers:
+        # Two color maps to avoid repetition
+        color_map_1 = cm.get_cmap(color_scheme, len(sorted_labels))
+        color_map_2 = cm.get_cmap('tab20c', len(sorted_labels))
+
+        label_to_color = {}
+        for i, label in enumerate(sorted_labels):
+            if i % 2 == 0:
+                label_to_color[label] = color_map_1(i // 2)
+            else:
+                label_to_color[label] = color_map_2(i // 2)
+
+        label_to_color[-1] = (1, 0, 0, 1)  # Noise in red
+
+        # Apply colors to each point
+        coloring = [label_to_color[label] for label in self.labels]
+
+        # Plot points: x=RAAN, y=eccentricity, z=inclination
+        ax.scatter(self.normalized_data[:, 1], self.normalized_data[:, 2], self.normalized_data[:, 0],
+                c=coloring, s=point_size)
+
+        if show_centers and hasattr(self, 'cluster_centers') and self.cluster_centers is not None:
             ax.scatter(self.cluster_centers[:, 1], self.cluster_centers[:, 2], self.cluster_centers[:, 0],
-                       c='red', marker='X', s=100, label='Cluster Centers')
+                    c='black', marker='X', s=100, label='Cluster Centers')
 
         ax.set_xlabel('RAAN [°]')
         ax.set_ylabel('Eccentricity (e)')
         ax.set_zlabel('Inclination [°]')
         ax.set_title(title)
-
-        plt.colorbar(scatter, label='Custom Color' if c is not None else 'Eccentricity')
         ax.legend()
-        plt.show()
+
+        if save_name is not None:
+            unique_save_path = self.save_unique_plot(save_name, os.path.dirname(save_name))
+            plt.savefig(unique_save_path, dpi=300, bbox_inches='tight')
+            print(f"3D plot saved as: {unique_save_path}")
+            plt.close()
+        else:
+            plt.show()
+
 
     def combined_clusters_2d_plot(self, other_data, other_labels, other_centers, title: str, size_in_mm: int, point_size=5, grid=True):
         """

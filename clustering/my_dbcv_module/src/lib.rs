@@ -1,22 +1,19 @@
 use pyo3::prelude::*;
-// Remove the explicit import if using prelude::*
-// use pyo3::wrap_pyfunction;
 use numpy::{PyReadonlyArray1, PyReadonlyArray2};
 use ndarray::{Array2, ArrayView1, ArrayView2, Axis};
-use itertools::Itertools; // Make sure itertools is in your Cargo.toml dependencies
+use itertools::Itertools; 
 use std::collections::HashMap;
 
 // The module definition function
 #[pymodule]
-#[pyo3(name = "my_dbcv_module")] // Optional: specify the python module name explicitly
+#[pyo3(name = "my_dbcv_module")] // specify the python module name explicitly
 fn dbcv(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
-    // Correct way to add the function
+    // Correct way to add the function!!
     m.add_function(wrap_pyfunction!(dbcv_score, m)?)?;
     Ok(())
 }
 
-/// Density-Based Clustering Validation (faster version)
-/// Returns a cluster validity score in the range of [-1, 1]
+
 #[pyfunction]
 fn dbcv_score(
     py: Python, // Acquire GIL token if needed for numpy operations inside
@@ -28,7 +25,6 @@ fn dbcv_score(
     let x_view = x.as_array();
     let labels_view = labels.as_array();
 
-    // It's often better to release the GIL while doing heavy computation
     let result = py.allow_threads(|| {
         let core_dists = precompute_core_dists(&x_view, &labels_view);
         let graph = mutual_reach_graph(&x_view, &core_dists);
@@ -39,7 +35,7 @@ fn dbcv_score(
     Ok(result)
 }
 
-/// Euclidean distance between two points
+/// Euclidean distance between two points, could be replaced by a different metric
 fn euclidean_distance(a: &ArrayView1<f64>, b: &ArrayView1<f64>) -> f64 {
     a.iter().zip(b.iter())
         .map(|(x, y)| (x - y).powi(2))
@@ -74,21 +70,19 @@ fn precompute_core_dists(x: &ArrayView2<f64>, labels: &ArrayView1<i32>) -> Vec<f
         members.entry(lab).or_insert_with(Vec::new).push(i);
     }
 
-    for (_lab, indices) in members.iter() { // Use iter() instead of values() to avoid borrow issues if needed elsewhere
+    for (_lab, indices) in members.iter() { 
         if indices.len() <= 1 { // Handle clusters with 0 or 1 point
              for &idx in indices {
-                 cores[idx] = f64::INFINITY; // Or 0.0, depending on desired behavior
+                 cores[idx] = f64::INFINITY; // Or 0.0 would maybe also be possible
              }
              continue;
         }
 
-        // Select returns an owned Array, use view() for ArrayView2
         let sub = x.select(Axis(0), indices);
-        let dm = distance_matrix(&sub.view()); // Pass view
+        let dm = distance_matrix(&sub.view()); 
 
         for &i in indices {
-            // Find the corresponding row index within the sub-matrix 'dm'
-            let local_idx = indices.iter().position(|&v| v == i).unwrap(); // Safe because i is in indices
+            let local_idx = indices.iter().position(|&v| v == i).unwrap(); 
 
             // Get distances from the dense sub-matrix
             let dists: Vec<f64> = dm.row(local_idx)

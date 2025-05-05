@@ -160,9 +160,14 @@ def DBCV_score_python(ClusteringResult: namedtuple):
     return dbcv_score
 
 def DBCV_score_rust(ClusteringResult: namedtuple):
-    data = ClusteringResult.data 
+    data = ClusteringResult.data
     labels = ClusteringResult.labels
-    return my_dbcv_module.dbcv_score(data, labels, None)
+
+    data_contiguous = np.ascontiguousarray(data, dtype=np.float64)
+    labels_contiguous = np.ascontiguousarray(labels, dtype=np.int32) 
+
+    score = my_dbcv_module.dbcv_score(data_contiguous, labels_contiguous, None)
+    return score
 
 def cluster_std_eigen(ClusteringResult: namedtuple):
     """2d standard deviation
