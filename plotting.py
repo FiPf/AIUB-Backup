@@ -212,7 +212,9 @@ def i_omega_all_orbits(nod_GEO_det: np.array, nod_GTO_det: np.array, nod_followu
 
     plt.xlabel("Right Ascension of Ascending Node $\\Omega$ [°]")
     plt.ylabel("Inclination [°]")
-    plt.yticks(range(0, 23, 2))
+    max_y = max(max(inc_GEO_det), max(inc_GTO_det), max(inc_followup_det))
+    plt.ylim(0, max_y * 1.1)  # Add 10% margin on to
+    plt.yticks(np.linspace(0, max_y * 1.1, num=10)) 
     plt.xticks(range(-180, 181, 60))
     plt.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3), ncol=1)
     plt.grid(True)
@@ -250,7 +252,11 @@ def i_omega_separate(nod_det: np.array, inc_det: np.array, date: str, title: str
         plt.scatter(nod_crs_converted, inc_crs, c = "r", s = 5, label = f"Number of crossings: {len(nod_crs_converted)}")
         plt.xlabel("Right Ascension of Ascending Node $\\Omega$ [°]")
         plt.ylabel("Inclination [°]")
-        plt.yticks(range(0, 23, 2))
+
+        max_y = max(inc_crs)
+        plt.ylim(0, max_y * 1.1)  # Add 10% margin on to
+        plt.yticks(np.linspace(0, max_y * 1.1, num=10)) 
+
         plt.xticks(range(-180, 181, 60))
         plt.legend(loc="lower center", bbox_to_anchor=(0.5, -0.2), ncol=1)
         plt.grid(True)
@@ -267,7 +273,9 @@ def i_omega_separate(nod_det: np.array, inc_det: np.array, date: str, title: str
     plt.scatter(nod_det_converted, inc_det, c = "b", s = 5, label = f"Number of detections: {len(nod_det_converted)}")
     plt.xlabel("Right Ascension of Ascending Node $\\Omega$ [°]")
     plt.ylabel("Inclination [°]")
-    plt.yticks(range(0, 23, 2))
+    max_y = max(inc_crs)
+    plt.ylim(0, max_y * 1.1)  # Add 10% margin on to
+    plt.yticks(np.linspace(0, max_y * 1.1, num=10)) 
     plt.xticks(range(-180, 181, 60))
     plt.legend(loc="lower center", bbox_to_anchor=(0.5, -0.2), ncol=1)
     plt.grid(True)
@@ -306,7 +314,9 @@ def i_omega_with_ratio(nod_crs: np.array, inc_crs: np.array, date: str, title: s
         plt.scatter(nod_det_converted, inc_det, c = "b", s = 5, label = f"Number of detections: {len(nod_det_converted)}")
         plt.xlabel("Right Ascension of Ascending Node $\\Omega$ [°]")
         plt.ylabel("Inclination [°]")
-        plt.yticks(range(0, 23, 2))
+        max_y = max(inc_crs)
+        plt.ylim(0, max_y * 1.1)  # Add 10% margin on to
+        plt.yticks(np.linspace(0, max_y * 1.1, num=10)) 
         plt.xticks(range(-180, 181, 60))
         plt.legend(loc="lower center", bbox_to_anchor=(0.5, -0.25), ncol=1)
         plt.grid(True)
@@ -330,7 +340,9 @@ def i_omega_with_ratio(nod_crs: np.array, inc_crs: np.array, date: str, title: s
         plt.xlabel("Right Ascension of Ascending Node $\\Omega$ [°]")
         plt.ylabel("Inclination [°]")
         plt.legend(loc="lower center", bbox_to_anchor=(0.5, -0.25), ncol=1)
-        plt.yticks(range(0, 23, 2))
+        max_y = max(inc_crs)
+        plt.ylim(0, max_y * 1.1)  # Add 10% margin on to
+        plt.yticks(np.linspace(0, max_y * 1.1, num=10)) 
         plt.xticks(range(-180, 181, 60))
         plt.grid(True)
         file_path = f"omega_i_{year}_{orbit_type}.png"
@@ -360,7 +372,9 @@ def i_omega_with_eccentricity(nod: np.array, inc: np.array, ecc: np.array, title
     plt.xlabel("Right Ascension of Ascending Node $\\Omega$ [°]")
     plt.ylabel("Inclination [°]")
     plt.legend(loc="lower center", bbox_to_anchor=(0.5, -0.25), ncol=1)
-    plt.yticks(range(0, 23, 2))
+    max_y = max(inc)
+    plt.ylim(0, max_y * 1.1)  # Add 10% margin on to
+    plt.yticks(np.linspace(0, max_y * 1.1, num=10)) 
     plt.xticks(range(-180, 181, 60))
     plt.grid(True)
     file_path = f"omega_i_with_ecc_{year}.png"
@@ -390,7 +404,9 @@ def i_omega_with_sem_maj(nod: np.array, inc: np.array, semmaj: np.array, title: 
     plt.xlabel("Right Ascension of Ascending Node $\\Omega$ [°]")
     plt.ylabel("Inclination [°]")
     plt.legend(loc="lower center", bbox_to_anchor=(0.5, -0.25), ncol=1)
-    plt.yticks(range(0, 23, 2))
+    max_y = max(inc)
+    plt.ylim(0, max_y * 1.1)  # Add 10% margin on to
+    plt.yticks(np.linspace(0, max_y * 1.1, num=10)) 
     plt.xticks(range(-180, 181, 60))
     plt.grid(True)
     file_path = f"omega_i_with_semmaj_{year}.png"
@@ -419,7 +435,9 @@ def i_omega_with_magnitudes(nod: np.array, inc: np.array, magnitudes: np.array, 
     plt.xlabel("Right Ascension of Ascending Node $\\Omega$ [°]")
     plt.ylabel("Inclination [°]")
     plt.legend(loc="lower center", bbox_to_anchor=(0.5, -0.25), ncol=1)
-    plt.yticks(range(0, 23, 2))
+    max_y = max(inc)
+    plt.ylim(0, max_y * 1.1)  # Add 10% margin on to
+    plt.yticks(np.linspace(0, max_y * 1.1, num=10)) 
     plt.xticks(range(-180, 181, 60))
     plt.grid(True)
     file_path = f"omega_i_with_mag_{year}.png"
@@ -456,7 +474,9 @@ def i_omega_joined(first_nod: np.array, second_nod: np.array, first_inc: np.arra
     plt.xlabel("Right Ascension of Ascending Node $\\Omega$ [°]")
     plt.ylabel("Inclination [°]")
     plt.legend(loc="lower center", bbox_to_anchor=(0.5, -0.25), ncol=1)
-    plt.yticks(range(0, 23, 2))
+    max_y = max(max(first_inc), max(second_inc))
+    plt.ylim(0, max_y * 1.1)  # Add 10% margin on to
+    plt.yticks(np.linspace(0, max_y * 1.1, num=10)) 
     plt.xticks(range(-180, 181, 60))
     plt.grid(True)
     file_path = f"omega_i_joined_{year}.png"
@@ -553,7 +573,9 @@ def i_omega_joined_with_eccentricity(first_nod: np.array, second_nod: np.array, 
     plt.xlabel("Right Ascension of Ascending Node $\\Omega$ [°]")
     plt.ylabel("Inclination [°]")
     plt.legend(loc="lower center", bbox_to_anchor=(0.5, -0.25), ncol=1)
-    plt.yticks(range(0, 23, 2))
+    max_y = max(combined_inc)
+    plt.ylim(0, max_y * 1.1)  # Add 10% margin on to
+    plt.yticks(np.linspace(0, max_y * 1.1, num=10)) 
     plt.xticks(range(-180, 181, 60))
     plt.grid(True)
     
@@ -587,7 +609,7 @@ def plot_DISCOS_file(raan: np.array, inc: np.array, ecc: np.array, breakup_epoch
     
     plt.xlabel("RAAN [°]")
     plt.ylabel("Inclination [°]")
-    plt.ylim(0, 22)
+    plt.ylim(bottom = 0)
     plt.xlim(-180, 180)
     plt.grid(True)
     
@@ -641,7 +663,7 @@ def i_omega_MLI_separately(inc: np.array, raan: np.array, sources: np.array, yea
 
     plt.xlabel("RAAN [°]")
     plt.ylabel("Inclination [°]")
-    plt.ylim(0, 22)
+    plt.ylim(bottom = 0)
     plt.xlim(-180, 180)
     plt.grid(True)
     plt.legend()
@@ -690,7 +712,7 @@ def i_omega_per_size(inc: np.array, raan: np.array, diameter: np.array, year: st
 
             plt.xlabel("RAAN [°]")
             plt.ylabel("Inclination [°]")
-            plt.ylim(0, 22)
+            plt.ylim(bottom = 0)
             plt.xlim(-180, 180)
             plt.grid(True)
 
@@ -719,8 +741,9 @@ def i_omega_per_size(inc: np.array, raan: np.array, diameter: np.array, year: st
 
         plt.xlabel("RAAN [°]")
         plt.ylabel("Inclination [°]")
-        plt.ylim(0, 22)
+        plt.ylim(bottom = 0)
         plt.xlim(-180, 180)
+        print(plt.ylim())
         plt.grid(True)
         plt.legend()
 

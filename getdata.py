@@ -935,55 +935,57 @@ def data_for_one_year_one_seed(year: str, seed: str, population_type: Population
     
     return data_crs, data_det
 
-def data_returner(year: str, seed: str, population_type: PopulationType):
-    """used to get all simulation data for one specific year and seed, separated into the different orbit types
+def data_returner(year: str, seed: str, population_type: PopulationType, direct_filenames: list = None):
+    """Used to get all simulation data for one specific year and seed, separated into different orbit types.
 
     Args:
-        year (str): year of the data
-        seed (str): seed of the data (1,2,3 or 4)
+        year (str): Year of the data
+        seed (str): Seed of the data (1, 2, 3, or 4)
+        population_type (PopulationType): Type of population
+        direct_filenames (list, optional): List of six filenames [GEO_crs, GTO_crs, followup_crs, GEO_det, GTO_det, followup_det]
 
     Returns:
-        (np.arrays): crossing and detection data separated into different orbit types
+        (np.arrays): Crossing and detection data separated into different orbit types
     """
-    # Define the directory
-    directory = "input"
-
-    year2 = year[2:]
-    
-    if int(year2) < (18 if population_type == PopulationType.NEWPOP_TH3 else 19):
-        suffix = ""
-    if (population_type == PopulationType.NORMAL):
-        suffix = ""
-    else:
-        suffix = f"_{population_type.value}"
-    
-    if int(year2) < 18: 
-        # Construct file paths for .crs files
-        GEO_file_crs = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}.crs")
-        GTO_file_crs = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}.crs")
-        followup_file_crs = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}.crs")
-        # Construct file paths for .det files
-        GEO_file_det = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}.det")
-        GTO_file_det = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}.det")
-        followup_file_det = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}.det")
-
-    else: #case where the new pop files were used
-        GEO_file_crs = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}{suffix}.crs")
-        GTO_file_crs = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}{suffix}.crs")
-        followup_file_crs = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}{suffix}.crs")
-
-        GEO_file_det = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}{suffix}.det")
-        GTO_file_det = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}{suffix}.det")
-        followup_file_det = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}{suffix}.det")
+    if direct_filenames is None: 
+        directory = "input"
+        year2 = year[2:]
         
+        if int(year2) < (18 if population_type == PopulationType.NEWPOP_TH3 else 19):
+            suffix = ""
+        if population_type == PopulationType.NORMAL:
+            suffix = ""
+        else:
+            suffix = f"_{population_type.value}"
+        
+        if int(year2) < 18: 
+            # Construct file paths for .crs files
+            GEO_file_crs = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}.crs")
+            GTO_file_crs = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}.crs")
+            followup_file_crs = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}.crs")
+            # Construct file paths for .det files
+            GEO_file_det = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}.det")
+            GTO_file_det = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}.det")
+            followup_file_det = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}.det")
+        else:  # case where the new pop files were used
+            GEO_file_crs = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}{suffix}.crs")
+            GTO_file_crs = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}{suffix}.crs")
+            followup_file_crs = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}{suffix}.crs")
+            GEO_file_det = os.path.join(directory, f"stat_Master_{year2}_geo_s{seed}{suffix}.det")
+            GTO_file_det = os.path.join(directory, f"stat_Master_{year2}_gto_s{seed}{suffix}.det")
+            followup_file_det = os.path.join(directory, f"stat_Master_{year2}_fol_s{seed}{suffix}.det")
+    else:
+        print("Direct filenames", direct_filenames)
+        GEO_file_crs, GTO_file_crs, followup_file_crs, GEO_file_det, GTO_file_det, followup_file_det = direct_filenames
+
     # Load .crs data
-    data_GTO_crs = array_extender(GTO_file_crs)
     data_GEO_crs = array_extender(GEO_file_crs)
-    data_followup_crs = array_extender(followup_file_crs)   
+    data_GTO_crs = array_extender(GTO_file_crs)
+    data_followup_crs = array_extender(followup_file_crs)
 
     # Load .det data
-    data_GTO_det = array_extender(GTO_file_det)
     data_GEO_det = array_extender(GEO_file_det)
+    data_GTO_det = array_extender(GTO_file_det)
     data_followup_det = array_extender(followup_file_det)
 
     # Return the data
@@ -1138,6 +1140,122 @@ def data_four_years_one_seed(data_crs_all_seeds: list, data_det_all_seeds: list,
     return len(nod_GEO_det), len(nod_GTO_det), len(nod_fol_det)
 
 #end of enum
+
+def find_monthly_files(folder: str, year: int, orbit_type: str, seed: int):
+    """Find all .crs and .det files in 'folder' for a given year, orbit, and seed."""
+    yy = f"{year % 100:02d}"  # Last two digits of year, zero-padded
+    crs_files = []
+    det_files = []
+
+    for fname in os.listdir(folder):
+        if fname.startswith(f"stat_Master_{yy}_{orbit_type}_s{seed}_"):
+            parts = fname.split("_")
+            # We expect parts[5] to be the month + extension, e.g. '02.det' or '02.crs'
+            if len(parts) >= 6:
+                month_part = parts[5]
+                # Check if month_part has a two-digit month prefix
+                if len(month_part) >= 5 and month_part[:2].isdigit():
+                    if month_part.endswith(".crs"):
+                        crs_files.append(os.path.join(folder, fname))
+                    elif month_part.endswith(".det"):
+                        det_files.append(os.path.join(folder, fname))
+
+    return sorted(crs_files), sorted(det_files)
+
+def data_monthly_one_seed(data_crs_all_seeds: list, data_det_all_seeds: list, years: list, dir: str, title: str, seeds: list, monthly_files_by_year_and_seed: dict):
+    number_years = f"{years}"
+
+    import main_frag_and_rest
+
+    for i, seed in enumerate(seeds):
+        """inc_det_s, inc_crs_s = main_frag_and_rest.main_magnitude_cut(
+            data_crs_all_seeds[i],
+            data_det_all_seeds[i],
+            number_years,
+            "all orbit types",
+            title,
+            f"seed {seed}",
+            dir
+        )"""
+
+        data_GEO_det = []
+        data_GTO_det = []
+        data_followup_det = []
+        data_GEO_crs = []
+        data_GTO_crs = []
+        data_followup_crs = []
+
+        for year in years:
+            for i in range(len(monthly_files_by_year_and_seed[(year, seed)][0])):  # loop over months
+                GEO_file_crs       = monthly_files_by_year_and_seed[(year, seed)][0][i]
+                GEO_file_det       = monthly_files_by_year_and_seed[(year, seed)][1][i]
+                GTO_file_crs       = monthly_files_by_year_and_seed[(year, seed)][2][i]
+                GTO_file_det       = monthly_files_by_year_and_seed[(year, seed)][3][i]
+                followup_file_crs  = monthly_files_by_year_and_seed[(year, seed)][4][i]
+                followup_file_det  = monthly_files_by_year_and_seed[(year, seed)][5][i]
+
+                data_GEO_crs_, data_GTO_crs_, data_followup_crs_, data_GEO_det_, data_GTO_det_, data_followup_det_ = data_returner(
+                    year, seed, None,
+                    [GEO_file_crs, GTO_file_crs, followup_file_crs, GEO_file_det, GTO_file_det, followup_file_det]
+                )
+
+                data_GEO_crs.append(data_GEO_crs_)
+                data_GTO_crs.append(data_GTO_crs_)
+                data_followup_crs.append(data_followup_crs_)
+
+                data_GEO_det.append(data_GEO_det_)
+                data_GTO_det.append(data_GTO_det_)
+                data_followup_det.append(data_followup_det_)
+
+        data_GEO_det = np.hstack(data_GEO_det)
+        data_GTO_det = np.hstack(data_GTO_det)
+        data_followup_det = np.hstack(data_followup_det)
+
+        def process_and_plot(data_det, label):
+            size = data_det[1]
+            inc = data_det[9]
+            nod = data_det[12]
+            sma = data_det[8]
+            ecc = data_det[10]
+            src = data_det[3]
+            mag = data_det[20]
+
+            sorted = sortdata.sort_for_apogee(sma, ecc, inc, nod, src, mag, size)
+            inc = sorted[0]
+            nod = sorted[1]
+            src = sorted[2]
+            mag = sorted[3]
+            size = sorted[4]
+
+            min_size = 0.1
+            sorted = sortdata.sort_for_sizes(size, min_size, nod, src, mag, inc)
+            nod, src, mag, inc = sorted
+
+            sorted = sortdata.sort_for_inclination(inc, 40, nod, src, mag)
+            inc = [i for i in inc if i < 40]
+            nod, src, mag = sorted
+
+            _, frag_inc, rest_inc = sortdata.sort_for_sources(inc, src)
+            inc = np.hstack([frag_inc, rest_inc])
+            _, frag_nod, rest_nod = sortdata.sort_for_sources(nod, src)
+            nod = np.hstack([frag_nod, rest_nod])
+            _, frag_mag, rest_mag = sortdata.sort_for_sources(mag, src)
+            mag = np.hstack([frag_mag, rest_mag])
+            inc, nod = sortdata.sort_for_magnitudes(mag, 14, inc, nod, max_mag = 19)
+
+            return np.array(inc), np.array(nod)
+
+        inc_GEO, nod_GEO = process_and_plot(data_GEO_det, "GEO")
+        inc_GTO, nod_GTO = process_and_plot(data_GTO_det, "GTO")
+        inc_fol, nod_fol = process_and_plot(data_followup_det, "Followup")
+
+        #plotting.i_omega_all_orbits(nod_GEO, nod_GTO, nod_fol, inc_GEO, inc_GTO, inc_fol,
+                                   # f"Simulated detections {number_years} {seed}", years, dir)
+
+    plotting.i_omega_all_orbits(nod_GEO, nod_GTO, nod_fol, inc_GEO, inc_GTO, inc_fol,
+                                f"Simulated detections {number_years}", years, dir)
+
+    return len(nod_GEO), len(nod_GTO), len(nod_fol)
 
 def read_DISCOS_file(filename: str): 
     """function to read the DISCOS file. DISCOS files contain clusters from the simulations from Andre Horstmann. 

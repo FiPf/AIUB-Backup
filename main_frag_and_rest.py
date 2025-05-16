@@ -32,13 +32,19 @@ def main_all_fragments(crs_file: np.array, det_file: np.array, year: str, orbit_
     diameter_crs = sorted[4]
     
     #inclination sorting
-    max_inc = 22
+    max_inc = 40
     sorted = sortdata.sort_for_inclination(inc_crs, max_inc, sources_crs, magnitudes_crs, omega_crs, diameter_crs)
     sources_crs = sorted[0]
     magnitudes_crs = sorted[1]
     inc_crs = [i for i in inc_crs if i < max_inc]
     omega_crs = sorted[2]
     diameter_crs = sorted[3]
+
+    sorted = sortdata.sort_for_sizes(diameter_crs, 0.1, sources_crs, magnitudes_crs, omega_crs, inc_crs)
+    sources_crs = sorted[0]
+    magnitudes_crs = sorted[1]
+    omega_crs = sorted[2]
+    inc_crs = sorted[3]
     
     #store detected data in arrays
     data = det_file
@@ -68,6 +74,12 @@ def main_all_fragments(crs_file: np.array, det_file: np.array, year: str, orbit_
     inc_det = [i for i in inc_det if i < max_inc]
     omega_det = sorted[2]
     diameter_det = sorted[3]
+
+    sorted = sortdata.sort_for_sizes(diameter_det, 0.1, sources_det, magnitudes_det, omega_det, inc_det)
+    sources_det = sorted[0]
+    magnitudes_det = sorted[1]
+    omega_det = sorted[2]
+    inc_det = sorted[3]
     
     #source histogram for crossing data 
     plotting.source_hist(sources_crs, f"{orbit_type} {year} {seed} crossings: source histogram", directory, year, orbit_type)
@@ -162,21 +174,31 @@ def main_magnitude_cut(crs_file: np.array, det_file: np.array, year: str, orbit_
     ecc_crs = data[10]
     
     #apogee sorting
-    sorted = sortdata.sort_for_apogee(sem_major_crs, ecc_crs, sources_crs, magnitudes_crs, inc_crs, omega_crs, diameter_crs)
+    sorted = sortdata.sort_for_apogee(sem_major_crs, ecc_crs, sources_crs, magnitudes_crs, inc_crs, omega_crs, diameter_crs, sem_major_crs)
     sources_crs = sorted[0]
     magnitudes_crs = sorted[1]
     inc_crs = sorted[2]
     omega_crs = sorted[3]
     diameter_crs = sorted[4]
+    sem_major_crs = sorted[5]
     
     #inclination sorting
-    max_inc = 22
-    sorted = sortdata.sort_for_inclination(inc_crs, max_inc, sources_crs, magnitudes_crs, omega_crs, diameter_crs)
+    max_inc = 40
+    sorted = sortdata.sort_for_inclination(inc_crs, max_inc, sources_crs, magnitudes_crs, inc_crs, omega_crs, diameter_crs, sem_major_crs)
     sources_crs = sorted[0]
     magnitudes_crs = sorted[1]
-    inc_crs = [i for i in inc_crs if i < max_inc]
+    inc_crs = sorted[2]
+    omega_crs = sorted[3]
+    diameter_crs = sorted[4]
+    sem_major_crs = sorted[5]
+
+
+    sorted = sortdata.sort_for_sizes(diameter_crs, 0.1, sources_crs, magnitudes_crs, omega_crs, inc_crs, sem_major_crs)
+    sources_crs = sorted[0]
+    magnitudes_crs = sorted[1]
     omega_crs = sorted[2]
-    diameter_crs = sorted[3]
+    inc_crs = sorted[3]
+    sem_major_crs = sorted[4]
     
     #store detected data in arrays
     data = det_file
@@ -201,18 +223,20 @@ def main_magnitude_cut(crs_file: np.array, det_file: np.array, year: str, orbit_
     sem_major_det = sorted[6]
     
     #inclination sorting
-    max_inc = 22
-    sorted = sortdata.sort_for_inclination(inc_det, max_inc, sources_det, magnitudes_det, omega_det, diameter_det, ecc_det, sem_major_det)
+    max_inc = 40
+    sorted = sortdata.sort_for_inclination(inc_det, max_inc, sources_det, magnitudes_det, inc_det, omega_det, diameter_det, ecc_det, sem_major_det)
     sources_det= sorted[0]
     magnitudes_det = sorted[1]
-    inc_det = [i for i in inc_det if i < max_inc]
-    omega_det = sorted[2]
-    diameter_det = sorted[3]
-    ecc_det = sorted[4]
-    sem_major_det = sorted[5]
-    
-    min_mag = 14.5
-    sorted = sortdata.sort_for_magnitudes(magnitudes_det, min_mag, sources_det, magnitudes_det, inc_det, omega_det, diameter_det, ecc_det, sem_major_det)
+    inc_det = sorted[2]
+    omega_det = sorted[3]
+    diameter_det = sorted[4]
+    ecc_det = sorted[5]
+    sem_major_det = sorted[6]
+
+    min_mag = 14
+    max_mag = 19
+    sorted = sortdata.sort_for_magnitudes(
+        magnitudes_det, min_mag, sources_det, magnitudes_det, inc_det, omega_det, diameter_det, ecc_det, sem_major_det, max_mag=max_mag)
     sources_det = sorted[0]
     magnitudes_det = sorted[1]
     inc_det = sorted[2]
@@ -220,6 +244,13 @@ def main_magnitude_cut(crs_file: np.array, det_file: np.array, year: str, orbit_
     diameter_det = sorted[4]
     ecc_det = sorted[5]
     sem_major_det = sorted[6]
+
+    sorted = sortdata.sort_for_sizes(diameter_det, 0.1, sources_det, magnitudes_det, omega_det, inc_det, sem_major_det)
+    sources_crs = sorted[0]
+    magnitudes_crs = sorted[1]
+    omega_crs = sorted[2]
+    inc_crs = sorted[3] 
+    sem_major_det = sorted[4]
     
     #source histogram for crossing data 
     plotting.source_hist(sources_crs, f"{orbit_type} {year} {seed} crossings: source histogram", directory, year, orbit_type)

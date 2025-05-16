@@ -169,12 +169,35 @@ def sort_for_inclination_all_data(all_data: np.array, inc_index: int, max_inc: f
 
     return filtered_data
 
-def sort_for_magnitudes(mag: np.array, min_mag: float, *arrays): 
-    sorted_arrays =[]
+def sort_for_magnitudes(mag: np.array, min_mag: float, *arrays, max_mag: float = None): 
+    sorted_arrays = []
     for array in arrays: 
         if len(array) != len(mag): 
             raise ValueError("All input arrays must have the same length as mag!")
-        sorted_array = [array[i] for i in range(len(mag)) if mag[i] >= min_mag]
+        
+        if max_mag is None:
+            # Only min_mag filtering
+            sorted_array = [array[i] for i in range(len(mag)) if mag[i] >= min_mag]
+        else:
+            # Filter between min_mag and max_mag inclusive
+            sorted_array = [array[i] for i in range(len(mag)) if min_mag <= mag[i] <= max_mag]
+        
+        sorted_arrays.append(sorted_array)
+    return sorted_arrays
+
+def sort_for_sizes(size: np.array, min_size: float, *arrays, max_size: float = None):
+    sorted_arrays = []
+    for array in arrays:
+        if len(array) != len(size):
+            raise ValueError("All input arrays must have the same length as size!")
+        
+        if max_size is None:
+            # Only min_size filtering
+            sorted_array = [array[i] for i in range(len(size)) if size[i] >= min_size]
+        else:
+            # Filter between min_size and max_size inclusive
+            sorted_array = [array[i] for i in range(len(size)) if min_size <= size[i] <= max_size]
+        
         sorted_arrays.append(sorted_array)
     return sorted_arrays
 
@@ -262,7 +285,7 @@ def find_real_TLE_from_corr_obs(data: np.array, semi_major_index: int):
     
     return real_TLE
     
-def data_sorter(array: np.array, semi_major_index: int, ecc_index: int, inc_index: int, mag_index: int, source_index: int = None):
+def data_sorter(array: np.array, semi_major_index: int, ecc_index: int, inc_index: int, mag_index: int, source_index: int = None, size_index: int = None):
     """
     Sorts the input data array for apogee, inclination, and magnitudes.
     Optionally sorts by source and splits the data into TLE, fragments, and rest.
@@ -293,16 +316,22 @@ def data_sorter(array: np.array, semi_major_index: int, ecc_index: int, inc_inde
 
     # Sort by inclination
     inclinations = array[inc_index]
-    max_inc = 22
+    max_inc = 40
     valid_indices_inc = [i for i, inc in enumerate(inclinations) if inc < max_inc]
     array = array[:, valid_indices_inc]
 
     # Sort by magnitudes
     magnitudes = array[mag_index]
-    min_mag = 14.5
-    valid_indices_mag = [i for i, mag in enumerate(magnitudes) if mag > min_mag]
+    min_mag = 14
+    max_mag = 19
+    valid_indices_mag = [i for i, mag in enumerate(magnitudes) if min_mag < mag < max_mag]
     array = array[:, valid_indices_mag]
 
+    if size_index is not None:
+        min_size = 0.1 #10 cm or 0,1 m
+        sizes = array[size_index].astype(float)
+        valid_indices_size = [i for i, size in enumerate(sizes) if size >= min_size]
+        array = array[:, valid_indices_size]
     # Sort by source if source_index is provided
     if source_index is not None:
         array[source_index] = [int(i) for i in array[source_index]]
