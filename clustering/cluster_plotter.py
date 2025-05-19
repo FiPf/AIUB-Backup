@@ -116,7 +116,7 @@ class ClusterPlotter:
             plt.show()
 
 
-    def clusters_3d_plot(self, title: str, save_name=None, color_scheme='Dark2', point_size=5, show_centers=True):
+    def clusters_3d_plot(self, title: str, save_name=None, color_scheme='Dark2', point_size=5, show_centers=True, feature_names=None):
         """Plot the clusters in 3D with fixed coloring, sorting clusters by size.
 
         Args:
@@ -125,7 +125,11 @@ class ClusterPlotter:
             color_scheme (str, optional): Color scheme for the clusters. Defaults to 'Dark2'.
             point_size (int, optional): Size of the data points. Defaults to 5.
             show_centers (bool, optional): Show the centers of the clusters or not. Defaults to True.
+            feature_names (list[str], optional): Names of the features in the data. Defaults to ['inc', 'raan', 'ecc'].
         """
+        if feature_names is None:
+            feature_names = ['inclination [°]', 'raan [°]', 'eccentricity [°]']  # Default ordering
+
         fig = plt.figure(figsize=(10, 7))
         ax = fig.add_subplot(111, projection='3d')
 
@@ -154,7 +158,7 @@ class ClusterPlotter:
         # Apply colors to each point
         coloring = [label_to_color[label] for label in self.labels]
 
-        # Plot points: x=RAAN, y=eccentricity, z=inclination
+        # Plot points (x=feature 1, y=feature 2, z=feature 0)
         ax.scatter(self.normalized_data[:, 1], self.normalized_data[:, 2], self.normalized_data[:, 0],
                 c=coloring, s=point_size)
 
@@ -162,9 +166,10 @@ class ClusterPlotter:
             ax.scatter(self.cluster_centers[:, 1], self.cluster_centers[:, 2], self.cluster_centers[:, 0],
                     c='black', marker='X', s=100, label='Cluster Centers')
 
-        ax.set_xlabel('RAAN [°]')
-        ax.set_ylabel('Eccentricity (e)')
-        ax.set_zlabel('Inclination [°]')
+        # Dynamic axis labels
+        ax.set_xlabel(f"{feature_names[1]}")
+        ax.set_ylabel(f"{feature_names[2]})")
+        ax.set_zlabel(f"{feature_names[0]}")
         ax.set_title(title)
         ax.legend()
 
@@ -175,6 +180,7 @@ class ClusterPlotter:
             plt.close()
         else:
             plt.show()
+
 
 
     def combined_clusters_2d_plot(self, other_data, other_labels, other_centers, title: str, size_in_mm: int, point_size=5, grid=True):
