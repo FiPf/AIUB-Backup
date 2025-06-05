@@ -103,6 +103,7 @@ class ClusterPlotter:
         # Fixed plot settings
         plt.xlabel('RAAN [°]')
         plt.ylabel('Inclination [°]')
+        plt.ylim(0, 22)
         plt.title(title)
         plt.grid(True)
 
@@ -116,7 +117,7 @@ class ClusterPlotter:
             plt.show()
 
 
-    def clusters_3d_plot(self, title: str, save_name=None, color_scheme='Dark2', point_size=5, show_centers=True, feature_names=None):
+    def clusters_3d_plot(self, title: str, save_name=None, color_scheme='Dark2', point_size=5, show_centers=True, feature_names=None, reverse_third_axis = False):
         """Plot the clusters in 3D with fixed coloring, sorting clusters by size.
 
         Args:
@@ -171,6 +172,10 @@ class ClusterPlotter:
         ax.set_ylabel(f"{feature_names[2]})")
         ax.set_zlabel(f"{feature_names[0]}")
         ax.set_title(title)
+
+        if reverse_third_axis:
+            ax.invert_yaxis()
+
         ax.legend()
 
         if save_name is not None:

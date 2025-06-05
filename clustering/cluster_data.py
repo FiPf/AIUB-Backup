@@ -292,7 +292,7 @@ def bin_data_for_clustering(year_ranges: dict, print_res: bool = True):
         raan_all = np.concatenate(raan_all) if raan_all else np.array([])
 
         results.append((ClusterData(inc=inc_all, raan=raan_all), year_range))
-
+    print(file_lists)
     return results  # List of (ClusterData, year_range) tuples
 
 def bin_observed_data(uncorr_obs_files: list, year_ranges: dict, print_res: bool = False):
