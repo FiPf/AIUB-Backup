@@ -751,3 +751,22 @@ def i_omega_per_size(inc: np.array, raan: np.array, diameter: np.array, year: st
         file_path = save_unique_plot(file_path, directory)
         plt.savefig(file_path, bbox_inches="tight")
         plt.close()
+
+from matplotlib import cm
+
+def get_200_distinct_colors():
+    # Choose qualitative colormaps with distinct colors
+    colormaps = ['tab10', 'tab20', 'tab20b', 'tab20c', 'Set1', 'Set2', 'Set3', 'Paired', 'Accent', 'Dark2', 'Pastel1', 'Pastel2']
+    
+    all_colors = []
+    for cmap_name in colormaps:
+        cmap = cm.get_cmap(cmap_name)
+        if hasattr(cmap, 'colors'):  # For ListedColormap
+            colors = cmap.colors
+        else:
+            # Sample evenly from continuous colormaps
+            colors = [cmap(i / 20.0) for i in range(20)]
+        all_colors.extend(colors)
+    
+    # Limit to 200 colors
+    return all_colors[:200]

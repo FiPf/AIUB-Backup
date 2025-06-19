@@ -6,6 +6,10 @@ import sortdata
 import plotting
 import calculations
 from enum import Enum
+import matplotlib.cm as cm
+from collections import Counter
+from matplotlib.patches import Patch
+
 
 def clear_directory(directory: str): 
     """delete every file from the current directory (used to ensure that no plots/files are overwritten when rerunning the code)
@@ -1249,13 +1253,227 @@ def data_monthly_one_seed(data_crs_all_seeds: list, data_det_all_seeds: list, ye
         inc_GTO, nod_GTO = process_and_plot(data_GTO_det, "GTO")
         inc_fol, nod_fol = process_and_plot(data_followup_det, "Followup")
 
-        #plotting.i_omega_all_orbits(nod_GEO, nod_GTO, nod_fol, inc_GEO, inc_GTO, inc_fol,
-                                   # f"Simulated detections {number_years} {seed}", years, dir)
+        plotting.i_omega_all_orbits(nod_GEO, nod_GTO, nod_fol, inc_GEO, inc_GTO, inc_fol,
+                                   f"Simulated detections {number_years} {seed}", years, dir)
 
     plotting.i_omega_all_orbits(nod_GEO, nod_GTO, nod_fol, inc_GEO, inc_GTO, inc_fol,
                                 f"Simulated detections {number_years}", years, dir)
 
     return len(nod_GEO), len(nod_GTO), len(nod_fol)
+
+def read_metadata_file(metadata_filepath):
+    """
+    Reads the metadata file and returns a dictionary mapping ID (int) -> COSPAR ID (str).
+    """
+    id_to_cospar = {}
+    with open(metadata_filepath, "r") as f:
+        for line in f:
+            if line.startswith("#") or not line.strip():
+                continue
+            parts = line.split()
+            obj_id = int(parts[0])
+            cospar = parts[2]
+            id_to_cospar[obj_id] = cospar
+    return id_to_cospar
+
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+
+def i_omega_colored_by_cospar(data_det, title, years, cospar_dict, out_dir):
+    """
+    Plots inclination vs RAAN colored by COSPAR ID, with a legend below the plot.
+    Also plots points with no COSPAR match in gray.
+
+    Parameters:
+        data_det (np.ndarray): Detected object data with fixed column structure.
+        title (str): Plot title.
+        years (list): List of years (not directly used here).
+        cospar_dict (dict): Mapping from object ID prefixes to COSPAR IDs.
+        out_dir (str): Output directory for the plot.
+
+    Returns:
+        (np.ndarray, np.ndarray): Filtered inclination and RAAN arrays (only matched COSPAR).
+    """
+    size = data_det[1]
+    inc = data_det[9]
+    nod = data_det[12]
+    sma = data_det[8]
+    ecc = data_det[10]
+    src = data_det[3]
+    mag = data_det[20]
+    object_id = data_det[0]
+
+    # Apply sorting and filtering steps
+    sorted_data = sortdata.sort_for_apogee(sma, ecc, inc, nod, src, mag, size, object_id)
+    inc, nod, src, mag, size, object_id = sorted_data[0], sorted_data[1], sorted_data[2], sorted_data[3], sorted_data[4], sorted_data[5]
+
+    min_size = 0.1
+    sorted_data = sortdata.sort_for_sizes(size, min_size, nod, src, mag, inc, object_id)
+    nod, src, mag, inc, object_id = sorted_data
+
+    sorted_data = sortdata.sort_for_inclination(inc, 40, nod, src, mag, object_id)
+    inc = [i for i in inc if i < 40]
+    nod, src, mag, object_id = sorted_data
+
+    _, frag_inc, rest_inc = sortdata.sort_for_sources(inc, src)
+    inc = np.hstack([frag_inc, rest_inc])
+    _, frag_nod, rest_nod = sortdata.sort_for_sources(nod, src)
+    nod = np.hstack([frag_nod, rest_nod])
+    _, frag_mag, rest_mag = sortdata.sort_for_sources(mag, src)
+    mag = np.hstack([frag_mag, rest_mag])
+    _, frag_id, rest_id = sortdata.sort_for_sources(object_id, src)
+    object_id = np.hstack([frag_id, rest_id])
+    inc, nod, object_id = sortdata.sort_for_magnitudes(mag, 14, inc, nod, object_id, max_mag=19)
+    inc = np.array(inc)
+    nod = np.array(nod)
+    object_id = np.array(object_id)
+
+    filtered_inc = []
+    filtered_nod = []
+    final_cospars = []
+
+    no_match_inc = []
+    no_match_nod = []
+
+    for i in range(len(object_id)):
+        obj_id_str = str(object_id[i])
+        matched_cospar = None
+
+        for length in [3]:
+            if len(obj_id_str) >= length:
+                key = int(obj_id_str[:length])
+                if key in cospar_dict:
+                    matched_cospar = cospar_dict[key]
+                    break
+        if matched_cospar is not None:
+            filtered_inc.append(inc[i])
+            filtered_nod.append(nod[i])
+            final_cospars.append(matched_cospar)
+        else:
+            no_match_inc.append(inc[i])
+            no_match_nod.append(nod[i])
+
+    filtered_inc = np.array(filtered_inc)
+    filtered_nod = np.array(filtered_nod)
+    no_match_inc = np.array(no_match_inc)
+    no_match_nod = np.array(no_match_nod)
+
+    unique_cospars = sorted(set(final_cospars))
+    all_colors = plotting.get_200_distinct_colors()
+    if len(unique_cospars) > len(all_colors):
+        raise ValueError(f"Too many COSPAR IDs ({len(unique_cospars)}); only {len(all_colors)} colors available.")
+
+    cospar_to_color = {cospar: all_colors[i] for i, cospar in enumerate(unique_cospars)}
+
+        # Count occurrences of each COSPAR ID
+    cospar_counts = Counter(final_cospars)
+
+    # Sort by descending frequency
+    sorted_cospars = [cospar for cospar, _ in cospar_counts.most_common()]
+
+    # Map colors accordingly
+    cospar_to_color = {cospar: all_colors[i] for i, cospar in enumerate(sorted_cospars)}
+    colors = [cospar_to_color[cospar] for cospar in final_cospars]
+
+    filtered_nod = np.where(np.array(filtered_nod) >= 180, np.array(filtered_nod) - 360, np.array(filtered_nod))
+    filtered_nod = np.mod(np.array(filtered_nod) + 180, 360) - 180
+
+    plt.figure(figsize=(10, 6))
+    plt.scatter(filtered_nod, filtered_inc, c=colors, s=10, label="_nolegend_")
+    if no_match_inc.size > 0:
+        plt.scatter(no_match_nod, no_match_inc, c='gray', s=10, label="No COSPAR match")
+
+    plt.xlabel("RAAN [$\\Omega$] [deg]")
+    plt.ylabel("Inclination [$i$] [deg]")
+    plt.title(title)
+
+    # Create legend handles for COSPAR groups
+    handles = [plt.Line2D([0], [0], marker='o', color='w', label=cospar,
+                      markerfacecolor=cospar_to_color[cospar], markersize=6)
+           for cospar in sorted_cospars]
+
+
+    if no_match_inc.size > 0:
+        handles.append(plt.Line2D([0], [0], marker='o', color='w', label="No COSPAR match",
+                                  markerfacecolor='gray', markersize=6))
+
+    plt.legend(handles=handles, title="COSPAR ID",
+               loc='upper center', bbox_to_anchor=(0.5, -0.15),
+               ncol=min(len(handles), 5), frameon=False)
+
+    plt.grid(True)
+    plt.ylim(0, 41)
+    plt.xlim(-180, 180)
+
+    plt.tight_layout(rect=[0, 0.1, 1, 1])  # leave space at bottom for legend
+    plt.savefig(f"{out_dir}/{title}.png", dpi=300)
+    plt.close()
+
+    return filtered_inc, filtered_nod
+
+def data_monthly_one_seed_with_id(data_crs_all_seeds: list, data_det_all_seeds: list, years: list, dir: str, title: str, seeds: list, monthly_files_by_year_and_seed: dict, metafile_dict: dict):
+    number_years = f"{years}"
+
+    import main_frag_and_rest
+
+    for i, seed in enumerate(seeds):
+        """inc_det_s, inc_crs_s = main_frag_and_rest.main_magnitude_cut(
+            data_crs_all_seeds[i],
+            data_det_all_seeds[i],
+            number_years,
+            "all orbit types",
+            title,
+            f"seed {seed}",
+            dir
+        )"""
+
+        data_GEO_det = []
+        data_GTO_det = []
+        data_followup_det = []
+        data_GEO_crs = []
+        data_GTO_crs = []
+        data_followup_crs = []
+
+        for year in years:
+            for i in range(len(monthly_files_by_year_and_seed[(year, seed)][0])):  # loop over months
+                GEO_file_crs       = monthly_files_by_year_and_seed[(year, seed)][0][i]
+                GEO_file_det       = monthly_files_by_year_and_seed[(year, seed)][1][i]
+                GTO_file_crs       = monthly_files_by_year_and_seed[(year, seed)][2][i]
+                GTO_file_det       = monthly_files_by_year_and_seed[(year, seed)][3][i]
+                followup_file_crs  = monthly_files_by_year_and_seed[(year, seed)][4][i]
+                followup_file_det  = monthly_files_by_year_and_seed[(year, seed)][5][i]
+
+                data_GEO_crs_, data_GTO_crs_, data_followup_crs_, data_GEO_det_, data_GTO_det_, data_followup_det_ = data_returner(
+                    year, seed, None,
+                    [GEO_file_crs, GTO_file_crs, followup_file_crs, GEO_file_det, GTO_file_det, followup_file_det]
+                )
+
+                data_GEO_crs.append(data_GEO_crs_)
+                data_GTO_crs.append(data_GTO_crs_)
+                data_followup_crs.append(data_followup_crs_)
+
+                data_GEO_det.append(data_GEO_det_)
+                data_GTO_det.append(data_GTO_det_)
+                data_followup_det.append(data_followup_det_)
+
+        data_GEO_det = np.hstack(data_GEO_det)
+        data_GTO_det = np.hstack(data_GTO_det)
+        data_followup_det = np.hstack(data_followup_det)
+
+        cospar = metafile_dict
+        print("here", cospar)
+        i_omega_colored_by_cospar(data_GEO_det, f"GEO Detections {number_years}", years, cospar, dir)
+        i_omega_colored_by_cospar(data_GTO_det, f"GTO Detections {number_years}", years, cospar, dir)
+        i_omega_colored_by_cospar(data_followup_det, f"Followup Detections {number_years}", years, cospar, dir)
+
+        #plotting.i_omega_all_orbits(nod_GEO, nod_GTO, nod_fol, inc_GEO, inc_GTO, inc_fol,
+                                   # f"Simulated detections {number_years} {seed}", years, dir)
+
+    #plotting.i_omega_all_orbits(nod_GEO, nod_GTO, nod_fol, inc_GEO, inc_GTO, inc_fol,
+                               # f"Simulated detections {number_years}", years, dir)
+
+    return 
 
 def read_DISCOS_file(filename: str): 
     """function to read the DISCOS file. DISCOS files contain clusters from the simulations from Andre Horstmann. 
