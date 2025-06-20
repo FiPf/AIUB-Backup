@@ -177,7 +177,7 @@ def prepare_data_for_clustering(filename: str) -> ClusterData:
         filename (str): *.crs or *.det file to get data from
 
     Returns:
-        ClusterData: data ready for clustering, contains inc, raan and sem_major (a) arrays
+        ClusterData: data ready for clustering, contains inc, raan and perigee arrays
     """
     data = getdata.array_extender(filename)
     data = np.array(data)
@@ -188,9 +188,9 @@ def prepare_data_for_clustering(filename: str) -> ClusterData:
     raan = data[12]
     raan = adjust_raan_range(raan)
     ecc = data[10]
-    sem_maj = data[8]
+    perigee = data[11]
     mag = data[20]
-    return ClusterData(inc=inc, raan=raan, sem_maj=sem_maj, ecc=ecc, mag=mag)
+    return ClusterData(inc=inc, raan=raan, perigee=perigee, ecc=ecc, mag=mag)
 
 def generate_running_year_ranges(start_year: int, end_year: int, window_size: int=4):
     """create year ranges to bin the data. The overlap of the year ranges is always window_size - 1. 
@@ -223,10 +223,10 @@ def merge_cluster_data(cluster_data_list: list):
     """    
     inc_all = np.concatenate([cd.inc for cd in cluster_data_list])
     raan_all = np.concatenate([cd.raan for cd in cluster_data_list])
-    sem_maj_all = np.concatenate([cd.sem_maj for cd in cluster_data_list])
+    perigee_all = np.concatenate([cd.perigee for cd in cluster_data_list])
     ecc_all = np.concatenate([cd.ecc for cd in cluster_data_list])
     mag_all = np.concatenate([cd.mag for cd in cluster_data_list])
-    return ClusterData(inc=inc_all, raan=raan_all, sem_maj= sem_maj_all, ecc = ecc_all, mag = mag_all) 
+    return ClusterData(inc=inc_all, raan=raan_all, perigee= perigee_all, ecc = ecc_all, mag = mag_all) 
 
 def bin_data_for_clustering(year_ranges: dict, print_res: bool = True): 
     """find the right files and bin the data according to the given year_ranges. 
@@ -263,7 +263,7 @@ def bin_data_for_clustering(year_ranges: dict, print_res: bool = True):
     results = []  # Store tuples of (ClusterData, year_range)
 
     for year_range, orbits in file_lists.items():
-        inc_all, raan_all, sem_maj_all, ecc_all, mag_all = [], [], [], [], []
+        inc_all, raan_all, perigee_all, ecc_all, mag_all = [], [], [], [], []
 
         for orbit, files in orbits.items():
             cluster_data_list = [prepare_data_for_clustering(f) for f in files]
@@ -271,17 +271,17 @@ def bin_data_for_clustering(year_ranges: dict, print_res: bool = True):
 
             inc_all.append(merged_data.inc)
             raan_all.append(merged_data.raan)
-            sem_maj_all.append(merged_data.sem_maj)
+            perigee_all.append(merged_data.perigee)
             ecc_all.append(merged_data.ecc)
             mag_all.append(merged_data.mag)
 
         inc_all = np.concatenate(inc_all) if inc_all else np.array([])
         raan_all = np.concatenate(raan_all) if raan_all else np.array([])
-        sem_maj_all = np.concatenate(sem_maj_all) if sem_maj_all else np.array([])
+        perigee_all = np.concatenate(perigee_all) if perigee_all else np.array([])
         ecc_all = np.concatenate(ecc_all) if ecc_all  else np.array([])
         mag_all = np.concatenate(mag_all) if mag_all  else np.array([])
 
-        results.append((ClusterData(inc=inc_all, raan=raan_all, sem_maj=sem_maj_all, ecc=ecc_all, mag=mag_all), year_range))
+        results.append((ClusterData(inc=inc_all, raan=raan_all, perigee=perigee_all, ecc=ecc_all, mag=mag_all), year_range))
 
     return results  # List of (ClusterData, year_range) tuples
 
@@ -303,7 +303,7 @@ def bin_observed_data(uncorr_obs_files: list, year_ranges: dict, print_res: bool
 
         inc     = np.array(data[11], dtype=float)  
         raan    = np.array(data[12], dtype=float)  
-        sem_maj = np.array(data[8],  dtype=float)  
+        perigee = np.array(data[13],  dtype=float)  
         ecc     = np.array(data[9],  dtype=float)  
         mag     = np.array(data[20], dtype=float)  
 
@@ -312,14 +312,14 @@ def bin_observed_data(uncorr_obs_files: list, year_ranges: dict, print_res: bool
         inc     = inc[valid_idx]
         inc[inc < 0] = 0
         raan    = raan[valid_idx]
-        sem_maj = sem_maj[valid_idx]
+        peigee = perigee[valid_idx]
         ecc     = ecc[valid_idx]
         mag     = mag[valid_idx]
 
         sorted_idx = np.argsort(raan)
         inc     = inc[sorted_idx]
         raan    = raan[sorted_idx]
-        sem_maj = sem_maj[sorted_idx]
+        perigee = perigee[sorted_idx]
         ecc     = ecc[sorted_idx]
         mag     = mag[sorted_idx]
 
@@ -329,7 +329,7 @@ def bin_observed_data(uncorr_obs_files: list, year_ranges: dict, print_res: bool
             ClusterData(
                 inc=inc,
                 raan=raan,
-                sem_maj=sem_maj,
+                perigee=perigee,
                 ecc=ecc,
                 mag=mag
             ),

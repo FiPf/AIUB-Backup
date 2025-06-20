@@ -12,7 +12,7 @@ def plot_anova_f_values(cluster_data, labels, output_folder, filename="anova_f_v
     Generate and save a bar plot of ANOVA F-values between each feature and cluster labels.
 
     Args:
-        cluster_data (ClusterData): Namedtuple with fields inc, raan, sem_maj, ecc, mag.
+        cluster_data (ClusterData): Namedtuple with fields inc, raan, perigee, ecc, mag.
         labels (array-like, shape (N,)): Cluster labels for each data point.
         output_folder (str): Folder to save the ANOVA plot image.
         filename (str, optional): Name of the output file. Defaults to "anova_f_values.png".
@@ -24,7 +24,7 @@ def plot_anova_f_values(cluster_data, labels, output_folder, filename="anova_f_v
     df = pd.DataFrame({
         "inclination": cluster_data.inc,
         "RAAN": cluster_data.raan,
-        "semimajor": cluster_data.sem_maj,
+        "Perigee": cluster_data.perigee,
         "eccentricity": cluster_data.ecc,
         "magnitude": cluster_data.mag
     })
@@ -80,7 +80,7 @@ def plot_correlation_heatmap(cluster_data, output_folder, filename="correlation_
     Generate and save a 5×5 correlation heatmap for features in ClusterData.
 
     Args:
-        cluster_data (ClusterData): Namedtuple with fields inc, raan, sem_maj, ecc, mag (arrays of shape (N,)).
+        cluster_data (ClusterData): Namedtuple with fields inc, raan, perigee, ecc, mag (arrays of shape (N,)).
         output_folder (str): Folder to save the heatmap image.
         filename (str, optional): Name of the output file. Defaults to "correlation_heatmap.png".
     """
@@ -91,7 +91,7 @@ def plot_correlation_heatmap(cluster_data, output_folder, filename="correlation_
     df = pd.DataFrame({
         "inclination": cluster_data.inc,
         "RAAN": cluster_data.raan,
-        "semimajor": cluster_data.sem_maj,
+        "Perigee": cluster_data.perigee,
         "eccentricity": cluster_data.ecc,
         "magnitude": cluster_data.mag
     })
@@ -110,7 +110,7 @@ def plot_mutual_information(cluster_data, labels, output_folder, filename="mutua
     Generate and save a mutual information bar plot between each feature and the cluster labels.
 
     Args:
-        cluster_data (ClusterData): Namedtuple with fields inc, raan, sem_maj, ecc, mag.
+        cluster_data (ClusterData): Namedtuple with fields inc, raan, oerigee, ecc, mag.
         labels (array-like, shape (N,)): Cluster labels for each data point.
         output_folder (str): Folder to save the MI plot image.
         filename (str, optional): Name of the output file. Defaults to "mutual_information.png".
@@ -122,7 +122,7 @@ def plot_mutual_information(cluster_data, labels, output_folder, filename="mutua
     df = pd.DataFrame({
         "inclination": cluster_data.inc,
         "RAAN": cluster_data.raan,
-        "semimajor": cluster_data.sem_maj,
+        "Perigee": cluster_data.perigee,
         "eccentricity": cluster_data.ecc,
         "magnitude": cluster_data.mag
     })
