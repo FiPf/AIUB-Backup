@@ -39,7 +39,7 @@ def plot_anova_f_values(cluster_data, labels, output_folder, filename="anova_f_v
 
     # Plot
     plt.figure(figsize=(6, 4))
-    sns.barplot(x=f_vals, y=features, palette="crest")
+    sns.barplot(x=f_vals, y=features, palette="crest", legend = False)
     plt.xlabel("ANOVA F-value")
     plt.title(title)
     plt.tight_layout()
@@ -135,7 +135,9 @@ def plot_mutual_information(cluster_data, labels, output_folder, filename="mutua
     features = df.columns.tolist()
 
     plt.figure(figsize=(6, 4))
-    sns.barplot(x=mi_vals, y=features, palette="magma")
+    df_plot = pd.DataFrame({"Feature": features, "Mutual Information": mi_vals})
+    df_plot["Feature Label"] = df_plot["Feature"]  # duplicate for hue
+    sns.barplot(data=df_plot, x="Mutual Information", y="Feature", hue="Feature Label", dodge=False, palette="magma", legend=False)
     plt.xlabel("Mutual Information")
     plt.title("MI: Features vs. Cluster Labels")
     plt.tight_layout()
