@@ -1231,7 +1231,7 @@ def data_monthly_one_seed(data_crs_all_seeds: list, data_det_all_seeds: list, ye
             mag = sorted[3]
             size = sorted[4]
 
-            min_size = 0.1
+            min_size = 0.1 # in meters
             sorted = sortdata.sort_for_sizes(size, min_size, nod, src, mag, inc)
             nod, src, mag, inc = sorted
 
@@ -1284,17 +1284,8 @@ def i_omega_colored_by_cospar(data_det, title, years, cospar_dict, out_dir):
     """
     Plots inclination vs RAAN colored by COSPAR ID, with a legend below the plot.
     Also plots points with no COSPAR match in gray.
-
-    Parameters:
-        data_det (np.ndarray): Detected object data with fixed column structure.
-        title (str): Plot title.
-        years (list): List of years (not directly used here).
-        cospar_dict (dict): Mapping from object ID prefixes to COSPAR IDs.
-        out_dir (str): Output directory for the plot.
-
-    Returns:
-        (np.ndarray, np.ndarray): Filtered inclination and RAAN arrays (only matched COSPAR).
     """
+    # Extract fields
     size = data_det[1]
     inc = data_det[9]
     nod = data_det[12]
@@ -1305,112 +1296,85 @@ def i_omega_colored_by_cospar(data_det, title, years, cospar_dict, out_dir):
     object_id = data_det[0]
 
     # Apply sorting and filtering steps
-    sorted_data = sortdata.sort_for_apogee(sma, ecc, inc, nod, src, mag, size, object_id)
-    inc, nod, src, mag, size, object_id = sorted_data[0], sorted_data[1], sorted_data[2], sorted_data[3], sorted_data[4], sorted_data[5]
-
-    min_size = 0.1
-    sorted_data = sortdata.sort_for_sizes(size, min_size, nod, src, mag, inc, object_id)
-    nod, src, mag, inc, object_id = sorted_data
-
-    sorted_data = sortdata.sort_for_inclination(inc, 40, nod, src, mag, object_id)
-    inc = [i for i in inc if i < 40]
-    nod, src, mag, object_id = sorted_data
-
-    _, frag_inc, rest_inc = sortdata.sort_for_sources(inc, src)
-    inc = np.hstack([frag_inc, rest_inc])
-    _, frag_nod, rest_nod = sortdata.sort_for_sources(nod, src)
-    nod = np.hstack([frag_nod, rest_nod])
-    _, frag_mag, rest_mag = sortdata.sort_for_sources(mag, src)
-    mag = np.hstack([frag_mag, rest_mag])
-    _, frag_id, rest_id = sortdata.sort_for_sources(object_id, src)
-    object_id = np.hstack([frag_id, rest_id])
-    inc, nod, object_id = sortdata.sort_for_magnitudes(mag, 14, inc, nod, object_id, max_mag=19)
+    inc, nod, src, mag, size, object_id = sortdata.sort_for_apogee(sma, ecc, inc, nod, src, mag, size, object_id)
+    nod, src, mag, inc, object_id = sortdata.sort_for_sizes(size, 0.1, nod, src, mag, inc, object_id)
+    inc, nod, src, mag, object_id = sortdata.sort_for_inclination(inc, 40, inc, nod, src, mag, object_id)
     inc = np.array(inc)
     nod = np.array(nod)
     object_id = np.array(object_id)
 
-    filtered_inc = []
-    filtered_nod = []
-    final_cospars = []
+    # Source-based stacking
+    _, frag_inc, rest_inc = sortdata.sort_for_sources(inc, src)
+    _, frag_nod, rest_nod = sortdata.sort_for_sources(nod, src)
+    _, frag_mag, rest_mag = sortdata.sort_for_sources(mag, src)  
+    _, frag_id, rest_id = sortdata.sort_for_sources(object_id, src)
+    inc = np.hstack([frag_inc, rest_inc])
+    nod = np.hstack([frag_nod, rest_nod])
+    mag = np.hstack([frag_mag, rest_mag])
+    object_id = np.hstack([frag_id, rest_id])
 
-    no_match_inc = []
-    no_match_nod = []
+    # Magnitude filter
+    inc, nod, object_id = sortdata.sort_for_magnitudes(mag, 14, inc, nod, object_id, max_mag=19)
 
-    for i in range(len(object_id)):
-        obj_id_str = str(object_id[i])
-        matched_cospar = None
-
-        for length in [3]:
-            if len(obj_id_str) >= length:
-                key = int(obj_id_str[:length])
-                if key in cospar_dict:
-                    matched_cospar = cospar_dict[key]
-                    break
-        if matched_cospar is not None:
-            filtered_inc.append(inc[i])
-            filtered_nod.append(nod[i])
-            final_cospars.append(matched_cospar)
+    # Split COSPAR matches
+    filtered_inc, filtered_nod, final_cospars = [], [], []
+    no_match_inc, no_match_nod = [], []
+    for i, oid in enumerate(object_id):
+        prefix = str(int(oid))[:3]
+        cos = cospar_dict.get(int(prefix))
+        if cos:
+            filtered_inc.append(inc[i]); filtered_nod.append(nod[i]); final_cospars.append(cos)
         else:
-            no_match_inc.append(inc[i])
-            no_match_nod.append(nod[i])
-
+            no_match_inc.append(inc[i]); no_match_nod.append(nod[i])
     filtered_inc = np.array(filtered_inc)
     filtered_nod = np.array(filtered_nod)
     no_match_inc = np.array(no_match_inc)
     no_match_nod = np.array(no_match_nod)
 
+    # Prepare colors
     unique_cospars = sorted(set(final_cospars))
-    all_colors = plotting.get_200_distinct_colors()
-    if len(unique_cospars) > len(all_colors):
-        raise ValueError(f"Too many COSPAR IDs ({len(unique_cospars)}); only {len(all_colors)} colors available.")
-
-    cospar_to_color = {cospar: all_colors[i] for i, cospar in enumerate(unique_cospars)}
-
-        # Count occurrences of each COSPAR ID
+    colors_list = plotting.get_200_distinct_colors()
     cospar_counts = Counter(final_cospars)
+    sorted_cospars = [c for c,_ in cospar_counts.most_common()]
+    cospar_to_color = {c: colors_list[i] for i,c in enumerate(sorted_cospars)}
+    colors = [cospar_to_color[c] for c in final_cospars]
 
-    # Sort by descending frequency
-    sorted_cospars = [cospar for cospar, _ in cospar_counts.most_common()]
+    # Normalize RAAN to [-180,180]
+    nod = np.array(nod)
+    nod = np.mod(nod + 180, 360) - 180
+    filtered_nod = np.mod(filtered_nod + 180, 360) - 180
+    no_match_nod = np.mod(no_match_nod + 180, 360) - 180
 
-    # Map colors accordingly
-    cospar_to_color = {cospar: all_colors[i] for i, cospar in enumerate(sorted_cospars)}
-    colors = [cospar_to_color[cospar] for cospar in final_cospars]
+    # Plot
+    plt.figure(figsize=(12, 8))
+    plt.scatter(filtered_nod, filtered_inc, c=colors, s=20, label='_nolegend_')
+    if no_match_inc.size:
+        plt.scatter(no_match_nod, no_match_inc, c='gray', s=20, label='No COSPAR match')
 
-    filtered_nod = np.where(np.array(filtered_nod) >= 180, np.array(filtered_nod) - 360, np.array(filtered_nod))
-    filtered_nod = np.mod(np.array(filtered_nod) + 180, 360) - 180
-
-    plt.figure(figsize=(10, 6))
-    plt.scatter(filtered_nod, filtered_inc, c=colors, s=10, label="_nolegend_")
-    if no_match_inc.size > 0:
-        plt.scatter(no_match_nod, no_match_inc, c='gray', s=10, label="No COSPAR match")
-
-    plt.xlabel("RAAN [$\\Omega$] [deg]")
+    plt.xlabel("RAAN [$\Omega$] [deg]")
     plt.ylabel("Inclination [$i$] [deg]")
     plt.title(title)
 
-    # Create legend handles for COSPAR groups
-    handles = [plt.Line2D([0], [0], marker='o', color='w', label=cospar,
-                      markerfacecolor=cospar_to_color[cospar], markersize=6)
-           for cospar in sorted_cospars]
+    # Gridlines (major + minor)
+    plt.grid(which='both', linestyle='--', linewidth=0.5)
+    plt.minorticks_on()
 
-
-    if no_match_inc.size > 0:
-        handles.append(plt.Line2D([0], [0], marker='o', color='w', label="No COSPAR match",
-                                  markerfacecolor='gray', markersize=6))
-
-    plt.legend(handles=handles, title="COSPAR ID",
+    # Legend below
+    handles = [plt.Line2D([0],[0], marker='o', color='w', label=c,
+                          markerfacecolor=cospar_to_color[c], markersize=8)
+               for c in sorted_cospars]
+    if no_match_inc.size:
+        handles.append(plt.Line2D([0],[0], marker='o', color='w', label='No COSPAR match',
+                                  markerfacecolor='gray', markersize=8))
+    plt.legend(handles=handles, title='COSPAR ID',
                loc='upper center', bbox_to_anchor=(0.5, -0.15),
-               ncol=min(len(handles), 5), frameon=False)
+               ncol=min(len(handles), 6), frameon=False)
 
-    plt.grid(True)
-    plt.ylim(0, 41)
+    plt.ylim(0, 40)
     plt.xlim(-180, 180)
-
-    plt.tight_layout(rect=[0, 0.1, 1, 1])  # leave space at bottom for legend
-    plt.savefig(f"{out_dir}/{title}.png", dpi=300)
+    plt.tight_layout(rect=[0, 0.1, 1, 1])
+    plt.savefig(os.path.join(out_dir, f"{title}.png"), dpi=300)
     plt.close()
-
-    return filtered_inc, filtered_nod
 
 def data_monthly_one_seed_with_id(data_crs_all_seeds: list, data_det_all_seeds: list, years: list, dir: str, title: str, seeds: list, monthly_files_by_year_and_seed: dict, metafile_dict: dict):
     number_years = f"{years}"

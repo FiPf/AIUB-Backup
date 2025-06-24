@@ -22,11 +22,12 @@ def plot_anova_f_values(cluster_data, labels, output_folder, filename="anova_f_v
 
     # Create feature DataFrame
     df = pd.DataFrame({
-        "inclination": cluster_data.inc,
-        "RAAN": cluster_data.raan,
-        "Perigee": cluster_data.perigee,
         "eccentricity": cluster_data.ecc,
-        "magnitude": cluster_data.mag
+        "magnitude": cluster_data.mag_obj,
+        "semi-major axis": cluster_data.sem_maj,
+        "diameter": cluster_data.diameter,
+        "inclination": cluster_data.inc, 
+        "raan": cluster_data.raan
     })
 
     # Standardize features
@@ -89,11 +90,12 @@ def plot_correlation_heatmap(cluster_data, output_folder, filename="correlation_
 
     # Build a DataFrame with all five features
     df = pd.DataFrame({
-        "inclination": cluster_data.inc,
-        "RAAN": cluster_data.raan,
-        "Perigee": cluster_data.perigee,
         "eccentricity": cluster_data.ecc,
-        "magnitude": cluster_data.mag
+        "magnitude": cluster_data.mag_obj,
+        "semi-major axis": cluster_data.sem_maj,
+        "diameter": cluster_data.diameter,
+        "inclination": cluster_data.inc, 
+        "raan": cluster_data.raan
     })
 
     corr = df.corr(method="pearson")  # 5×5 correlation matrix
@@ -120,11 +122,12 @@ def plot_mutual_information(cluster_data, labels, output_folder, filename="mutua
 
     # Build feature matrix
     df = pd.DataFrame({
-        "inclination": cluster_data.inc,
-        "RAAN": cluster_data.raan,
-        "Perigee": cluster_data.perigee,
         "eccentricity": cluster_data.ecc,
-        "magnitude": cluster_data.mag
+        "magnitude": cluster_data.mag_obj,
+        "semi-major axis": cluster_data.sem_maj,
+        "diameter": cluster_data.diameter,
+        "inclination": cluster_data.inc, 
+        "raan": cluster_data.raan
     })
 
     # Standardize features (recommended for MI)

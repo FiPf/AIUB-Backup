@@ -3,6 +3,8 @@ import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 import os
 import matplotlib.cm as cm
+from matplotlib.patches import Patch
+
 
 def clear_directory(directory: str): 
         """delete every file from the current directory (used to ensure that no plots/files are overwritten when rerunning the code)
@@ -79,6 +81,12 @@ class ClusterPlotter:
         color_map_1 = cm.get_cmap(color_scheme, len(sorted_labels))  # First colormap (can repeat)
         color_map_2 = cm.get_cmap('tab20c', len(sorted_labels))  # Second colormap (avoids red)
 
+        # Warn if too many clusters
+        max_colors_1 = color_map_1.N
+        max_colors_2 = color_map_2.N
+        if len(sorted_labels) > max_colors_1 + max_colors_2:
+            print(f"Warning: Number of clusters ({len(sorted_labels)}) exceeds combined color palette size ({max_colors_1 + max_colors_2}). Colors may repeat.")
+
         # Assign colors from both colormaps to avoid repeating colors
         label_to_color = {}
         for i, label in enumerate(sorted_labels):
@@ -107,6 +115,12 @@ class ClusterPlotter:
         plt.title(title)
         plt.grid(True)
 
+        # Add legend
+        legend_elements = [Patch(facecolor=label_to_color[label], label=f"Cluster {i+1}") for i, label in enumerate(sorted_labels)]
+        if -1 in self.labels:
+            legend_elements.append(Patch(facecolor=(1, 0, 0, 1), label="Noise"))
+        plt.legend(handles=legend_elements, bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+
         # Save or show the plot
         if save_name is not None:
             unique_save_path = self.save_unique_plot(save_name, os.path.dirname(save_name))
@@ -115,7 +129,6 @@ class ClusterPlotter:
             plt.close()
         else:
             plt.show()
-
 
     def clusters_3d_plot(self, title: str, save_name=None, color_scheme='Dark2', point_size=5, show_centers=True, feature_names=None, reverse_third_axis = False):
         """Plot the clusters in 3D with fixed coloring, sorting clusters by size.
@@ -147,6 +160,12 @@ class ClusterPlotter:
         color_map_1 = cm.get_cmap(color_scheme, len(sorted_labels))
         color_map_2 = cm.get_cmap('tab20c', len(sorted_labels))
 
+        # Warn if too many clusters
+        max_colors_1 = color_map_1.N
+        max_colors_2 = color_map_2.N
+        if len(sorted_labels) > max_colors_1 + max_colors_2:
+            print(f"Warning: Number of clusters ({len(sorted_labels)}) exceeds combined color palette size ({max_colors_1 + max_colors_2}). Colors may repeat.")
+
         label_to_color = {}
         for i, label in enumerate(sorted_labels):
             if i % 2 == 0:
@@ -176,7 +195,11 @@ class ClusterPlotter:
         if reverse_third_axis:
             ax.invert_yaxis()
 
-        ax.legend()
+        # Add legend
+        legend_elements = [Patch(facecolor=label_to_color[label], label=f"Cluster {i+1}") for i, label in enumerate(sorted_labels)]
+        if -1 in self.labels:
+            legend_elements.append(Patch(facecolor=(1, 0, 0, 1), label="Noise"))
+        ax.legend(handles=legend_elements, bbox_to_anchor=(1.05, 1), loc='upper left')
 
         if save_name is not None:
             unique_save_path = self.save_unique_plot(save_name, os.path.dirname(save_name))
@@ -185,8 +208,6 @@ class ClusterPlotter:
             plt.close()
         else:
             plt.show()
-
-
 
     def combined_clusters_2d_plot(self, other_data, other_labels, other_centers, title: str, size_in_mm: int, point_size=5, grid=True):
         """
