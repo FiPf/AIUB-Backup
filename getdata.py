@@ -983,17 +983,18 @@ def data_returner(year: str, seed: str, population_type: PopulationType, direct_
         GEO_file_crs, GTO_file_crs, followup_file_crs, GEO_file_det, GTO_file_det, followup_file_det = direct_filenames
 
     # Load .crs data
-    data_GEO_crs = array_extender(GEO_file_crs)
-    data_GTO_crs = array_extender(GTO_file_crs)
-    data_followup_crs = array_extender(followup_file_crs)
+    data_GEO_crs = array_extender(GEO_file_crs) if GEO_file_crs else None
+    data_GTO_crs = array_extender(GTO_file_crs) if GTO_file_crs else None
+    data_followup_crs = array_extender(followup_file_crs) if followup_file_crs else None
 
     # Load .det data
-    data_GEO_det = array_extender(GEO_file_det)
-    data_GTO_det = array_extender(GTO_file_det)
-    data_followup_det = array_extender(followup_file_det)
+    data_GEO_det = array_extender(GEO_file_det) if GEO_file_det else None
+    data_GTO_det = array_extender(GTO_file_det) if GTO_file_det else None
+    data_followup_det = array_extender(followup_file_det) if followup_file_det else None
 
     # Return the data
     return data_GEO_crs, data_GTO_crs, data_followup_crs, data_GEO_det, data_GTO_det, data_followup_det
+
 
 def data_four_years_one_seed(data_crs_all_seeds: list, data_det_all_seeds: list, years: str, dir: str, title: str, seeds: list, population_type: PopulationType):
     """loops through all seeds and processes the 4 year data packages, creates all kind of plots
@@ -1165,6 +1166,119 @@ def find_monthly_files(folder: str, year: int, orbit_type: str, seed: int):
                         det_files.append(os.path.join(folder, fname))
 
     return sorted(crs_files), sorted(det_files)
+
+def find_monthly_files_from_ESA(folder: str, year: int, month: int):
+    """Find all .crs and .det files in 'folder' for a given year and month."""
+    crs_files = []
+    det_files = []
+    month_str = f"{month:02d}"
+
+    prefix = f"ESA-SDT-{year}{month_str}01"
+
+    for fname in os.listdir(folder):
+        if fname.startswith(prefix):
+            if fname.endswith(".crs"):
+                crs_files.append(os.path.join(folder, fname))
+            elif fname.endswith(".det"):
+                det_files.append(os.path.join(folder, fname))
+
+    return sorted(crs_files), sorted(det_files)
+
+def data_monthly_one_seed_for_ESA(
+    data_crs_all_seeds: list,
+    data_det_all_seeds: list,
+    years: list,
+    dir: str,
+    title: str,
+    seeds: list,
+    monthly_files_by_year_and_seed: dict
+):
+    number_years = f"{years}"
+
+    import main_frag_and_rest
+
+    for i, seed in enumerate(seeds):
+        data_followup_det = []
+        data_followup_crs = []
+
+        for year in years:
+            key = (year, seed)
+            if key not in monthly_files_by_year_and_seed:
+                continue
+
+            crs_files = monthly_files_by_year_and_seed[key][0]
+            det_files = monthly_files_by_year_and_seed[key][1]
+
+            for i in range(len(crs_files)):
+                followup_file_crs = crs_files[i]
+                followup_file_det = det_files[i] if i < len(det_files) else None
+
+                GEO_file_crs = None
+                GTO_file_crs = None
+                GEO_file_det = None
+                GTO_file_det = None
+
+                data_GEO_crs_, data_GTO_crs_, data_followup_crs_, \
+                data_GEO_det_, data_GTO_det_, data_followup_det_ = data_returner(
+                    year, seed, None,
+                    [
+                        GEO_file_crs,
+                        GTO_file_crs,
+                        followup_file_crs,
+                        GEO_file_det,
+                        GTO_file_det,
+                        followup_file_det,
+                    ],
+                )
+
+                data_followup_crs.append(data_followup_crs_)
+                data_followup_det.append(data_followup_det_)
+
+        data_followup_det = np.hstack(data_followup_det)
+
+        def process_and_plot(data_det, label):
+            size = data_det[1]
+            inc = data_det[9]
+            nod = data_det[12]
+            sma = data_det[8]
+            ecc = data_det[10]
+            src = data_det[3]
+            mag = data_det[20]
+
+            sorted = sortdata.sort_for_apogee(sma, ecc, inc, nod, src, mag, size)
+            inc = sorted[0]
+            nod = sorted[1]
+            src = sorted[2]
+            mag = sorted[3]
+            size = sorted[4]
+
+            min_size = 0.1
+            sorted = sortdata.sort_for_sizes(size, min_size, nod, src, mag, inc)
+            nod, src, mag, inc = sorted
+
+            sorted = sortdata.sort_for_inclination(inc, 40, nod, src, mag)
+            inc = [i for i in inc if i < 40]
+            nod, src, mag = sorted
+
+            _, frag_inc, rest_inc = sortdata.sort_for_sources(inc, src)
+            inc = np.hstack([frag_inc, rest_inc])
+            _, frag_nod, rest_nod = sortdata.sort_for_sources(nod, src)
+            nod = np.hstack([frag_nod, rest_nod])
+            _, frag_mag, rest_mag = sortdata.sort_for_sources(mag, src)
+            mag = np.hstack([frag_mag, rest_mag])
+            inc, nod = sortdata.sort_for_magnitudes(mag, 14, inc, nod, max_mag=19)
+
+            return np.array(inc), np.array(nod)
+
+        inc_fol, nod_fol = process_and_plot(data_followup_det, "Followup")
+
+    plotting.i_omega_all_orbits(
+        nod_fol, np.array([]), np.array([]),
+        inc_fol, np.array([]), np.array([]),
+        f"Simulated detections {number_years}", years, dir
+    )
+
+    return len(nod_fol), 0, 0
 
 def data_monthly_one_seed(data_crs_all_seeds: list, data_det_all_seeds: list, years: list, dir: str, title: str, seeds: list, monthly_files_by_year_and_seed: dict):
     number_years = f"{years}"

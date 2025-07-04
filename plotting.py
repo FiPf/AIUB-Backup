@@ -177,52 +177,91 @@ def correlation_magnitudes_sizes(mag_crs: np.array, mag_det: np.array, diameter_
     plt.savefig(file_path, bbox_inches="tight")
     plt.close()
 
-def i_omega_all_orbits(nod_GEO_det: np.array, nod_GTO_det: np.array, nod_followup_det: np.array, inc_GEO_det: np.array, inc_GTO_det: np.array, inc_followup_det: np.array, title: str, year: str, directory: str):
-    """creates i omega plots where objects from the three different orbit types are displayed using different colors
+def i_omega_all_orbits(
+    nod_GEO_det: np.array,
+    nod_GTO_det: np.array,
+    nod_followup_det: np.array,
+    inc_GEO_det: np.array,
+    inc_GTO_det: np.array,
+    inc_followup_det: np.array,
+    title: str,
+    year: str,
+    directory: str
+):
+    """Creates i-omega plots for GEO, GTO, and followup objects with robust empty checks."""
 
-    Args:
-        nod_GEO_det (np.array): omega data for objects in GEO
-        nod_GTO_det (np.array): omega data for objects in GTO
-        nod_followup_det (np.array): omega data for followup objects
-        inc_GEO_det (np.array): inclination data for objects in GEO
-        inc_GTO_det (np.array): inclination data for objects in GTO
-        inc_followup_det (np.array): inclination data for followup objects
-        title (str): title of the plot
-        year (str): year(s) of the data
-        directory (str): where to store the plot
-    """
+    if (
+        len(inc_GEO_det) == 0
+        and len(inc_GTO_det) == 0
+        and len(inc_followup_det) == 0
+    ):
+        print("No inclination data to plot.")
+        return
 
-    #bring the omega [°] in the right format (between -180° to 180° instead of 0° to 360°)
-    nod_det_converted_GEO = np.where(nod_GEO_det >= 180, nod_GEO_det - 360, nod_GEO_det)
-    nod_det_converted_GEO = np.mod(np.array(nod_det_converted_GEO) + 180, 360) - 180
-    nod_det_converted_GTO = np.where(np.array(nod_GTO_det) >= 180, np.array(nod_GTO_det) - 360, np.array(nod_GTO_det))
-    nod_det_converted_GTO = np.mod(np.array(nod_det_converted_GTO) + 180, 360) - 180
-    nod_det_converted_fol = np.where(np.array(nod_followup_det) >= 180, np.array(nod_followup_det) - 360, np.array(nod_followup_det))
-    nod_det_converted_fol = np.mod(np.array(nod_det_converted_fol) + 180, 360) - 180
-    
+    nod_det_converted_GEO = np.where(
+        nod_GEO_det >= 180, nod_GEO_det - 360, nod_GEO_det
+    ) if len(nod_GEO_det) > 0 else np.array([])
+    nod_det_converted_GEO = np.mod(nod_det_converted_GEO + 180, 360) - 180
+
+    nod_det_converted_GTO = np.where(
+        nod_GTO_det >= 180, nod_GTO_det - 360, nod_GTO_det
+    ) if len(nod_GTO_det) > 0 else np.array([])
+    nod_det_converted_GTO = np.mod(nod_det_converted_GTO + 180, 360) - 180
+
+    nod_det_converted_fol = np.where(
+        nod_followup_det >= 180, nod_followup_det - 360, nod_followup_det
+    ) if len(nod_followup_det) > 0 else np.array([])
+    nod_det_converted_fol = np.mod(nod_det_converted_fol + 180, 360) - 180
+
     plt.clf()
-    
-    plt.figure(figsize=(10, 6), dpi = 200)
-
+    plt.figure(figsize=(10, 6), dpi=200)
     plt.title(title)
-                        
-    plt.scatter(nod_det_converted_GEO, inc_GEO_det, c = "b", s = 5, label = f"Number of detections GEO survey: {len(inc_GEO_det)}")
-    plt.scatter(nod_det_converted_GTO, inc_GTO_det, c = "r", s = 5, label = f"Number of detections GTO survey: {len(inc_GTO_det)}")
-    plt.scatter(nod_det_converted_fol, inc_followup_det, c = "g", s = 5, label = f"Number of detections Followup: {len(inc_followup_det)}")
+
+    if len(inc_GEO_det) > 0:
+        plt.scatter(
+            nod_det_converted_GEO, inc_GEO_det, c="b", s=5,
+            label=f"Number of detections GEO survey: {len(inc_GEO_det)}"
+        )
+
+    if len(inc_GTO_det) > 0:
+        plt.scatter(
+            nod_det_converted_GTO, inc_GTO_det, c="r", s=5,
+            label=f"Number of detections GTO survey: {len(inc_GTO_det)}"
+        )
+
+    if len(inc_followup_det) > 0:
+        plt.scatter(
+            nod_det_converted_fol, inc_followup_det, c="g", s=5,
+            label=f"Number of detections Followup: {len(inc_followup_det)}"
+        )
 
     plt.xlabel("Right Ascension of Ascending Node $\\Omega$ [°]")
     plt.ylabel("Inclination [°]")
-    max_y = max(max(inc_GEO_det), max(inc_GTO_det), max(inc_followup_det))
-    plt.ylim(0, max_y * 1.1)  # Add 10% margin on to
-    plt.yticks(np.linspace(0, max_y * 1.1, num=10)) 
+
+    max_candidates = []
+    if len(inc_GEO_det) > 0:
+        max_candidates.append(max(inc_GEO_det))
+    if len(inc_GTO_det) > 0:
+        max_candidates.append(max(inc_GTO_det))
+    if len(inc_followup_det) > 0:
+        max_candidates.append(max(inc_followup_det))
+
+    if max_candidates:
+        max_y = max(max_candidates)
+        plt.ylim(0, max_y * 1.1)
+        plt.yticks(np.linspace(0, max_y * 1.1, num=10))
+    else:
+        plt.ylim(0, 1)
+
     plt.xticks(range(-180, 181, 60))
     plt.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3), ncol=1)
     plt.grid(True)
-    #plt.show()
+
     file_path = f"omega_i_{year}_detected_only_orbits_labeled.png"
     file_path = save_unique_plot(file_path, directory)
     plt.savefig(file_path, bbox_inches="tight")
     plt.close()
+
     
 def i_omega_separate(nod_det: np.array, inc_det: np.array, date: str, title: str, year: str, orbit_type: str, directory: str, nod_crs: np.array = None, inc_crs: np.array = None):
     """creates the inclination- RAAN plots for both crossings and detections
