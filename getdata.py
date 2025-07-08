@@ -1275,7 +1275,7 @@ def data_monthly_one_seed_for_ESA(
     plotting.i_omega_all_orbits(
         nod_fol, np.array([]), np.array([]),
         inc_fol, np.array([]), np.array([]),
-        f"Simulated detections {number_years}", years, dir
+        f"Simulated detections {number_years} from ESA", years, dir, label = "Number of detections in ESA *.det file"
     )
 
     return len(nod_fol), 0, 0

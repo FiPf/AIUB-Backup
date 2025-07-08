@@ -186,7 +186,8 @@ def i_omega_all_orbits(
     inc_followup_det: np.array,
     title: str,
     year: str,
-    directory: str
+    directory: str, 
+    label: str = None
 ):
     """Creates i-omega plots for GEO, GTO, and followup objects with robust empty checks."""
 
@@ -217,10 +218,14 @@ def i_omega_all_orbits(
     plt.figure(figsize=(10, 6), dpi=200)
     plt.title(title)
 
+    if label is None: 
+        label = f"Number of detections GEO survey: {len(inc_GEO_det)}"
+    else: 
+        label = label + f": {len(inc_GEO_det)}"
     if len(inc_GEO_det) > 0:
         plt.scatter(
             nod_det_converted_GEO, inc_GEO_det, c="b", s=5,
-            label=f"Number of detections GEO survey: {len(inc_GEO_det)}"
+            label=label
         )
 
     if len(inc_GTO_det) > 0:
