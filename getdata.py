@@ -1231,46 +1231,50 @@ def data_monthly_one_seed_for_ESA(
                     ],
                 )
 
+                print(np.array(data_followup_crs_).shape, np.array(data_followup_det_).shape)
+
                 data_followup_crs.append(data_followup_crs_)
                 data_followup_det.append(data_followup_det_)
 
         data_followup_det = np.hstack(data_followup_det)
+        print(np.array(data_followup_det).shape)
 
-        def process_and_plot(data_det, label):
+        def process_and_plot_ESA(data_det, label):
+            #this sorting was compared to data from André Horstman (should be the same method as he uses)
             size = data_det[1]
             inc = data_det[9]
             nod = data_det[12]
+            print("inc, nod", len(inc), len(nod))
             sma = data_det[8]
             ecc = data_det[10]
             src = data_det[3]
             mag = data_det[20]
 
-            sorted = sortdata.sort_for_apogee(sma, ecc, inc, nod, src, mag, size)
+            """sorted = sortdata.sort_for_apogee(sma, ecc, inc, nod, src, mag, size)
             inc = sorted[0]
             nod = sorted[1]
             src = sorted[2]
             mag = sorted[3]
-            size = sorted[4]
+            size = sorted[4]"""
 
-            min_size = 0.1
+            min_size = 0
             sorted = sortdata.sort_for_sizes(size, min_size, nod, src, mag, inc)
             nod, src, mag, inc = sorted
 
-            sorted = sortdata.sort_for_inclination(inc, 40, nod, src, mag)
-            inc = [i for i in inc if i < 40]
-            nod, src, mag = sorted
+            sorted = sortdata.sort_for_inclination(inc, 1000, nod, src, mag, inc)
+            nod, src, mag, inc = sorted
 
-            _, frag_inc, rest_inc = sortdata.sort_for_sources(inc, src)
-            inc = np.hstack([frag_inc, rest_inc])
-            _, frag_nod, rest_nod = sortdata.sort_for_sources(nod, src)
-            nod = np.hstack([frag_nod, rest_nod])
-            _, frag_mag, rest_mag = sortdata.sort_for_sources(mag, src)
-            mag = np.hstack([frag_mag, rest_mag])
+            """tle_inc, frag_inc, rest_inc = sortdata.sort_for_sources(inc, src)
+            inc = np.hstack([frag_inc, rest_inc, tle_inc])
+            tle_nod, frag_nod, rest_nod = sortdata.sort_for_sources(nod, src)
+            nod = np.hstack([frag_nod, rest_nod, tle_nod])
+            tle_mag, frag_mag, rest_mag = sortdata.sort_for_sources(mag, src)
+            mag = np.hstack([frag_mag, rest_mag, tle_mag])"""
             inc, nod = sortdata.sort_for_magnitudes(mag, 14, inc, nod, max_mag=19)
 
             return np.array(inc), np.array(nod)
 
-        inc_fol, nod_fol = process_and_plot(data_followup_det, "Followup")
+        inc_fol, nod_fol = process_and_plot_ESA(data_followup_det, "Followup")
 
     plotting.i_omega_all_orbits(
         nod_fol, np.array([]), np.array([]),
@@ -1345,7 +1349,7 @@ def data_monthly_one_seed(data_crs_all_seeds: list, data_det_all_seeds: list, ye
             mag = sorted[3]
             size = sorted[4]
 
-            min_size = 0.1 # in meters
+            min_size = 0 # in meters
             sorted = sortdata.sort_for_sizes(size, min_size, nod, src, mag, inc)
             nod, src, mag, inc = sorted
 
