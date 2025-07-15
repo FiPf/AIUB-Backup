@@ -267,11 +267,21 @@ def array_extender_6param(filenames: list):
     return data
 
 def extract_separated_obs_files(year: str, dir: str):
-    #look in the directory "sorted_observation_files"
-    #open the folder with year as title
-    #call array extender obs on every file inside this folder
-    #return data of each array
-    #dir is either "sorted_observation_files" (uncorrelated) or "sorted_corr_observation_files" (correlated)
+    """look in the directory "sorted_observation_files", open the folder with year as title, call the array extender for the 
+    observation data on every file inside this folder, return the data of each array
+
+    directory is either "sorted_observation_files" (uncorrelated) or "sorted_corr_observation_files" (correlated)
+
+    Args:
+        year (str): year of the data
+        dir (str): directory where the files are stored
+
+    Raises:
+        ValueError: there must be three files per year, one per orbit type (GEO, GTO, Followup)
+
+    Returns:
+        GEO_data, GTO_data, fol_data: np.arrays of the data
+    """
     
     directory = os.path.join(dir, year)
     filenames = [os.path.join(directory, f) for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
@@ -379,6 +389,14 @@ def array_extender_correlated_obs(filenames: list):
 
 
 def array_extender_plugin(filename: str): 
+    """reads the data from the plugin files and stores them in numpy arrays
+
+    Args:
+        filename (str): file that should be read out
+
+    Returns:
+        data (np.array): np.array of np.arrays with the data from the plugin file
+    """
     runid = []
     ifile = []
     epoch = []
@@ -1147,7 +1165,17 @@ def data_four_years_one_seed(data_crs_all_seeds: list, data_det_all_seeds: list,
 #end of enum
 
 def find_monthly_files(folder: str, year: int, orbit_type: str, seed: int):
-    """Find all .crs and .det files in 'folder' for a given year, orbit, and seed."""
+    """Find all .crs and .det files in 'folder' for a given year, orbit, and seed.
+
+    Args:
+        folder (str): folder where all files are stored
+        year (int): year of the data to be found
+        orbit_type (str): orbit type of the data to be found
+        seed (int): seed of the data to be found
+
+    Returns:
+        sorted(crs_files), sorted(det_files): montly files for the given inputs
+    """
     yy = f"{year % 100:02d}"  # Last two digits of year, zero-padded
     crs_files = []
     det_files = []
@@ -1168,7 +1196,16 @@ def find_monthly_files(folder: str, year: int, orbit_type: str, seed: int):
     return sorted(crs_files), sorted(det_files)
 
 def find_monthly_files_from_ESA(folder: str, year: int, month: int):
-    """Find all .crs and .det files in 'folder' for a given year and month."""
+    """Find all .crs and .det files in 'folder' for a given year and month.
+
+    Args:
+        folder (str): folder where all files are stored
+        year (int): year of the data to be found
+        orbit_type (str): orbit type of the data to be found
+
+    Returns:
+        sorted(crs_files), sorted(det_files): montly files for the given inputs
+    """
     crs_files = []
     det_files = []
     month_str = f"{month:02d}"
@@ -1193,6 +1230,46 @@ def data_monthly_one_seed_for_ESA(
     seeds: list,
     monthly_files_by_year_and_seed: dict
 ):
+    """
+    Process and visualize follow-up data for a single ESA seed using monthly-separated input files.
+
+    This function loops over all given seeds and years, loads the follow-up cross-section (.crs) 
+    and detection (.det) files for each month, extracts the relevant orbital parameters, 
+    sorts them using custom sorting routines, and generates an inclination vs. RAAN plot 
+    for the simulated detections.
+
+    Parameters
+    ----------
+    data_crs_all_seeds : list
+        Placeholder for preloaded cross-section data for all seeds (not used in this version).
+    data_det_all_seeds : list
+        Placeholder for preloaded detection data for all seeds (not used in this version).
+    years : list
+        List of years to process (e.g., [2021, 2022]).
+    dir : str
+        Output directory for saving plots.
+    title : str
+        Title prefix for plots (currently unused inside the function).
+    seeds : list
+        List of seeds (identifiers for separate simulation runs) to process.
+    monthly_files_by_year_and_seed : dict
+        Dictionary mapping (year, seed) tuples to lists of monthly follow-up file paths:
+        {(year, seed): ([list_of_crs_files], [list_of_det_files])}.
+
+    Returns
+    -------
+    tuple
+        A tuple of three integers:
+        (number of processed nodal values, 0, 0).
+        The second and third elements are placeholders for future extensions.
+
+    Notes
+    -----
+    - This function expects an external `data_returner` function and `sortdata` module.
+    - The final plot is generated using `plotting.i_omega_all_orbits`.
+    - Sorting routines are partially based on comparisons with André Horstman's data.
+    """
+
     number_years = f"{years}"
 
     import main_frag_and_rest
@@ -1240,6 +1317,30 @@ def data_monthly_one_seed_for_ESA(
         print(np.array(data_followup_det).shape)
 
         def process_and_plot_ESA(data_det, label):
+            """
+            Extracts, sorts, and prepares inclination and RAAN data for plotting.
+
+            This helper processes the input detection data, sorts it according to 
+            object size, inclination, and apparent magnitude, and returns 
+            cleaned arrays for inclination and nodal longitude (RAAN).
+
+            Parameters
+            ----------
+            data_det : numpy.ndarray
+                Detection data array with orbital and physical parameters 
+                (assumed column structure).
+            label : str
+                Label for the dataset (used for debugging/plotting).
+
+            Returns
+            -------
+            tuple
+                (inc, nod) where:
+                inc : numpy.ndarray
+                    Inclination values after sorting and filtering.
+                nod : numpy.ndarray
+                    RAAN (nodal longitude) values after sorting and filtering.
+            """
             #this sorting was compared to data from André Horstman (should be the same method as he uses)
             size = data_det[1]
             inc = data_det[9]
@@ -1284,7 +1385,56 @@ def data_monthly_one_seed_for_ESA(
 
     return len(nod_fol), 0, 0
 
-def data_monthly_one_seed(data_crs_all_seeds: list, data_det_all_seeds: list, years: list, dir: str, title: str, seeds: list, monthly_files_by_year_and_seed: dict):
+def data_monthly_one_seed(
+    data_crs_all_seeds: list,
+    data_det_all_seeds: list,
+    years: list,
+    dir: str,
+    title: str,
+    seeds: list,
+    monthly_files_by_year_and_seed: dict
+):
+    """
+    Process and visualize GEO, GTO, and follow-up detections for multiple seeds 
+    using monthly-separated input files.
+
+    This function iterates over all provided seeds and years, loads cross-section (.crs) 
+    and detection (.det) files for GEO, GTO, and follow-up objects for each month, 
+    merges them, sorts the orbital elements, and plots inclination vs. RAAN 
+    distributions for each orbit class.
+
+    Parameters
+    ----------
+    data_crs_all_seeds : list
+        Placeholder for preloaded cross-section data for each seed 
+        (not used in this version but kept for compatibility).
+    data_det_all_seeds : list
+        Placeholder for preloaded detection data for each seed 
+        (not used in this version but kept for compatibility).
+    years : list
+        List of years to process (e.g., [2020, 2021]).
+    dir : str
+        Output directory for saving plots.
+    title : str
+        Title prefix for plots (currently unused inside the function).
+    seeds : list
+        List of seeds (simulation run identifiers) to process.
+    monthly_files_by_year_and_seed : dict
+        Dictionary mapping (year, seed) tuples to lists of file paths:
+        Each value must be a tuple of 6 lists:
+        ([GEO_crs], [GEO_det], [GTO_crs], [GTO_det], [followup_crs], [followup_det]).
+
+    Returns
+    -------
+    tuple of int
+        (Number of GEO detections, number of GTO detections, number of follow-up detections).
+
+    Notes
+    -----
+    - Uses `data_returner` to load the data arrays from file paths.
+    - Sorting is performed using functions from the `sortdata` module.
+    - Plots are generated with `plotting.i_omega_all_orbits`.
+    """
     number_years = f"{years}"
 
     import main_frag_and_rest
@@ -1334,6 +1484,32 @@ def data_monthly_one_seed(data_crs_all_seeds: list, data_det_all_seeds: list, ye
         data_followup_det = np.hstack(data_followup_det)
 
         def process_and_plot(data_det, label):
+            """
+            Extracts, sorts, and filters inclination and RAAN data for a given orbit type.
+
+            This helper function takes a detection dataset, applies sorting routines 
+            for apogee, size, inclination, and source, filters out unrealistic inclinations, 
+            and returns arrays for inclination and RAAN (nodal longitude).
+
+            Parameters
+            ----------
+            data_det : numpy.ndarray
+                Detection data array for a specific orbit type.
+            label : str
+                Descriptive label for logging or debugging (GEO, GTO, or Followup).
+
+            Returns
+            -------
+            tuple of numpy.ndarray
+                (inc, nod) where:
+                inc : array of inclination values (deg).
+                nod : array of RAAN (nodal longitude) values (deg).
+
+            Notes
+            -----
+            - Inclination filtering currently excludes values >= 40 deg.
+            - Uses custom `sortdata` methods to ensure consistency with ESA sorting conventions.
+            """
             size = data_det[1]
             inc = data_det[9]
             nod = data_det[12]
@@ -1379,9 +1555,14 @@ def data_monthly_one_seed(data_crs_all_seeds: list, data_det_all_seeds: list, ye
 
     return len(nod_GEO), len(nod_GTO), len(nod_fol)
 
-def read_metadata_file(metadata_filepath):
-    """
-    Reads the metadata file and returns a dictionary mapping ID (int) -> COSPAR ID (str).
+def read_metadata_file(metadata_filepath: str):
+    """Reads the metadata file and returns a dictionary mapping ID (int) -> COSPAR ID (str).
+
+    Args:
+        metadata_filepath (str): filepath where the metadata file is stored
+
+    Returns:
+        id_to_cospar: array with the read out cospar ids 
     """
     id_to_cospar = {}
     with open(metadata_filepath, "r") as f:
@@ -1394,14 +1575,16 @@ def read_metadata_file(metadata_filepath):
             id_to_cospar[obj_id] = cospar
     return id_to_cospar
 
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-
-def i_omega_colored_by_cospar(data_det, title, years, cospar_dict, out_dir):
-    """
-    Plots inclination vs RAAN colored by COSPAR ID, with a legend below the plot.
+def i_omega_colored_by_cospar(data_det: np.array, title: str, years: np.array, cospar_dict: dict, out_dir: str):
+    """Plots inclination vs RAAN colored by COSPAR ID, with a legend below the plot.
     Also plots points with no COSPAR match in gray.
+
+    Args:
+        data_det (np.array): detection data, which we want to color by cospar id (would also work for crossing data)
+        title (str): title of the plot
+        years (np.array): years of the data 
+        cospar_dict (dict): cospar dict, already extracted from metafile using read_metadata_file function
+        out_dir (str): directory to store the plot
     """
     # Extract fields
     size = data_det[1]
@@ -1495,6 +1678,23 @@ def i_omega_colored_by_cospar(data_det, title, years, cospar_dict, out_dir):
     plt.close()
 
 def data_monthly_one_seed_with_id(data_crs_all_seeds: list, data_det_all_seeds: list, years: list, dir: str, title: str, seeds: list, monthly_files_by_year_and_seed: dict, metafile_dict: dict):
+    """Process monthly GEO, GTO, and follow-up detections for each seed and generate
+    inclination–RAAN plots colored by COSPAR IDs.
+
+    This function loads cross-section and detection files for each orbit type
+    and month, merges the data, and visualizes the results using unique
+    object identifiers provided by `metafile_dict`.
+
+    Args:
+        data_crs_all_seeds (list): list with crossing data for all seeds
+        data_det_all_seeds (list): list with detection data for all seeds
+        years (list): list of years
+        dir (str): directory 
+        title (str): title of the plots
+        seeds (list): proof seeds of the data
+        monthly_files_by_year_and_seed (dict): dict containing the filesnames for the existing monthly files for the given years and seeds
+        metafile_dict (dict): dictionary with the metafile
+    """    
     number_years = f"{years}"
 
     import main_frag_and_rest

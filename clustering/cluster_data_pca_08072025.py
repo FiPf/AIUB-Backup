@@ -194,7 +194,7 @@ def prepare_data_for_clustering(filename: str) -> ClusterData:
     diameter = data[1]
     true_lat = data[13]
     mu = 3.986004418e14
-    mean_motion = np.sqrt(mu/sem_maj**3)
+    mean_motion = np.sqrt(mu/(sem_maj*1000)**3) #convert semi major from km to m
     mean_motion = mean_motion/(2*np.pi)*86_400
     return ClusterData(ecc=ecc, sem_maj=sem_maj, inc=inc, raan=raan, perigee=perigee, true_lat=true_lat, mean_motion=mean_motion, mag_obj=mag_obj, diameter=diameter)
 
@@ -219,7 +219,14 @@ def generate_running_year_ranges(start_year: int, end_year: int, window_size: in
     return year_ranges
 
 def merge_cluster_data(cluster_data_list: list):
-    """Merge multiple ClusterData objects into a single ClusterData."""
+    """Merge multiple ClusterData objects into a single ClusterData.
+
+    Args:
+        cluster_data_list (list): list with data to cluster
+
+    Returns:
+        ClusterData (named tuple): contains data with all dimensions 
+    """
 
     sem_maj_all = np.concatenate([cd.sem_maj for cd in cluster_data_list])
     inc_all = np.concatenate([cd.inc for cd in cluster_data_list])

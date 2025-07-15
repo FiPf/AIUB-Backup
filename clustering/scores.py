@@ -154,12 +154,31 @@ def sil_score(ClusteringResult: namedtuple):
     return score
 
 def DBCV_score_python(ClusteringResult: namedtuple): 
+    """DBCV score, written in Python. Based on the following github: 
+    https://github.com/christopherjenness/DBCV. This version
+    is way too slow and inefficient, hence I have rewritten it. It is a bit faster now.
+
+    Args:
+        ClusteringResult (namedtuple): named tuple containing the output of a clustering. 
+
+    Returns:
+        dbcv_score (float): DBCV score
+    """
     data = ClusteringResult.data 
     labels = ClusteringResult.labels
     dbcv_score = DBCV(data, labels)
     return dbcv_score
 
 def DBCV_score_rust(ClusteringResult: namedtuple):
+    """The Python version was still too slow, hence this version of DBCV score in Rust. Still based on: https://github.com/christopherjenness/DBCV. 
+    A bit faster :) 
+
+    Args:
+        ClusteringResult (namedtuple): named tuple containing the output of a clustering. 
+
+    Returns:
+        dbcv_score (float): DBCV score
+    """
     data = ClusteringResult.data
     labels = ClusteringResult.labels
 
@@ -290,6 +309,34 @@ def cluster_density_convex_hull(ClusteringResult):
     return densities, boundaries
 
 def plot_scores_for_different_binnings(array_of_metrics, array_of_yearranges, array_of_binwidths, store_dir):
+    """
+    Generate and save scatter plots comparing clustering quality scores 
+    (e.g., Davies-Bouldin, Calinski-Harabasz, Dunn Index, Silhouette) 
+    for different year ranges and binning widths.
+
+    Each plot shows how a particular clustering metric varies with the 
+    time range and bin width, with different colors for each binning width.
+
+    Parameters
+    ----------
+    array_of_metrics : list of list of float
+        A list where each element is a list of metric values 
+        [Davies-Bouldin, Calinski-Harabasz, Dunn Index, Silhouette]. 
+        Missing metrics can be `None` or omitted.
+    array_of_yearranges : list of str
+        List of year range labels (e.g., "2000-2010") corresponding to each metric entry.
+    array_of_binwidths : list of int or float
+        List of binning widths (e.g., 5, 10) in years, matching the metrics and year ranges.
+    store_dir : str
+        Directory path where the generated plots will be saved.
+
+    Notes
+    -----
+    - Uses a consistent color map to distinguish different bin widths.
+    - Skips a metric plot if all metric values are `None`.
+    - Saves one scatter plot per metric in the specified directory.
+    """
+
     score_names = ["Davies-Bouldin", "Calinski-Harabasz", "Dunn Index", "Silhouette Score"]
     os.makedirs(store_dir, exist_ok=True)
 

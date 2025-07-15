@@ -799,6 +799,11 @@ def i_omega_per_size(inc: np.array, raan: np.array, diameter: np.array, year: st
 from matplotlib import cm
 
 def get_200_distinct_colors():
+    """find 200 distinct colors, used for clustering/machine learning, if the output has many colors that need to be visually distinguished
+
+    Returns:
+        all_colors[:200]: np.array with the distinct colors
+    """
     # Choose qualitative colormaps with distinct colors
     colormaps = ['tab10', 'tab20', 'tab20b', 'tab20c', 'Set1', 'Set2', 'Set3', 'Paired', 'Accent', 'Dark2', 'Pastel1', 'Pastel2']
     

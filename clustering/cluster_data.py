@@ -296,6 +296,18 @@ def bin_data_for_clustering(year_ranges: dict, print_res: bool = True):
     return results  # List of (ClusterData, year_range) tuples
 
 def bin_observed_data(uncorr_obs_files: list, year_ranges: dict, print_res: bool = False):
+    """extract observed data from files where it is stored, put it in a named tuple, so that 
+    it is ready for clustering
+
+    Args:
+        uncorr_obs_files (list): list of files where observed data is stored
+        year_ranges (dict): year range of the data
+        print_res (bool, optional): whether to print the results or not. Defaults to False.
+
+    Returns: 
+        ClusterData(inc=inc, raan=raan), year_range) (named tuple): contains the observed data ready for clustering
+        
+    """
     results = []  # Store tuples of (ClusterData, year_range)
     
     for year_range, years in year_ranges.items():

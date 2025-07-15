@@ -7,6 +7,8 @@ from scipy.spatial.distance import cdist
 
 #https://arxiv.org/abs/1810.05691 algorithms are based on this paper!
 
+#This once worked, incredibly inefficient!!! Now it is broken :/
+
 def total_cost(data: np.array, medoid_indices: np.array):
     """Compute the total cost given medoid indices for the data.
 
@@ -397,7 +399,7 @@ def pam_clustering(data: np.array, k: int, build_function: Callable = None, swap
     return ClusteringResult(labels=labels, cluster_centers=medoids_, data=data)
 
 
-#boring implementations from sklearn and python. likely faster than custom implementation. 
+#boring implementations from sklearn and python. likely faster than custom implementation. does not work, problems with imports
 def kmedoids_sklearn(data: np.array, k: int):
     """K-Medoids clustering using scikit-learn-extra. https://scikit-learn-extra.readthedocs.io/en/stable/generated/sklearn_extra.cluster.KMedoids.html 
 

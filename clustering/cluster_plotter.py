@@ -305,7 +305,15 @@ class ClusterPlotter:
 
         plt.show()
 
-def save_table_as_image(df, filename, title=None, fontsize=10):
+def save_table_as_image(df, filename: str, title: str=None, fontsize: int=10):
+    """save a table from a dataframe as image
+
+    Args:
+        df (dataframe): dataframe that should be saved as image
+        filename (str): filename, where to save the final image
+        title (str, optional): title of the image. Defaults to None.
+        fontsize (int, optional): Fontsize of the table. Defaults to 10.
+    """
     fig, ax = plt.subplots(figsize=(len(df.columns)*2, len(df)*0.6 + 1))
     ax.axis('off')
 

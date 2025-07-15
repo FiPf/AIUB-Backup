@@ -170,6 +170,20 @@ def sort_for_inclination_all_data(all_data: np.array, inc_index: int, max_inc: f
     return filtered_data
 
 def sort_for_magnitudes(mag: np.array, min_mag: float, *arrays, max_mag: float = None): 
+    """remove all objects outside a given magnitude range [min_mag, mag_mag]
+
+    Args:
+        mag (np.array): array of magnitudes to sort
+        min_mag (float): Minimum magnitude, objects with lower magnitudes are removed
+        *arrays (np.array): any number of numpy arrays, from which the objects with the indices that were removed in mag are removed
+        max_mag (float, optional): Maximum magnitude, objects with higher magnitudes are removed. Defaults to None.
+
+    Raises:
+        ValueError: input array must have the same length as the magnitudes array
+
+    Returns: numpy array of input arrays with the right objects removed
+        
+    """
     sorted_arrays = []
     for array in arrays: 
         if len(array) != len(mag): 
@@ -186,6 +200,20 @@ def sort_for_magnitudes(mag: np.array, min_mag: float, *arrays, max_mag: float =
     return sorted_arrays
 
 def sort_for_sizes(size: np.array, min_size: float, *arrays, max_size: float = None):
+    """remove all objects outside a given size range [min_size, mag_size]
+
+    Args:
+        mag (np.array): array of sizes to sort
+        min_mag (float): Minimum size, smaller objects are removed
+        *arrays (np.array): any number of numpy arrays, from which the objects with the indices that were removed in mag are removed
+        max_mag (float, optional): Maximum size, larger objects are removed. Defaults to None.
+
+    Raises:
+        ValueError: input array must have the same length as the size array
+
+    Returns: numpy array of input arrays with the right objects removed
+        
+    """
     sorted_arrays = []
     for array in arrays:
         if len(array) != len(size):

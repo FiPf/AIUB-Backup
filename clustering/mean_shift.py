@@ -48,8 +48,6 @@ def mean_shift_clustering(data: np.ndarray, bandwidth: float = 0.5) -> Clusterin
     # Return the result as a namedtuple
     return ClusteringResult(labels=labels, cluster_centers=original_scale_centers, data=data)
 
-
-    
 def compute_cost_function(data, bandwidth):
     """Compute the silhouette score for a given bandwidth value in MeanShift clustering.
     A higher silhouette score indicates better clustering.

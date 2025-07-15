@@ -388,11 +388,14 @@ def find_matching_indices_MJD(list1: list, list2: list, threshold: float = 0.000
     
     return matching_indices
 
-# Function to calculate 3d position and velocity from orbital elements, should do the job of the plugin
-#Note: this does not work for the following reasons: 
-#first reason: I need a data for the Celmech input, which I do not have from the *.det file. 
-#second reason: do determine an elliptical or circular orbit in Celmech, I need multiple observations, which I do not get out of the *.det file.
-def orbital_to_cartesian(a, e, i, Omega, omega, nu, mu=398600.4418):  # mu in km^3/s^2 for Earth
+def orbital_to_cartesian(a, e, i, Omega, omega, nu, mu=398600.4418):
+    """
+    Function to calculate 3D position and velocity from orbital elements, should do the job of the plugin.
+
+    Note: this does not work for the following reasons:
+    first reason: I need a data for the Celmech input, which I do not have from the *.det file.
+    second reason: to determine an elliptical or circular orbit in Celmech, I need multiple observations, which I do not get out of the *.det file.
+    """
     # Step 1: Calculate distance r
     r = a * (1 - e**2) / (1 + e * np.cos(np.radians(nu)))
     
