@@ -1677,7 +1677,7 @@ def i_omega_colored_by_cospar(data_det: np.array, title: str, years: np.array, c
     plt.savefig(os.path.join(out_dir, f"{title}.png"), dpi=300)
     plt.close()
 
-def data_monthly_one_seed_with_id(data_crs_all_seeds: list, data_det_all_seeds: list, years: list, dir: str, title: str, seeds: list, monthly_files_by_year_and_seed: dict, metafile_dict: dict):
+def data_monthly_one_seed_with_id(years: list, dir: str, seeds: list, monthly_files_by_year_and_seed: dict, metafile_dict: dict):
     """Process monthly GEO, GTO, and follow-up detections for each seed and generate
     inclination–RAAN plots colored by COSPAR IDs.
 
@@ -1686,11 +1686,8 @@ def data_monthly_one_seed_with_id(data_crs_all_seeds: list, data_det_all_seeds: 
     object identifiers provided by `metafile_dict`.
 
     Args:
-        data_crs_all_seeds (list): list with crossing data for all seeds
-        data_det_all_seeds (list): list with detection data for all seeds
         years (list): list of years
         dir (str): directory 
-        title (str): title of the plots
         seeds (list): proof seeds of the data
         monthly_files_by_year_and_seed (dict): dict containing the filesnames for the existing monthly files for the given years and seeds
         metafile_dict (dict): dictionary with the metafile
