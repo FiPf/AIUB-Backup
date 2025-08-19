@@ -48,6 +48,26 @@ def cluster_data_to_array(data: ClusterData) -> np.ndarray:
     """
     return np.vstack([getattr(data, f) for f in CLUSTER_FEATURES]).T
 
+def generate_running_year_ranges(start_year: int, end_year: int, window_size: int=4):
+    """create year ranges to bin the data. The overlap of the year ranges is always window_size - 1. 
+    Used to analyze the cluster evolution.
+
+    Args:
+        start_year (int): start of the data
+        end_year (int): end of the data
+        window_size (int, optional): How many years to put in one plot. Defaults to 4.
+
+    Returns:
+        year_ranges (np.array): years grouped in the desired way 
+    """
+    year_ranges = {}
+    current_start = start_year
+    while current_start + window_size - 1 <= end_year:
+        current_end = current_start + window_size - 1
+        year_ranges[f"{current_start}-{current_end}"] = np.arange(current_start, current_end + 1)
+        current_start += 1
+    return year_ranges
+
 def normalize_data(arr: np.array):
     """Normalize data to [0,1] using MinMaxScaler.
 
@@ -103,93 +123,103 @@ def adjust_raan_range(raan_values):
     return raan_adjusted
 
 def prepare_data_for_clustering(filenames: list) -> ClusterData:
-    """Load data from file, perform sorting, adjust RAAN, compute mean motion, prepare ClusterData.
+    """Load data from file(s), perform sorting, adjust RAAN, compute mean motion, prepare ClusterData.
 
     Args:
-        filename (list): paths to .crs or .det files
+        filenames (list): paths to .crs or .det files or lists of files
 
     Returns:
-        ClusterData: ready for clustering, includes cospar_id and features
+        Tuple[ClusterData, ClusterData]: matched and unmatched data ready for clustering
     """
     data = []
 
-    for filename in filenames:
-        data_one_file = getdata.array_extender(filename)
-        data_one_file = np.array(data_one_file)
-        data_TLE, data_frag, data_rest = sortdata.data_sorter(data_one_file, semi_major_index=8, ecc_index=10, inc_index=9, mag_index=20, source_index=3)
-        data_one_file = np.hstack([data_frag, data_rest])
-        data.append(data_one_file)
+    # Loop over all entries in filenames
+    for entry in filenames:
+        files_to_process = entry if isinstance(entry, list) else [entry]
+        for f in files_to_process:
+            if "10cm" in f:  # skip 10cm files
+                continue
+            data_one_file = getdata.array_extender(f)
+            data_one_file = np.array(data_one_file)
+            data_TLE, data_frag, data_rest = sortdata.data_sorter(
+                data_one_file, semi_major_index=8, ecc_index=10, inc_index=9,
+                mag_index=20, source_index=3
+            )
+            data_one_file = np.hstack([data_frag, data_rest])
+            data.append(data_one_file)
 
+    if not data:
+        raise ValueError("No valid data files found (all skipped or missing)")
+
+    # Merge all data arrays horizontally
     data = np.hstack(data)
     cospar_id = data[0]
 
+    # Extract orbital parameters
     inc = data[9]
-    raan = data[12]
-    raan = adjust_raan_range(raan)
+    raan = adjust_raan_range(data[12])
     ecc = data[10]
     perigee = data[11]
     mag_obj = data[20]
     sem_maj = data[8]
     diameter = data[1]
     true_lat = data[13]
-    mu = 3.986004418e14
-    mean_motion = np.sqrt(mu/(sem_maj*1000)**3) # convert km to m
-    mean_motion = mean_motion/(2*np.pi)*86400
 
+    # Compute mean motion
+    mu = 3.986004418e14
+    mean_motion = np.sqrt(mu / (sem_maj * 1000) ** 3)  # km → m
+    mean_motion = mean_motion / (2 * np.pi) * 86400  # rad/s → rev/day
+
+    # Prepare arrays for filtering
     arrays = [inc, raan, ecc, perigee, mag_obj, sem_maj, diameter, true_lat, mean_motion]
     filtered, no_match = [[] for _ in arrays], [[] for _ in arrays]
     final_cospars = []
 
+    # Read metadata mapping
     cospar_dict = getdata.read_metadata_file("../input/geogto.dat")
-    print(cospar_dict.keys())
 
-    all_ids = []
-    for i, obj in enumerate(cospar_id): 
+    for i, obj in enumerate(cospar_id):
         prefix = str(int(obj))[:3]
-        id = cospar_dict.get(int(prefix))
-        all_ids.append(id)
-        if id: 
-            for j, arr in enumerate(arrays): 
+        cid = cospar_dict.get(int(prefix))
+        if cid:
+            for j, arr in enumerate(arrays):
                 filtered[j].append(arr[i])
-            final_cospars.append(id)
-
-        else: 
-            for j, arr in enumerate(arrays): 
+            final_cospars.append(cid)
+        else:
+            for j, arr in enumerate(arrays):
                 no_match[j].append(arr[i])
 
+    # Convert lists to arrays
     filtered = [np.array(a) for a in filtered]
     no_match = [np.array(a) for a in no_match]
 
-    cospar_ids_clean = [cid for cid in all_ids if cid is not None]
-    cospar_str = ", ".join(cospar_ids_clean)
-    print("All COSPAR-IDS form my geogto.dat file:\n", cospar_str)
-
     return (
-    ClusterData(  
-        cospar_id=np.array(final_cospars),
-        inc=filtered[0],
-        raan=filtered[1],
-        ecc=filtered[2],
-        perigee=filtered[3],
-        mag_obj=filtered[4],
-        sem_maj=filtered[5],
-        diameter=filtered[6],
-        true_lat=filtered[7],
-        mean_motion=filtered[8]
-    ),
-    ClusterData( 
-        cospar_id=np.array(['Other'] * len(no_match[0])),
-        inc=no_match[0],
-        raan=no_match[1],
-        ecc=no_match[2],
-        perigee=no_match[3],
-        mag_obj=no_match[4],
-        sem_maj=no_match[5],
-        diameter=no_match[6],
-        true_lat=no_match[7],
-        mean_motion=no_match[8]
+        ClusterData(
+            cospar_id=np.array(final_cospars),
+            inc=filtered[0],
+            raan=filtered[1],
+            ecc=filtered[2],
+            perigee=filtered[3],
+            mag_obj=filtered[4],
+            sem_maj=filtered[5],
+            diameter=filtered[6],
+            true_lat=filtered[7],
+            mean_motion=filtered[8]
+        ),
+        ClusterData(
+            cospar_id=np.array(['Other'] * len(no_match[0])),
+            inc=no_match[0],
+            raan=no_match[1],
+            ecc=no_match[2],
+            perigee=no_match[3],
+            mag_obj=no_match[4],
+            sem_maj=no_match[5],
+            diameter=no_match[6],
+            true_lat=no_match[7],
+            mean_motion=no_match[8]
+        )
     )
-)
+
 
 
 def merge_cluster_data(cluster_data_list: list):

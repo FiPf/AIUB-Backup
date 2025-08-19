@@ -1192,7 +1192,11 @@ def find_monthly_files(folder: str, year: int, orbit_type: str, seed: int):
                         crs_files.append(os.path.join(folder, fname))
                     elif month_part.endswith(".det"):
                         det_files.append(os.path.join(folder, fname))
+                
+    det_files = [f for f in det_files if "10cm" not in f]
+    crs_files = [f for f in crs_files if "10cm" not in f]
 
+    print(sorted(crs_files), sorted(det_files))
     return sorted(crs_files), sorted(det_files)
 
 def find_monthly_files_from_ESA(folder: str, year: int, month: int):
