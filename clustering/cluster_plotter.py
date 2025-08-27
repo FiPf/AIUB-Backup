@@ -54,74 +54,53 @@ class ClusterPlotter:
         return new_file_path
 
     def clusters_2d_plot(self, title: str, save_name=None, color_scheme='Dark2', point_size=5, show_centers=True):
-        """Plot the clusters in 2D with fixed coloring, sorting clusters by size.
-
-        Args:
-            title (str): Title of the plot.
-            save_name (str, optional): File path to save the plot. If None, the plot is displayed.
-            color_scheme (str, optional): Color scheme for the clusters. Defaults to 'Dark2'.
-            point_size (int, optional): Size of the data points. Defaults to 5.
-            show_centers (bool, optional): Show the centers of the clusters or not. Defaults to True.
-        """
         plt.figure(figsize=(10, 7))
 
         # Sort clusters by size, ignoring noise (-1)
         unique_labels, counts = np.unique(self.labels, return_counts=True)
-
-        # Separate noise and valid clusters
         is_noise = unique_labels == -1
         valid_labels = unique_labels[~is_noise]
         valid_counts = counts[~is_noise]
-
-        # Sort clusters by size (descending)
         sorted_indices = np.argsort(-valid_counts)
         sorted_labels = valid_labels[sorted_indices]
 
-        # Generate two colormaps: one for general clusters and one that excludes red
-        color_map_1 = cm.get_cmap(color_scheme, len(sorted_labels))  # First colormap (can repeat)
-        color_map_2 = cm.get_cmap('tab20c', len(sorted_labels))  # Second colormap (avoids red)
-
-        # Warn if too many clusters
-        max_colors_1 = color_map_1.N
-        max_colors_2 = color_map_2.N
-        if len(sorted_labels) > max_colors_1 + max_colors_2:
-            print(f"Warning: Number of clusters ({len(sorted_labels)}) exceeds combined color palette size ({max_colors_1 + max_colors_2}). Colors may repeat.")
-
-        # Assign colors from both colormaps to avoid repeating colors
+        color_map_1 = cm.get_cmap(color_scheme, len(sorted_labels))
+        color_map_2 = cm.get_cmap('tab20c', len(sorted_labels))
         label_to_color = {}
         for i, label in enumerate(sorted_labels):
-            if i % 2 == 0:
-                label_to_color[label] = color_map_1(i // 2)  # Use color map 1 for even indices
-            else:
-                label_to_color[label] = color_map_2(i // 2)  # Use color map 2 for odd indices
+            label_to_color[label] = color_map_1(i // 2) if i % 2 == 0 else color_map_2(i // 2)
+        label_to_color[-1] = (1, 0, 0, 1)
 
-        # Assign noise to red
-        label_to_color[-1] = (1, 0, 0, 1)  # Noise is always red (RGBA format)
+        coloring = [label_to_color[label] for label in self.labels]
 
-        # Apply colors (fixing ValueError)
-        coloring = [label_to_color[label] for label in self.labels]  # Keep as list, no np.array()
-
-        # Scatter plot of data points
+        # Scatter plot
         plt.scatter(self.normalized_data[:, 1], self.normalized_data[:, 0], c=coloring, s=point_size)
 
         # Plot cluster centers
         if show_centers and hasattr(self, 'cluster_centers') and self.cluster_centers is not None:
             plt.scatter(self.cluster_centers[:, 1], self.cluster_centers[:, 0], c='black', marker='X', s=100, label='Cluster Centers')
 
-        # Fixed plot settings
-        plt.xlabel('RAAN [°]')
-        plt.ylabel('Inclination [°]')
+        # Enlarged labels and title
+        label_fontsize = 14
+        title_fontsize = 18
+        tick_fontsize = 15
+        legend_fontsize = 15
+
+        plt.xlabel(r'$\Omega$ [°]', fontsize=label_fontsize)
+        plt.ylabel(r'$i$ [°]', fontsize=label_fontsize)
         plt.ylim(0, 22)
-        plt.title(title)
+        plt.title(title, fontsize=title_fontsize)
+        plt.xticks(fontsize=tick_fontsize)
+        plt.yticks(fontsize=tick_fontsize)
         plt.grid(True)
 
-        # Add legend
+        # Enlarged legend
         legend_elements = [Patch(facecolor=label_to_color[label], label=f"Cluster {i+1}") for i, label in enumerate(sorted_labels)]
         if -1 in self.labels:
             legend_elements.append(Patch(facecolor=(1, 0, 0, 1), label="Noise"))
-        plt.legend(handles=legend_elements, bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+        plt.legend(handles=legend_elements, bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0., fontsize=legend_fontsize)
 
-        # Save or show the plot
+        # Save or show
         if save_name is not None:
             unique_save_path = self.save_unique_plot(save_name, os.path.dirname(save_name))
             plt.savefig(unique_save_path, dpi=300, bbox_inches='tight')
@@ -129,6 +108,7 @@ class ClusterPlotter:
             plt.close()
         else:
             plt.show()
+
 
     def clusters_3d_plot(self, title: str, save_name=None, color_scheme='Dark2', point_size=5, show_centers=True, feature_names=None, reverse_third_axis = False):
         """Plot the clusters in 3D with fixed coloring, sorting clusters by size.
