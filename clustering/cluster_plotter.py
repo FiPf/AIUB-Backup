@@ -4,7 +4,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import os
 import matplotlib.cm as cm
 from matplotlib.patches import Patch
-
+from matplotlib.lines import Line2D
 
 def clear_directory(directory: str): 
         """delete every file from the current directory (used to ensure that no plots/files are overwritten when rerunning the code)
@@ -53,7 +53,7 @@ class ClusterPlotter:
         
         return new_file_path
 
-    def clusters_2d_plot(self, title: str, save_name=None, color_scheme='Dark2', point_size=5, show_centers=True):
+    def clusters_2d_plot(self, title: str, save_name=None, point_size=5, show_centers=True):
         plt.figure(figsize=(10, 7))
 
         # Sort clusters by size, ignoring noise (-1)
@@ -64,12 +64,20 @@ class ClusterPlotter:
         sorted_indices = np.argsort(-valid_counts)
         sorted_labels = valid_labels[sorted_indices]
 
-        color_map_1 = cm.get_cmap(color_scheme, len(sorted_labels))
-        color_map_2 = cm.get_cmap('tab20c', len(sorted_labels))
+        # Extreme colors palette
+        extreme_colors = [
+            "#026D02", "#00005F", '#FFFF00', "#A148A1", '#00FFFF',
+            '#FF8000', '#8000FF', "#F157A4", "#04FF00", '#804000', '#000000',
+            '#808080', "#922C2C", "#FF00BF", "#348FFE", "#6F496D", "#ECEC57", "#510051", "#005151",
+            "#ED9366", '#8000FF', '#00FF80', '#804000', '#000000',
+            "#2D3DB8"
+        ]
+
+        # Assign colors (cycle if more clusters than colors)
         label_to_color = {}
         for i, label in enumerate(sorted_labels):
-            label_to_color[label] = color_map_1(i // 2) if i % 2 == 0 else color_map_2(i // 2)
-        label_to_color[-1] = (1, 0, 0, 1)
+            label_to_color[label] = extreme_colors[i % len(extreme_colors)]
+        label_to_color[-1] = (1, 0, 0, 1)  # Noise in red
 
         coloring = [label_to_color[label] for label in self.labels]
 
@@ -78,7 +86,8 @@ class ClusterPlotter:
 
         # Plot cluster centers
         if show_centers and hasattr(self, 'cluster_centers') and self.cluster_centers is not None:
-            plt.scatter(self.cluster_centers[:, 1], self.cluster_centers[:, 0], c='black', marker='X', s=100, label='Cluster Centers')
+            plt.scatter(self.cluster_centers[:, 1], self.cluster_centers[:, 0],
+                        c='black', marker='X', s=100, label='Cluster Centers')
 
         # Enlarged labels and title
         label_fontsize = 14
@@ -89,16 +98,26 @@ class ClusterPlotter:
         plt.xlabel(r'$\Omega$ [°]', fontsize=label_fontsize)
         plt.ylabel(r'$i$ [°]', fontsize=label_fontsize)
         plt.ylim(0, 22)
-        plt.title(title, fontsize=title_fontsize)
+        #plt.title(title, fontsize=title_fontsize)
         plt.xticks(fontsize=tick_fontsize)
         plt.yticks(fontsize=tick_fontsize)
         plt.grid(True)
 
         # Enlarged legend
-        legend_elements = [Patch(facecolor=label_to_color[label], label=f"Cluster {i+1}") for i, label in enumerate(sorted_labels)]
+        legend_elements = [
+            Line2D([0], [0], marker='o', color='w',
+                markerfacecolor=label_to_color[label],
+                markersize=20, label=f"Cluster {i+1}")
+            for i, label in enumerate(sorted_labels)
+        ]
         if -1 in self.labels:
-            legend_elements.append(Patch(facecolor=(1, 0, 0, 1), label="Noise"))
-        plt.legend(handles=legend_elements, bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0., fontsize=legend_fontsize)
+            legend_elements.append(
+                Line2D([0], [0], marker='o', color='w',
+                    markerfacecolor=(1, 0, 0, 1),
+                    markersize=20, label="Noise")
+            )
+        plt.legend(handles=legend_elements, bbox_to_anchor=(1.05, 1),
+                loc='upper left', borderaxespad=0., fontsize=legend_fontsize)
 
         # Save or show
         if save_name is not None:
@@ -108,6 +127,7 @@ class ClusterPlotter:
             plt.close()
         else:
             plt.show()
+
 
 
     def clusters_3d_plot(self, title: str, save_name=None, color_scheme='Dark2', point_size=5, show_centers=True, feature_names=None, reverse_third_axis = False):

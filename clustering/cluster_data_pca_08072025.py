@@ -309,7 +309,7 @@ def bin_data_for_clustering(year_ranges: dict, print_res: bool = True):
 
     return results
 
-#def bin_observed_data(uncorr_obs_files: list, year_ranges: dict, print_res: bool = False):
+def bin_observed_data(uncorr_obs_files: list, year_ranges: dict, print_res: bool = False):
     results = []
 
     for year_range, years in year_ranges.items():
@@ -325,40 +325,66 @@ def bin_data_for_clustering(year_ranges: dict, print_res: bool = True):
 
         data = getdata.array_extender_obs(obs_files)
 
+        ecc     = np.array(data[10],  dtype=float) 
+        sem_maj = np.array(data[9], dtype=float ) 
         inc     = np.array(data[11], dtype=float)  
         raan    = np.array(data[12], dtype=float)  
         perigee = np.array(data[13],  dtype=float)  
-        ecc     = np.array(data[9],  dtype=float)  
-        mag     = np.array(data[20], dtype=float)  
+        true_lat = np.array(data[23], dtype=float)
+        mu = 3.986004418e14
+        mm = np.sqrt(mu/(sem_maj*1000)**3) #convert semi major from km to m
+        mm = mm/(2*np.pi)*86_400
+        mean_motion = np.array(mm, dtype=float)
+        mag     = np.array(data[7], dtype=float) 
+        diameter = np.zeros(len(mag))
 
         max_inc = 22
         valid_idx = np.where(inc < max_inc)[0]
-        inc     = inc[valid_idx]
+
+        # Apply filter
+        inc        = inc[valid_idx]
         inc[inc < 0] = 0
-        raan    = raan[valid_idx]
-        peigee = perigee[valid_idx]
-        ecc     = ecc[valid_idx]
-        mag     = mag[valid_idx]
+        raan       = raan[valid_idx]
+        perigee    = perigee[valid_idx]
+        ecc        = ecc[valid_idx]
+        mag        = mag[valid_idx]
+        true_lat   = true_lat[valid_idx]
+        mean_motion = mean_motion[valid_idx]
+        diameter   = diameter[valid_idx]
+        sem_maj = sem_maj[valid_idx]
 
+        # Sort by RAAN
         sorted_idx = np.argsort(raan)
-        inc     = inc[sorted_idx]
-        raan    = raan[sorted_idx]
-        perigee = perigee[sorted_idx]
-        ecc     = ecc[sorted_idx]
-        mag     = mag[sorted_idx]
+        inc        = inc[sorted_idx]
+        raan       = raan[sorted_idx]
+        perigee    = perigee[sorted_idx]
+        ecc        = ecc[sorted_idx]
+        mag        = mag[sorted_idx]
+        true_lat   = true_lat[sorted_idx]
+        mean_motion = mean_motion[sorted_idx]
+        mean_motion = [mm if mm < 10 else 0 for mm in mean_motion]
+        diameter   = diameter[sorted_idx]
+        sem_maj = sem_maj[sorted_idx]
 
+        # Adjust RAAN to [0, 360)
         raan = adjust_raan_range(raan)
 
+        # Store in results
         results.append((
             ClusterData(
+                ecc = ecc, 
+                sem_maj=sem_maj,
                 inc=inc,
                 raan=raan,
                 perigee=perigee,
-                ecc=ecc,
-                mag=mag
+                true_lat=true_lat,
+                mean_motion=mean_motion,
+                mag_obj=mag,
+                diameter=diameter
             ),
             year_range
         ))
+
 
     return results
 
