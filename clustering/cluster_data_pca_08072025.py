@@ -330,7 +330,7 @@ def bin_observed_data(uncorr_obs_files: list, year_ranges: dict, print_res: bool
         inc     = np.array(data[11], dtype=float)  
         raan    = np.array(data[12], dtype=float)  
         perigee = np.array(data[13],  dtype=float)  
-        true_lat = np.array(data[23], dtype=float)
+        true_lat = np.array(data[14], dtype=float)
         mu = 3.986004418e14
         mm = np.sqrt(mu/(sem_maj*1000)**3) #convert semi major from km to m
         mm = mm/(2*np.pi)*86_400
@@ -361,6 +361,7 @@ def bin_observed_data(uncorr_obs_files: list, year_ranges: dict, print_res: bool
         ecc        = ecc[sorted_idx]
         mag        = mag[sorted_idx]
         true_lat   = true_lat[sorted_idx]
+        true_lat = [ll if ll < 360 else 0 for ll in true_lat]
         mean_motion = mean_motion[sorted_idx]
         mean_motion = [mm if mm < 10 else 0 for mm in mean_motion]
         diameter   = diameter[sorted_idx]

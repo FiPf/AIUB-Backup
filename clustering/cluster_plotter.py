@@ -53,6 +53,8 @@ class ClusterPlotter:
         
         return new_file_path
 
+    from matplotlib.lines import Line2D
+
     def clusters_2d_plot(self, title: str, save_name=None, point_size=5, show_centers=True):
         plt.figure(figsize=(10, 7))
 
@@ -98,16 +100,15 @@ class ClusterPlotter:
         plt.xlabel(r'$\Omega$ [°]', fontsize=label_fontsize)
         plt.ylabel(r'$i$ [°]', fontsize=label_fontsize)
         plt.ylim(0, 22)
-        #plt.title(title, fontsize=title_fontsize)
         plt.xticks(fontsize=tick_fontsize)
         plt.yticks(fontsize=tick_fontsize)
         plt.grid(True)
 
-        # Enlarged legend
+        # --- Legend with only numbers and title "Cluster" ---
         legend_elements = [
             Line2D([0], [0], marker='o', color='w',
                 markerfacecolor=label_to_color[label],
-                markersize=20, label=f"Cluster {i+1}")
+                markersize=20, label=f"{i+1}")   # only number
             for i, label in enumerate(sorted_labels)
         ]
         if -1 in self.labels:
@@ -116,8 +117,9 @@ class ClusterPlotter:
                     markerfacecolor=(1, 0, 0, 1),
                     markersize=20, label="Noise")
             )
-        plt.legend(handles=legend_elements, bbox_to_anchor=(1.05, 1),
-                loc='upper left', borderaxespad=0., fontsize=legend_fontsize)
+        plt.legend(handles=legend_elements, title="Cluster",
+                bbox_to_anchor=(1.05, 1), loc='upper left',
+                borderaxespad=0., fontsize=legend_fontsize, title_fontsize=legend_fontsize)
 
         # Save or show
         if save_name is not None:
