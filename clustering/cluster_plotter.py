@@ -92,10 +92,10 @@ class ClusterPlotter:
                         c='black', marker='X', s=100, label='Cluster Centers')
 
         # Enlarged labels and title
-        label_fontsize = 14
+        label_fontsize = 20
         title_fontsize = 18
-        tick_fontsize = 15
-        legend_fontsize = 15
+        tick_fontsize = 16
+        legend_fontsize = 16
 
         plt.xlabel(r'$\Omega$ [°]', fontsize=label_fontsize)
         plt.ylabel(r'$i$ [°]', fontsize=label_fontsize)
