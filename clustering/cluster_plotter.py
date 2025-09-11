@@ -124,7 +124,7 @@ class ClusterPlotter:
         # Save or show
         if save_name is not None:
             unique_save_path = self.save_unique_plot(save_name, os.path.dirname(save_name))
-            plt.savefig(unique_save_path, dpi=300, bbox_inches='tight')
+            plt.savefig(unique_save_path, dpi=1000, bbox_inches='tight')
             print(f"Plot saved as: {unique_save_path}")
             plt.close()
         else:
