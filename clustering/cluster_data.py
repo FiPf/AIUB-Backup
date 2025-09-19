@@ -322,6 +322,7 @@ def bin_observed_data(uncorr_obs_files: list, year_ranges: dict, print_res: bool
         # Extract relevant parameters
         inc = np.array(data[11], dtype=float)
         raan = np.array(data[12], dtype=float)
+        mag = np.array(data[7], dtype=float)
 
         # Apply the same sorting as in sortdata.data_sorter
         max_inc = 22
@@ -329,11 +330,21 @@ def bin_observed_data(uncorr_obs_files: list, year_ranges: dict, print_res: bool
         inc = inc[valid_indices_inc]
         inc[inc < 0] = 0
         raan = raan[valid_indices_inc]
+        mag = mag[valid_indices_inc]
 
         # Sort by RAAN
         sorted_indices_raan = np.argsort(raan)
         inc = inc[sorted_indices_raan]
         raan = raan[sorted_indices_raan]
+        mag = mag[sorted_indices_raan]
+
+        """#Sort by Magnitude
+        min_mag = 14.5
+        max_mag = 19
+        valid_indices_mag = np.where((mag > min_mag) & (mag < max_mag))[0]
+        inc = inc[valid_indices_mag]
+        raan = raan[valid_indices_mag]
+        mag = mag[valid_indices_mag]"""
 
         raan = adjust_raan_range(raan)
 

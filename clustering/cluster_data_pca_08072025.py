@@ -361,11 +361,25 @@ def bin_observed_data(uncorr_obs_files: list, year_ranges: dict, print_res: bool
         ecc        = ecc[sorted_idx]
         mag        = mag[sorted_idx]
         true_lat   = true_lat[sorted_idx]
-        true_lat = [ll if ll < 360 else 0 for ll in true_lat]
+        true_lat = np.array([ll if ll < 360 else 0 for ll in true_lat], dtype=float)
         mean_motion = mean_motion[sorted_idx]
-        mean_motion = [mm if mm < 10 else 0 for mm in mean_motion]
+        mean_motion = np.array([mm if mm < 10 else 0 for mm in mean_motion], dtype=float)
         diameter   = diameter[sorted_idx]
         sem_maj = sem_maj[sorted_idx]
+
+        """#Sort by Magnitude
+        min_mag = 14.5
+        max_mag = 19
+        valid_indices_mag = np.where((mag > min_mag) & (mag < max_mag))[0]
+        inc = inc[valid_indices_mag]
+        raan = raan[valid_indices_mag]
+        perigee = perigee[valid_indices_mag]
+        ecc = ecc[valid_indices_mag]
+        mag = mag[valid_indices_mag]
+        true_lat = true_lat[valid_indices_mag]
+        mean_motion = mean_motion[valid_indices_mag]
+        diameter = diameter[valid_indices_mag]
+        sem_maj = sem_maj[valid_indices_mag]"""
 
         # Adjust RAAN to [0, 360)
         raan = adjust_raan_range(raan)
